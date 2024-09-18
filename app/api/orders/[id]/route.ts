@@ -1,6 +1,6 @@
 import { getUserAuth } from "@/lib/auth/utils";
 import { db } from "@/lib/db/index";
-import { Order } from "../types";
+import { CompleteOrder } from "@/prisma/zod";
 
 export async function GET(
   request: Request,
@@ -11,11 +11,31 @@ export async function GET(
 
   const id = Number(params.id);
 
-  const order = await db.order.findUnique({
-    where: { id }
-  })
+  const orderData = await db.order.findUnique({
+    where: { id },
+    include: {
+      products: {
+        include: {
+          product: true
+        }
+      }
+    }
+  });
 
-  return Response.json(order, { status: 200 });
+  if (orderData) {
+    const total = orderData.products.reduce((sum, orderProduct) => {
+      return sum + (orderProduct.quantity * orderProduct.product.price);
+    }, 0);
+
+    const order = {
+      ...orderData,
+      total
+    };
+
+    return Response.json(order, { status: 200 });
+  }
+
+  return Response.json(null, { status: 404 });
 }
 
 export async function PATCH(
@@ -27,14 +47,34 @@ export async function PATCH(
 
   const id = Number(params.id);
 
-  const body = (await request.json()) as Partial<Order>;
+  const body = (await request.json()) as Partial<CompleteOrder>;
 
   delete body.id;
+
+  const { client, user, ...updateData } = body;
+
+  const orderProducts = body.products;
+  
 
   const order = await db.order.update({
     where: { id },
     data: {
-      ...body
+      ...updateData,
+      updatedAt: new Date().toISOString(),
+      products: {
+        update: orderProducts?.map((product) => ({
+          where: { orderId_productId: {
+            orderId: product.orderId,
+            productId: product.productId
+          }},
+          data: {
+            quantity: product.quantity
+          }
+        }))
+      },
+    },
+    include: {
+      products: true
     }
   });
 

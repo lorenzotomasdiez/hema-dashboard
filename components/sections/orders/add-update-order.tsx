@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
@@ -14,15 +12,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { CreateOrderType, Order } from "@/app/api/orders/types";
+import { CreateOrderType, Order } from "@/types/order";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Client } from "@/app/api/clients/schema";
+import { Client } from "@/types/client";
 import { getClients } from "@/services/clients";
 import { createOrder, updateOrder } from "@/services/orders";
 import { toast } from "sonner";
+import { CompleteOrderProduct } from "@/prisma/zod";
+import { getProducts } from "@/services/products";
+import { Minus, Plus } from "lucide-react";
+import { Product } from "@/types";
 
 interface AddUpdateOrderProps {
-  order?: Order;
+  order?: Order & { products: CompleteOrderProduct[] };
   queryKey: (string | number)[];
   open: boolean;
   setOpen: (open: number | null) => void;
@@ -36,12 +38,16 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen }: AddUp
     queryFn: getClients
   })
 
+  const productsQuery = useQuery<Product[]>({
+    queryKey: ["products"],
+    queryFn: getProducts
+  })
+
   const addOrderMutation = useMutation({
+    mutationKey: ["addOrder"],
     mutationFn: (orderData: CreateOrderType) => createOrder({
       ...orderData,
-      quantity: Number(orderData.quantity)
     }),
-    mutationKey: ["addOrder"],
     onMutate: async (orderData: CreateOrderType) => {
       await queryClient.cancelQueries({ queryKey: queryKey });
       const previousOrders = queryClient.getQueryData(queryKey);
@@ -55,11 +61,16 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen }: AddUp
   })
 
   const updateOrderMutation = useMutation({
+    mutationKey: ["updateOrder"],
     mutationFn: (orderData: Order) => updateOrder(orderData.id, {
       ...orderData,
-      quantity: Number(orderData.quantity)
     }),
-    mutationKey: ["updateOrder"],
+    onMutate: async (orderData: Order) => {
+      await queryClient.cancelQueries({ queryKey: queryKey });
+      const previousOrders = queryClient.getQueryData(queryKey);
+      queryClient.setQueryData(queryKey, (old: Order[]) => old.map(o => o.id === orderData.id ? orderData : o));
+      return { previousOrders }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       toast.success("Pedido actualizado correctamente!");
@@ -81,18 +92,17 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen }: AddUp
     defaultValues: {
       clientId: order?.clientId || undefined,
       deliveredAt: order?.deliveredAt || undefined,
-      quantity: order?.quantity || 0,
-      type: order?.type || "KG3",
-      status: order?.status || "PENDING"
+      status: order?.status || "PENDING",
+      products: order?.products || []
     }
   })
+
+  console.log(order);
 
   const onSubmit = async (data: CreateOrderType) => {
     setOpen(null);
     if (order) {
-      console.log(order, data);
       updateOrderMutation.mutateAsync({ ...order, ...data }).then(() => {
-        reset();
       });
     } else {
       addOrderMutation.mutateAsync(data).then((res) => {
@@ -105,6 +115,42 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen }: AddUp
       });
     }
   }
+
+  const handleAddProduct = (productId: number) => {
+    if(productId === 0) return;
+    const products = watch('products');
+    setValue('products', [...products, { productId, quantity: 1 }]);
+  }
+
+  const handleRemoveProduct = (productId: number) => {
+    const products = watch('products');
+    setValue('products', products.filter(p => p.productId !== productId));
+  }
+
+  const handleDecreaseQuantity = (productId: number) => {
+    const products = watch('products');
+    const product = products.find(p => p.productId === productId);
+    if(product?.quantity === 1) {
+      handleRemoveProduct(productId);
+      return;
+    }
+    setValue('products', products.map(p => p.productId === productId ? { ...p, quantity: p.quantity - 1 } : p));
+  }
+
+  const handleIncreaseQuantity = (productId: number) => {
+    const products = watch('products');
+    const product = productsQuery?.data?.find(p => p.id === productId);
+    const currentQuantity = products.find(p => p.productId === productId)?.quantity ?? 0;
+    if((product?.stock === 0) || (product?.stock && product?.stock < currentQuantity)) {
+      toast.error("No hay suficiente stock del producto");
+      return;
+    }
+    setValue('products', products.map(p => p.productId === productId ? { ...p, quantity: p.quantity + 1 } : p));
+  }
+  const productsToShow = productsQuery.data && productsQuery.data.filter(
+    (p) => !watch('products').map(e => e.productId).includes(p.id)
+  );
+
 
   return (
     <Dialog open={!!open} onOpenChange={(e) => setOpen(!!e ? (order?.id || 0) : null)}>
@@ -124,35 +170,50 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen }: AddUp
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="type" className="text-right">
-                Tipo
+                Productos
               </Label>
               <Select
-                name="type"
-                value={watch('type')}
+                value="0"
                 onValueChange={
-                  (e: CreateOrderType['type']) => setValue('type', e)
+                  (e: string) =>  handleAddProduct(Number(e))
                 }
+                disabled={!productsToShow || productsToShow.length === 0}
               >
                 <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder={
+                    (!productsToShow || productsToShow.length === 0) ? "No hay productos" : "Selecciona un producto"
+                  } />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="KG3">3KG</SelectItem>
-                  <SelectItem value="KG5">5KG</SelectItem>
-                  <SelectItem value="KG10">10KG</SelectItem>
+                  <SelectItem value="0">Seleccione un producto</SelectItem>
+                  {
+                    productsToShow && productsToShow.length > 0 && productsToShow.map((product) => (
+                      <SelectItem value={product.id.toString()} key={product.id}>
+                        {product.name}
+                      </SelectItem> 
+                    ))
+                  }
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="quantity" className="text-right">
-                Cantidad
-              </Label>
-              <Input
-                type="number"
-                id="quantity"
-                className="col-span-3"
-                {...register("quantity")}
-              />
+            <div className="flex flex-col gap-3">
+              {
+                watch('products').map((p) => (
+                  <div key={p.productId} className="flex items-center gap-2 justify-between border p-2 rounded-md">
+                    <span>{productsQuery.data?.find(e => e.id === p.productId)?.name}</span>
+                    <div className="flex items-center gap-2">
+                      <Button variant={"ghost"} size={"icon"} onClick={() => handleDecreaseQuantity(p.productId)} type="button">
+                        <Minus />
+                      </Button>
+                      <span>{p.quantity}</span>
+                      <Button variant={"ghost"} size={"icon"} onClick={() => handleIncreaseQuantity(p.productId)} type="button">
+                        <Plus />
+                      </Button>
+                    </div>
+                    <Button onClick={() => handleRemoveProduct(p.productId)} type="button">Eliminar</Button>
+                  </div>
+                ))
+              }
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="clientId" className="text-right">

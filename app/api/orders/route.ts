@@ -1,8 +1,9 @@
 import { getUserAuth } from "@/lib/auth/utils";
 import { db } from "@/lib/db/index";
 import { OrderStatus } from "@prisma/client"
-import { createOrderSchema, CreateOrderType } from "./types";
 import { NextRequest } from "next/server";
+import { createOrderSchema } from "@/dto/order/create-order.dto";
+import { CreateOrderType } from "@/types";
 
 export async function GET(request: NextRequest) {
   const { session } = await getUserAuth();
@@ -22,7 +23,10 @@ export async function GET(request: NextRequest) {
       {
         createdAt: "desc"
       }
-    ]
+    ],
+    include: {
+      products: true
+    }
   });
 
   return new Response(JSON.stringify(orders));
@@ -40,16 +44,23 @@ export async function POST(request: Request) {
     return new Response(JSON.stringify(newOrderDTO.error), { status: 422 });
   }
 
-  const { quantity, status, type, clientId, deliveredAt } = newOrderDTO.data;
+  const { status, products, clientId, deliveredAt } = newOrderDTO.data;
 
   const order = await db.order.create({
     data: {
-      quantity,
-      type,
       clientId,
       userId: session.user.id,
       status,
-      deliveredAt
+      deliveredAt,
+      products: {
+        create: products.map(product => ({
+          product: { connect: { id: product.productId } },
+          quantity: product.quantity
+        }))
+      }
+    },
+    include: {
+      products: true
     }
   });
 

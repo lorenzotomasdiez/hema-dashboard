@@ -1,8 +1,7 @@
+import { DashboardMain } from "@/components/sections";
 
-import { DashboardTable } from "@/components/sections";
-
-export default async function Home() {
-  return (
-    <DashboardTable />
-  );
+export default function DashboardPage() {
+    return (
+        <DashboardMain />
+    )
 }

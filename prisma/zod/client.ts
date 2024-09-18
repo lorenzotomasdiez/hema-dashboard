@@ -4,6 +4,8 @@ import { CompleteOrder, relatedOrderSchema } from "./index"
 export const clientSchema = z.object({
   id: z.string(),
   name: z.string(),
+  phone: z.string().nullish(),
+  address: z.string().nullish(),
   createdAt: z.date(),
 })
 

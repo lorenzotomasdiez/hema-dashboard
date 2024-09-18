@@ -19,17 +19,18 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useQuery } from "@tanstack/react-query";
-import { GetOrdersParams, Order } from "@/app/api/orders/types";
+import { GetOrdersParams, Order } from "@/types/order";
 import AddUpdateOrder from "./add-update-order";
 import { getOrders } from "@/services/orders";
-import { Client } from "@/app/api/clients/schema";
+import { Client } from "@/types/client";
 import { getClients } from "@/services/clients";
 import { OrderStatus } from "@prisma/client"
 import TableRowSkeleton from "./order-table-row-skeleton";
 import OrderTableRow from "./order-table-row";
+import { CompleteOrderProduct } from "@/prisma/zod";
 
 
-export default function DashboardTable() {
+export default function OrdersTable() {
   const [openDetails, setOpenDetails] = React.useState<number | null>(null);
 
   const [params, setParams] = React.useState<GetOrdersParams>({
@@ -38,7 +39,7 @@ export default function DashboardTable() {
     status: "ALL"
   });
 
-  const ordersQuery = useQuery<Order[]>({
+  const ordersQuery = useQuery<(Order & {products:CompleteOrderProduct[]})[]>({
     queryKey: ["orders", params.page, params.status],
     queryFn: () => getOrders(params),
   })
@@ -70,7 +71,7 @@ export default function DashboardTable() {
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
         <CardTitle className="text-2xl font-bold">Pedidos</CardTitle>
         <div className="flex items-center justify-end gap-3">
@@ -104,11 +105,9 @@ export default function DashboardTable() {
             <TableHeader>
               <TableRow>
                 <TableHead>Creada</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Cantidad</TableHead>
                 <TableHead>Cliente</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -125,7 +124,6 @@ export default function DashboardTable() {
                       order={order}
                       handleOpenDetails={handleOpenDetails}
                       client={client}
-                      queryKey={["orders", params.page, params.status]}
                     />
                     <AddUpdateOrder order={order} queryKey={["orders", params.page, params.status]} open={openDetails === order.id} setOpen={setOpenDetails} />
                   </React.Fragment>

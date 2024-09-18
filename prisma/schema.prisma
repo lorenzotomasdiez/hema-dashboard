@@ -70,14 +70,14 @@ model VerificationToken {
 model Client {
   id        String   @id @default(cuid())
   name      String
+  phone     String?
+  address   String?
   createdAt DateTime @default(now())
   Order     Order[]
 }
 
 model Order {
   id          Int         @id @default(autoincrement())
-  type        OrderType
-  quantity    Int
   client      Client      @relation(fields: [clientId], references: [id])
   user        User        @relation(fields: [userId], references: [id])
   status      OrderStatus @default(PENDING)
@@ -86,12 +86,27 @@ model Order {
   updatedAt   DateTime    @default(now())
   clientId    String
   userId      String
+  products    OrderProduct[]
 }
 
-enum OrderType {
-  KG3
-  KG5
-  KG10
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  stock       Int
+  slug        String   @unique
+  price       Int
+  orders      OrderProduct[]
+}
+
+model OrderProduct {
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+  orderId   Int
+  productId Int
+  quantity  Int
+
+  @@id([orderId, productId])
 }
 
 enum OrderStatus {

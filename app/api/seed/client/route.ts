@@ -9,7 +9,9 @@ export async function GET() {
   for (let i in names) {
     await db.client.create({
       data: {
-        name: names[i]
+        name: names[i],
+        phone: "081234567890",
+        address: "Jl. Imam Bonjol",
       }
     })
   }
