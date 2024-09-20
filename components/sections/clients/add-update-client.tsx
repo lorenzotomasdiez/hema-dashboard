@@ -16,10 +16,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Client, CreateClientType } from "@/types/client";
 import { createClient, updateClient } from "@/services/clients";
 import { Input } from "@/components/ui/input";
+import { QUERY_KEYS } from "@/lib/tanstack";
 
 interface AddUpdateClientProps {
   client?: Client & { ordersTotal: number };
-  queryKey: (string | number)[];
+  queryKey: readonly string[];
   open: boolean;
   setOpen: (open: string | null) => void;
 }
@@ -33,7 +34,7 @@ export default function AddUpdateClient({ client, queryKey, open, setOpen }: Add
     onMutate: async (clientData: CreateClientType) => {
       await queryClient.cancelQueries({ queryKey: queryKey });
       const previousClients = queryClient.getQueryData(queryKey);
-      queryClient.setQueryData(queryKey, (old: CreateClientType[]) => [{ ...clientData, ordersTotal: 0}, ...old]);
+      queryClient.setQueryData(queryKey, (old: CreateClientType[]) => [{ ...clientData, ordersTotal: 0, id: new Date().getTime().toString() }, ...old]);
       return { previousClients }
     },
     onSuccess: () => {
@@ -42,6 +43,9 @@ export default function AddUpdateClient({ client, queryKey, open, setOpen }: Add
     onError: (err, _client, context) => {
       queryClient.setQueryData(queryKey, context?.previousClients)
       toast.error("Error al agregar el cliente");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.clients.full });
     }
   })
 

@@ -25,3 +25,25 @@ export async function PATCH(
 
   return Response.json(product, { status: 200 });
 }
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const { session } = await getUserAuth();
+  if (!session) return new Response("Error", { status: 400 });
+
+  const id = Number(params.id);
+
+  await db.orderProduct.deleteMany({
+    where: {
+      productId: id
+    }
+  });
+
+  await db.product.delete({
+    where: { id },
+  });
+
+  return Response.json({ message: "Producto eliminado correctamente" }, { status: 200 });
+}

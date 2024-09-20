@@ -20,6 +20,7 @@ import { OrdersTable } from "../orders"
 import { useQuery } from "@tanstack/react-query"
 import { getDashboardSummary } from "@/services/dashboard"
 import HemaLogo from "@/components/HemaLogo"
+import { QUERY_KEYS } from "@/lib/tanstack"
 
 ChartJS.register(
   CategoryScale,
@@ -33,8 +34,9 @@ ChartJS.register(
 
 export function DashboardMain() {
   const { data, isLoading } = useQuery<DashboardSummaryData>({
-    queryKey: ["dashboard-summary"],
+    queryKey: QUERY_KEYS.dashboard.summary,
     queryFn: getDashboardSummary,
+    staleTime: 1000 * 60
   })
 
   const chartOptions = {

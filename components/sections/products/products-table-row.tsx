@@ -11,8 +11,14 @@ import { moneyMask } from "@/lib/utils";
 interface Props {
   product: Product;
   handleOpenDetails: (id: number) => void;
+  handleOpenDeleteConfirmation: (id: number) => void;
 }
-export default function ProductsTableRow({ product, handleOpenDetails }: Props) {
+export default function ProductsTableRow({ product, handleOpenDetails, handleOpenDeleteConfirmation }: Props) {
+
+  const handleClickOpenDelete = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    handleOpenDeleteConfirmation(product.id);
+  }
   return (
     <TableRow className="hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleOpenDetails(product.id)}>
       <TableCell className="font-bold">{product.name}</TableCell>
@@ -30,7 +36,7 @@ export default function ProductsTableRow({ product, handleOpenDetails }: Props) 
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => handleOpenDetails(product.id)}>Ver Detalles</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600">Eliminar</DropdownMenuItem>
+            <DropdownMenuItem className="text-red-600" onClick={handleClickOpenDelete}>Eliminar</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>

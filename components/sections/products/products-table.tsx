@@ -16,19 +16,25 @@ import ProductsTableRow from "./products-table-row";
 import AddUpdateProduct from "./add-update-product";
 import { Product } from "@/types";
 import { getProducts } from "@/services/products";
+import { QUERY_KEYS } from "@/lib/tanstack";
+import ProductsDeleteConfirmation from "./products-delete-confirmation";
 
 
 export default function ProductsTable() {
   const [openDetails, setOpenDetails] = React.useState<number | null>(null);
-  const queryKey = ["products"];
-  
+  const [openDeleteConfirmation, setOpenDeleteConfirmation] = React.useState<number | null>(null);
   const products = useQuery<Product[]>({
-    queryKey: queryKey,
-    queryFn: getProducts
+    queryKey: QUERY_KEYS.products.root,
+    queryFn: getProducts,
+    staleTime: 999 * 60
   })
 
   const handleOpenDetails = (id: number) => {
     setOpenDetails(id);
+  }
+
+  const handleOpenDeleteConfirmation = (id: number) => {
+    setOpenDeleteConfirmation(id);
   }
 
   return (
@@ -37,7 +43,7 @@ export default function ProductsTable() {
         <CardTitle className="text-2xl font-bold">Productos</CardTitle>
         <div className="flex items-center justify-end gap-3">
           {products.isFetching && <Loader2 className="animate-spin" />}
-          <AddUpdateProduct queryKey={queryKey} open={openDetails === 0} setOpen={setOpenDetails} />
+          <AddUpdateProduct queryKey={QUERY_KEYS.products.root} open={openDetails === 0} setOpen={setOpenDetails} />
         </div>
       </CardHeader>
       <CardContent>
@@ -73,11 +79,12 @@ export default function ProductsTable() {
                       key={product.id}
                       product={product}
                       handleOpenDetails={handleOpenDetails}
+                      handleOpenDeleteConfirmation={handleOpenDeleteConfirmation}
                     />
                     {
                       openDetails === product.id && (
                         <AddUpdateProduct 
-                          queryKey={queryKey} 
+                          queryKey={QUERY_KEYS.products.root} 
                           open={openDetails === product.id} 
                           setOpen={setOpenDetails} 
                           product={product}
@@ -90,6 +97,11 @@ export default function ProductsTable() {
           </Table>
         </div>
       </CardContent>
+      <ProductsDeleteConfirmation
+        productId={openDeleteConfirmation}
+        setOpen={setOpenDeleteConfirmation}
+        queryKey={QUERY_KEYS.products.root}
+      />
     </Card>
   )
 }

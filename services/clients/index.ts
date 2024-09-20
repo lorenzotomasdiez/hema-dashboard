@@ -30,3 +30,11 @@ export const updateClient = async (id: string, clientData: Partial<Client>) => {
   const data = await res.json();
   return data;
 }
+
+export const deleteClient = async (id: string) => {
+  const res = await fetch(API_ROUTES.clients.id(id), {
+    method: "DELETE"
+  });
+  const data = await res.json();
+  return data;
+}

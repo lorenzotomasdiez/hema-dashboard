@@ -7,6 +7,7 @@ export type GetOrdersParams = {
   page: number;
   per_page: number;
   status: OrderStatus | "ALL";
+  keyword?: string;
 }
 
 export type Order = z.infer<typeof orderSchema>;

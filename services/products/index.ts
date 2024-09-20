@@ -17,9 +17,17 @@ export async function createProduct(product: CreateProductType) {
 }
 
 export async function updateProduct(id: number, product: Partial<Product>) {
-  const res = await fetch(`${API_ROUTES.products.root}/${id}`, {
+  const res = await fetch(API_ROUTES.products.id(id), {
     method: "PATCH",
     body: JSON.stringify(product),
+  });
+  const data = await res.json();
+  return data;
+}
+
+export async function deleteProduct(id: number) {
+  const res = await fetch(API_ROUTES.products.id(id), {
+    method: "DELETE",
   });
   const data = await res.json();
   return data;

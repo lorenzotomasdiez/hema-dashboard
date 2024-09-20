@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { CreateOrderType, Order } from "@/types/order";
+import { CreateOrderType, GetOrdersParams, Order } from "@/types/order";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Client } from "@/types/client";
 import { getClients } from "@/services/clients";
@@ -25,7 +25,7 @@ import { Product } from "@/types";
 
 interface AddUpdateOrderProps {
   order?: Order & { products: CompleteOrderProduct[] };
-  queryKey: (string | number)[];
+  queryKey: readonly ["orders", { readonly state: GetOrdersParams }];
   open: boolean;
   setOpen: (open: number | null) => void;
 }
@@ -82,7 +82,6 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen }: AddUp
   })
 
   const {
-    register,
     handleSubmit,
     watch,
     formState: { isSubmitting },
@@ -97,8 +96,6 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen }: AddUp
     }
   })
 
-  console.log(order);
-
   const onSubmit = async (data: CreateOrderType) => {
     setOpen(null);
     if (order) {
@@ -111,9 +108,9 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen }: AddUp
           return;
         }
         toast.success("Pedido creado correctamente!");
-        reset();
       });
     }
+    reset();
   }
 
   const handleAddProduct = (productId: number) => {

@@ -13,21 +13,28 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useQuery } from "@tanstack/react-query";
 import { Client } from "@/types/client";
 import { getClientsFull } from "@/services/clients";
+import { QUERY_KEYS } from "@/lib/tanstack";
 import ClientsTableRowSkeleton from "./clients-table-row-skeleton";
-import ClientsTableRow from "./clients-table-row";
 import AddUpdateClient from "./add-update-client";
+import ClientsTableRow from "./clients-table-row";
+import ClientsDeleteConfirmation from "./clients-delete-confirmation";
 
 
 export default function ClientsTable() {
   const [openDetails, setOpenDetails] = React.useState<string | null>(null);
-  const queryKey = ["clients"];
+  const [openDeleteConfirmation, setOpenDeleteConfirmation] = React.useState<string | null>(null);
   const clients = useQuery<(Client & {ordersTotal: number})[]>({
-    queryKey: queryKey,
-    queryFn: getClientsFull
+    queryKey: QUERY_KEYS.clients.full,
+    queryFn: getClientsFull,
+    staleTime: 999 * 60
   })
 
   const handleOpenDetails = (id: string) => {
     setOpenDetails(id);
+  }
+
+  const handleOpenDeleteConfirmation = (id: string) => {
+    setOpenDeleteConfirmation(id);
   }
 
   return (
@@ -36,7 +43,7 @@ export default function ClientsTable() {
         <CardTitle className="text-2xl font-bold">Clientes</CardTitle>
         <div className="flex items-center justify-end gap-3">
           {clients.isFetching && <Loader2 className="animate-spin" />}
-          <AddUpdateClient queryKey={queryKey} open={openDetails === "new"} setOpen={setOpenDetails} />
+          <AddUpdateClient queryKey={QUERY_KEYS.clients.full} open={openDetails === "new"} setOpen={setOpenDetails} />
         </div>
       </CardHeader>
       <CardContent>
@@ -73,11 +80,12 @@ export default function ClientsTable() {
                       key={client.id}
                       client={client}
                       handleOpenDetails={handleOpenDetails}
+                      handleOpenDeleteConfirmation={handleOpenDeleteConfirmation}
                     />
                     {
                       openDetails === client.id && (
                         <AddUpdateClient 
-                          queryKey={queryKey} 
+                          queryKey={QUERY_KEYS.clients.full} 
                           open={openDetails === client.id} 
                           setOpen={setOpenDetails} 
                           client={client}
@@ -90,6 +98,11 @@ export default function ClientsTable() {
           </Table>
         </div>
       </CardContent>
+      <ClientsDeleteConfirmation
+        clientId={openDeleteConfirmation}
+        setOpen={setOpenDeleteConfirmation}
+        queryKey={QUERY_KEYS.clients.full}
+      />
     </Card>
   )
 }

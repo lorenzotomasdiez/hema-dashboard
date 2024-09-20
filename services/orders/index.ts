@@ -1,4 +1,4 @@
-import { CreateOrderType, GetOrdersParams, Order } from "@/app/api/orders/types";
+import { CreateOrderType, GetOrdersParams, Order } from "@/types";
 import { API_ROUTES } from "@/lib/api/routes";
 
 export const getOrders = async (params?: GetOrdersParams) => {
@@ -33,6 +33,14 @@ export const updateOrder = async (id: number, body: Partial<Order>) => {
 
 export const getOrderById = async (id: number) => {
   const res = await fetch(API_ROUTES.orders.id(id));
+  const data = await res.json();
+  return { success: res.ok, ...data };
+}
+
+export const deleteOrder = async (id: number) => {
+  const res = await fetch(API_ROUTES.orders.id(id), {
+    method: "DELETE",
+  });
   const data = await res.json();
   return { success: res.ok, ...data };
 }

@@ -10,8 +10,13 @@ import { TableCell, TableRow } from "@/components/ui/table";
 interface Props {
   client: Client & { ordersTotal: number };
   handleOpenDetails: (id: string) => void;
+  handleOpenDeleteConfirmation: (id: string) => void;
 }
-export default function ClientsTableRow({ client, handleOpenDetails }: Props) {
+export default function ClientsTableRow({ client, handleOpenDetails, handleOpenDeleteConfirmation }: Props) {
+  const handleClickOpenDelete = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    handleOpenDeleteConfirmation(client.id);
+  }
   return (
     <TableRow className="hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleOpenDetails(client.id)}>
       <TableCell className="font-bold">{client.name}</TableCell>
@@ -30,7 +35,7 @@ export default function ClientsTableRow({ client, handleOpenDetails }: Props) {
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => handleOpenDetails(client.id)}>Ver Detalles</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600">Eliminar</DropdownMenuItem>
+            <DropdownMenuItem className="text-red-600" onClick={handleClickOpenDelete}>Eliminar</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>

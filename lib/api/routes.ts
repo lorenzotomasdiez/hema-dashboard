@@ -6,10 +6,11 @@ export const API_ROUTES = {
   clients: {
     root: "/api/clients",
     full: "/api/clients/full",
-    id: (id: number) => `/api/clients/${id}`
+    id: (id: string) => `/api/clients/${id}`
   },
   products: {
-    root: "/api/products"
+    root: "/api/products",
+    id: (id: number) => `/api/products/${id}`
   },
   dashboard: {
     summary: "/api/dashboard/summary"

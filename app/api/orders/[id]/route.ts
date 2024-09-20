@@ -54,7 +54,6 @@ export async function PATCH(
   const { client, user, ...updateData } = body;
 
   const orderProducts = body.products;
-  
 
   const order = await db.order.update({
     where: { id },
@@ -62,15 +61,27 @@ export async function PATCH(
       ...updateData,
       updatedAt: new Date().toISOString(),
       products: {
-        update: orderProducts?.map((product) => ({
-          where: { orderId_productId: {
-            orderId: product.orderId,
-            productId: product.productId
-          }},
-          data: {
+        deleteMany: {
+          orderId: id,
+          productId: {
+            notIn: orderProducts?.map(p => p.productId) ?? []
+          }
+        },
+        upsert: orderProducts?.map((product) => ({
+          where: {
+            orderId_productId: {
+              orderId: id,
+              productId: product.productId
+            }
+          },
+          create: {
+            productId: product.productId,
+            quantity: product.quantity
+          },
+          update: {
             quantity: product.quantity
           }
-        }))
+        })) ?? []
       },
     },
     include: {
@@ -79,4 +90,26 @@ export async function PATCH(
   });
 
   return Response.json(order, { status: 200 });
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const { session } = await getUserAuth();
+  if (!session) return new Response("Error", { status: 401 });
+
+  const id = Number(params.id);
+
+  // Primero, eliminamos los registros relacionados en OrderProduct
+  await db.orderProduct.deleteMany({
+    where: { orderId: id }
+  });
+
+  // Luego, eliminamos la orden
+  await db.order.delete({
+    where: { id }
+  });
+
+  return Response.json({ success: true }, { status: 200 });
 }

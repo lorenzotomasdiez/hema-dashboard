@@ -1,25 +1,28 @@
 "use client";
 
-import { toast } from "sonner";
 import { format } from "date-fns";
-import { Loader2, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { OrderStatus } from "@prisma/client"
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Order } from "@/types";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { updateOrder } from "@/services/orders";
+import { useMutation } from "@tanstack/react-query";
 
 interface Props {
   order: Order;
   handleOpenDetails: (id: number) => void;
   client: (cuid: string) => string
+  handleDeleteOrder: (id: number) => void;
 }
 
-export default function OrderTableRow({ order, handleOpenDetails, client }: Props) {
+export default function OrderTableRow({ order, handleOpenDetails, client, handleDeleteOrder }: Props) {
+  const handleClickDelete = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    handleDeleteOrder(order.id);
+  }
   return (
     <TableRow className="hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleOpenDetails(order.id)}>
       <TableCell className="font-bold">{order.createdAt && format(new Date(order.createdAt.toString()), 'dd/MM')}</TableCell>
@@ -46,9 +49,8 @@ export default function OrderTableRow({ order, handleOpenDetails, client }: Prop
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => handleOpenDetails(order.id)}>Ver Detalles</DropdownMenuItem>
-            <DropdownMenuItem>Actualizar Estado</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600">Eliminar</DropdownMenuItem>
+            <DropdownMenuItem className="text-red-600" onClick={handleClickDelete}>Eliminar</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>

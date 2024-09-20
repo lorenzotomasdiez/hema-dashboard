@@ -18,10 +18,11 @@ import { createProduct, updateProduct } from "@/services/products";
 import { Input } from "@/components/ui/input";
 import { generateSlug } from "@/lib/api/routes";
 import { useEffect } from "react";
+import { QUERY_KEYS } from "@/lib/tanstack";
 
 interface AddUpdateClientProps {
   product?: Product;
-  queryKey: (string | number)[];
+  queryKey: readonly string[];
   open: boolean;
   setOpen: (open: number | null) => void;
 }
@@ -39,7 +40,7 @@ export default function AddUpdateProduct({ product, queryKey, open, setOpen }: A
     onMutate: async (productData: CreateProductType) => {
       await queryClient.cancelQueries({ queryKey: queryKey });
       const previousProducts = queryClient.getQueryData(queryKey);
-      queryClient.setQueryData(queryKey, (old: CreateProductType[]) => [{ ...productData, ordersTotal: 0}, ...old]);
+      queryClient.setQueryData(queryKey, (old: CreateProductType[]) => [{ ...productData, ordersTotal: 0, id: new Date().getTime() }, ...old]);
       return { previousProducts }
     },
     onSuccess: () => {
@@ -48,6 +49,9 @@ export default function AddUpdateProduct({ product, queryKey, open, setOpen }: A
     onError: (err, _client, context) => {
       queryClient.setQueryData(queryKey, context?.previousProducts)
       toast.error("Error al agregar el producto");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.products.root });
     }
   })
 
@@ -107,9 +111,9 @@ export default function AddUpdateProduct({ product, queryKey, open, setOpen }: A
           return;
         }
         toast.success("Producto creado correctamente!");
-        reset();
       });
     }
+    reset();
   }
 
   return (

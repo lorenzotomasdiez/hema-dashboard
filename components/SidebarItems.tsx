@@ -7,11 +7,17 @@ import { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { defaultLinks, additionalLinks } from "@/config/nav";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface SidebarLink {
   title: string;
   href: string;
   icon: LucideIcon;
+  prefetchData?: {
+    queryKey: readonly unknown[];
+    queryFn: () => Promise<any>;
+    staleTime: number;
+  }[];
 }
 
 const SidebarItems = () => {
@@ -62,19 +68,26 @@ const SidebarLinkGroup = ({
     </div>
   );
 };
-const SidebarLink = ({
-  link,
-  active,
-}: {
-  link: SidebarLink;
-  active: boolean;
-}) => {
+const SidebarLink = ({ link, active }: { link: SidebarLink; active: boolean }) => {
+  const queryClient = useQueryClient();
+  const prefetchQuery = async () => {
+    if (link.prefetchData && link.prefetchData.length > 0) {
+      link.prefetchData.forEach(prefetch => {
+        queryClient.prefetchQuery({
+          queryKey: prefetch.queryKey,
+          queryFn: prefetch.queryFn,
+          staleTime: prefetch.staleTime,
+        });
+      });
+    }
+  };
   return (
     <Link
       href={link.href}
       className={`group transition-colors p-2 inline-block hover:bg-popover hover:text-primary text-muted-foreground text-xs hover:shadow rounded-md w-full${
         active ? " text-primary font-semibold" : ""
       }`}
+      onMouseEnter={prefetchQuery}
     >
       <div className="flex items-center">
         <div
