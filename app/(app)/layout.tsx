@@ -4,6 +4,14 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import NextAuthProvider from "@/lib/auth/Provider";
 import TanstackProvider from "@/lib/tanstack-provider";
+import { Viewport } from "next";
+
+export const viewport: Viewport = {
+  initialScale: 1,
+  width: 'device-width',
+  maximumScale: 1,
+  viewportFit: 'cover',
+};
 
 export default async function AppLayout({
   children,
