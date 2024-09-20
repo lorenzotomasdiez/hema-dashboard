@@ -52,6 +52,7 @@ export default function AddUpdateProduct({ product, queryKey, open, setOpen }: A
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.products.root });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.summary });
     }
   })
 
@@ -75,6 +76,10 @@ export default function AddUpdateProduct({ product, queryKey, open, setOpen }: A
     onError: (err) => {
       console.error(err);
       toast.error("Error al actualizar el producto");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.products.root });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.summary });
     }
   })
 

@@ -22,6 +22,7 @@ import { CompleteOrderProduct } from "@/prisma/zod";
 import { getProducts } from "@/services/products";
 import { Minus, Plus } from "lucide-react";
 import { Product } from "@/types";
+import { QUERY_KEYS } from "@/lib/tanstack";
 
 interface AddUpdateOrderProps {
   order?: Order & { products: CompleteOrderProduct[] };
@@ -57,6 +58,9 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen }: AddUp
     onError: (err, _order, context) => {
       console.error(err);
       queryClient.setQueryData(queryKey, context?.previousOrders)
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.summary });
     }
   })
 
@@ -78,6 +82,10 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen }: AddUp
     onError: (err) => {
       console.error(err);
       toast.error("Error al actualizar el pedido");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.summary });
     }
   })
 
