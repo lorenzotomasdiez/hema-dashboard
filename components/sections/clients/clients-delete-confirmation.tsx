@@ -55,7 +55,7 @@ export default function ClientsDeleteConfirmation({ clientId, setOpen, queryKey 
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="flex flex-col space-y-2">
-            <p className="text-sm font-medium leading-none">Para confirmar, escriba <span className="font-bold text-destructive">"OK"</span> en el campo de abajo</p>
+            <p className="text-sm font-medium leading-none">Para confirmar, escriba <span className="font-bold text-destructive">&quot;OK&quot;</span> en el campo de abajo</p>
             <Input
               type="text"
               value={inputValue}
