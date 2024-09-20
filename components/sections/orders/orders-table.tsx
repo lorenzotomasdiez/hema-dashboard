@@ -79,11 +79,11 @@ export default function OrdersTable() {
       <CardContent>
         <div className="flex items-center justify-between mb-6">
           <div className="relative w-72">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            {/* <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar pedido..."
               className="pl-8"
-            />
+            /> */}
           </div>
           <Select value={status} onValueChange={(v) => handleStatus(v as (OrderStatus | "ALL"))}>
             <SelectTrigger className="w-[180px]">
