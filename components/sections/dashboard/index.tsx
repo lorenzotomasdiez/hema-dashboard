@@ -3,7 +3,7 @@
 import React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart3, ShoppingCart, Users } from "lucide-react"
-
+import { OrderStatus } from "@prisma/client"
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,7 +15,7 @@ import {
 } from "chart.js"
 import { Bar } from "react-chartjs-2"
 import { DashboardSummaryData } from "@/types"
-import { generateDashboardPalette, moneyMask } from "@/lib/utils"
+import { generateDashboardPalette, moneyMask, statusToSpanish } from "@/lib/utils"
 import { OrdersTable } from "../orders"
 import { useQuery } from "@tanstack/react-query"
 import { getDashboardSummary } from "@/services/dashboard"
@@ -83,7 +83,7 @@ export function DashboardMain() {
   }
 
   const orderStatusData = {
-    labels: Object.keys(data?.orderStatus || {}).map(key => key.charAt(0).toUpperCase() + key.slice(1)),
+    labels: Object.keys(data?.orderStatus || {}).map(key => statusToSpanish(key.toUpperCase() as OrderStatus)),
     datasets: [
       {
         label: "Número de Pedidos",
@@ -101,8 +101,8 @@ export function DashboardMain() {
       {
         label: "Unidades Vendidas",
         data: data?.topProducts?.map(product => product.sales) || [],
-        backgroundColor: generateDashboardPalette(data?.topProducts?.length || 0),
-        borderColor: generateDashboardPalette(data?.topProducts?.length || 0),
+        backgroundColor: generateDashboardPalette(data?.topProducts?.length ? data.topProducts.length + 1 : 0),
+        borderColor: generateDashboardPalette(data?.topProducts?.length ? data.topProducts.length + 1 : 0),
         borderWidth: 1,
       },
     ],

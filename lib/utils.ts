@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { OrderStatus } from "@prisma/client"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -22,4 +23,15 @@ export const generateDashboardPalette = (count: number) => {
     "#4CAF50", // Green
   ];
   return colors.slice(0, count);
+}
+
+export const statusToSpanish = (status: OrderStatus) => {
+  switch (status) {
+    case OrderStatus.PENDING:
+      return "Pendiente";
+    case OrderStatus.SHIPPED:
+      return "En camino";
+    case OrderStatus.DELIVERED:
+      return "Entregado";
+  }
 }
