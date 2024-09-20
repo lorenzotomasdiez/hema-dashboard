@@ -18,15 +18,6 @@ export default function LandingPage() {
               Open dashboard
             </Button>
           </Link>
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="#features">
-            Características
-          </Link>
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="#products">
-            Productos
-          </Link>
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="#contact">
-            Contacto
-          </Link>
         </nav>
       </header>
       <main className="flex-1">
