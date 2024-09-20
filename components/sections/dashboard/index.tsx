@@ -113,6 +113,24 @@ export function DashboardMain() {
       <div className="flex justify-center items-center mb-6 md:justify-start">
         <h1 className="text-3xl font-bold text-gray-800 text-center">Resumen</h1>
       </div>
+        <Card className="mt-4 mb-6">
+          <CardContent className="p-0 overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3">
+              <div className="animate-marquee whitespace-nowrap flex">
+                <div className="flex animate-marquee">
+                  <span className="text-xl font-semibold mx-6">🎉 Feliz cumple Agus!!! 🎂</span>
+                  <span className="text-xl font-semibold mx-6">🎉 Feliz cumple Agus!!! 🎂</span>
+                  <span className="text-xl font-semibold mx-6">🎉 Feliz cumple Agus!!! 🎂</span>
+                </div>
+                <div className="flex animate-marquee2" aria-hidden="true">
+                  <span className="text-xl font-semibold mx-6">🎉 Feliz cumple Agus!!! 🎂</span>
+                  <span className="text-xl font-semibold mx-6">🎉 Feliz cumple Agus!!! 🎂</span>
+                  <span className="text-xl font-semibold mx-6">🎉 Feliz cumple Agus!!! 🎂</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
       <div className="grid grid-cols-1 gap-6 mb-6 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
