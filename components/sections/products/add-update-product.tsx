@@ -124,7 +124,7 @@ export default function AddUpdateProduct({ product, queryKey, open, setOpen }: A
   return (
     <Dialog open={!!open} onOpenChange={(e) => setOpen(!!e ? (product?.id || 0) : null)}>
       <DialogTrigger hidden={!!product}>
-        <Button>Agregar Cliente</Button>
+        <Button>Agregar Producto</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit(onSubmit)}>

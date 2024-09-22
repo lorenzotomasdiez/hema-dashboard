@@ -9,14 +9,7 @@ export async function GET(request: NextRequest) {
   const { session } = await getUserAuth();
   if (!session) return new Response("Error", { status: 400 });
 
-  const searchParams = request.nextUrl.searchParams
-
-  const page = Number(searchParams.get('page') || 0);
-  const per_page = Number(searchParams.get('per_page') || 10);
-
   const products = await db.product.findMany({
-    skip: page * per_page,
-    take: per_page,
     orderBy: [
       {
         slug: "desc"

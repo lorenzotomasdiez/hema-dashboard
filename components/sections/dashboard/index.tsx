@@ -107,31 +107,12 @@ export function DashboardMain() {
       },
     ],
   }
-  if(isLoading || !data) return <HemaLogo />
+  if (isLoading || !data) return <HemaLogo />
   return (
     <div className="bg-gray-100 min-h-screen p-2 md:p-8">
       <div className="flex justify-center items-center mb-6 md:justify-start">
         <h1 className="text-3xl font-bold text-gray-800 text-center">Resumen</h1>
       </div>
-        <Card className="mt-4 mb-6">
-          <CardContent className="p-0 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3">
-              <div className="animate-marquee whitespace-nowrap flex">
-                <div className="flex animate-marquee">
-                  <span className="text-xl font-semibold mx-6">🎉 Feliz cumple Agus!!! 🎂</span>
-                  <span className="text-xl font-semibold mx-6">🎉 Feliz cumple Agus!!! 🎂</span>
-                  <span className="text-xl font-semibold mx-6">🎉 Feliz cumple Agus!!! 🎂</span>
-                </div>
-                <div className="flex animate-marquee2" aria-hidden="true">
-                  <span className="text-xl font-semibold mx-6">🎉 Feliz cumple Agus!!! 🎂</span>
-                  <span className="text-xl font-semibold mx-6">🎉 Feliz cumple Agus!!! 🎂</span>
-                  <span className="text-xl font-semibold mx-6">🎉 Feliz cumple Agus!!! 🎂</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
       <div className="grid grid-cols-1 gap-6 mb-6 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -141,15 +122,14 @@ export function DashboardMain() {
           <CardContent>
             <div className="text-2xl font-bold">{moneyMask(data?.totalIncome?.currentMonth || 0)}</div>
             <p className="text-xs">
-              <span className={`${
-                data?.totalIncome?.previousMonth !== 0
+              <span className={`${data?.totalIncome?.previousMonth !== 0
                   ? ((data?.totalIncome?.currentMonth - data?.totalIncome?.previousMonth) / data?.totalIncome?.previousMonth * 100) < 0
                     ? 'text-red-500'
                     : 'text-green-500'
                   : data?.totalIncome?.currentMonth > 0
                     ? 'text-green-500'
                     : 'text-neutral-500 dark:text-neutral-400'
-              }`}>
+                }`}>
                 {data?.totalIncome?.previousMonth !== 0
                   ? `${((data?.totalIncome?.currentMonth - data?.totalIncome?.previousMonth) / data?.totalIncome?.previousMonth * 100).toFixed(2)}%`
                   : data?.totalIncome?.currentMonth > 0
@@ -169,15 +149,14 @@ export function DashboardMain() {
           <CardContent>
             <div className="text-2xl font-bold">{data?.newOrders?.currentMonth} pedidos</div>
             <p className="text-xs">
-              <span className={`${
-                data?.newOrders?.previousMonth !== 0
+              <span className={`${data?.newOrders?.previousMonth !== 0
                   ? ((data?.newOrders?.currentMonth - data?.newOrders?.previousMonth) / data?.newOrders?.previousMonth * 100) < 0
                     ? 'text-red-500'
                     : 'text-green-500'
                   : data?.newOrders?.currentMonth > 0
                     ? 'text-green-500'
                     : 'text-neutral-500 dark:text-neutral-400'
-              }`}>
+                }`}>
                 {data?.newOrders?.previousMonth !== 0
                   ? `${((data?.newOrders?.currentMonth - data?.newOrders?.previousMonth) / data?.newOrders?.previousMonth * 100).toFixed(2)}%`
                   : data?.newOrders?.currentMonth > 0
@@ -197,15 +176,14 @@ export function DashboardMain() {
           <CardContent>
             <div className="text-2xl font-bold">{data?.totalActiveClients?.currentMonth}</div>
             <p className="text-xs">
-              <span className={`${
-                data?.totalActiveClients?.previousMonth !== 0
+              <span className={`${data?.totalActiveClients?.previousMonth !== 0
                   ? ((data?.totalActiveClients?.currentMonth - data?.totalActiveClients?.previousMonth) / data?.totalActiveClients?.previousMonth * 100) < 0
                     ? 'text-red-500'
                     : 'text-green-500'
                   : data?.totalActiveClients?.currentMonth > 0
                     ? 'text-green-500'
                     : 'text-neutral-500 dark:text-neutral-400'
-              }`}>
+                }`}>
                 {data?.totalActiveClients?.previousMonth !== 0
                   ? `${((data?.totalActiveClients?.currentMonth - data?.totalActiveClients?.previousMonth) / data?.totalActiveClients?.previousMonth * 100).toFixed(2)}%`
                   : data?.totalActiveClients?.currentMonth > 0
