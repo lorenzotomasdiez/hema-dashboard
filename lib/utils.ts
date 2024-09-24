@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { OrderStatus } from "@prisma/client"
+import { OrderStatus, Product } from "@prisma/client"
+import { CompleteOrderProduct } from "@/prisma/zod"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -8,6 +9,16 @@ export function cn(...inputs: ClassValue[]) {
 
 export const moneyMask = (value: number) => {
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'ARS' }).format(value);
+}
+
+
+export const calculatePrice = (products: CompleteOrderProduct[], productsData?: Product[]) => {
+  if (!productsData) return " - ";
+  const price = products.reduce((acc, product) => {
+    const productData = productsData?.find(p => p.id === product.productId);
+    return acc + (productData?.price ?? 0 * product.quantity);
+  }, 0);
+  return moneyMask(price);
 }
 
 export const generateDashboardPalette = (count: number) => {

@@ -81,7 +81,7 @@ model Order {
   client      Client      @relation(fields: [clientId], references: [id])
   user        User        @relation(fields: [userId], references: [id])
   status      OrderStatus @default(PENDING)
-  deliveredAt DateTime?
+  deliveredAt DateTime?   @default(now())
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @default(now())
   clientId    String

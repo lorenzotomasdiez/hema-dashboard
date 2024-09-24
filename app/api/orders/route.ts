@@ -38,7 +38,10 @@ export async function POST(request: Request) {
 
   const body = (await request.json()) as CreateOrderType;
 
-  const newOrderDTO = createOrderSchema.safeParse(body);
+  const newOrderDTO = createOrderSchema.safeParse({
+    ...body,
+    deliveredAt: body.deliveredAt ? new Date(body.deliveredAt) : undefined
+  });
 
   if (!newOrderDTO.success) {
     return new Response(JSON.stringify(newOrderDTO.error), { status: 422 });

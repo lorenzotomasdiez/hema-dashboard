@@ -22,11 +22,12 @@ import { useQuery } from "@tanstack/react-query";
 import AddUpdateOrder from "./add-update-order";
 import { Client } from "@/types/client";
 import { getClients } from "@/services/clients";
-import { OrderStatus } from "@prisma/client"
+import { OrderStatus, Product } from "@prisma/client"
 import TableRowSkeleton from "./order-table-row-skeleton";
 import OrderTableRow from "./order-table-row";
 import { useOrders } from "@/lib/tanstack";
 import OrderDeleteConfirmation from "./order-delete-confirmation";
+import { getProducts } from "@/services/products";
 
 
 export default function OrdersTable() {
@@ -57,7 +58,16 @@ export default function OrdersTable() {
     staleTime: 999 * 60
   })
 
-  const client = (cuid: string) => clients.data?.find(e => e.id === cuid)?.name || " - ";
+  const productsQuery = useQuery<Product[]>({
+    queryKey: ["products"],
+    queryFn: getProducts,
+    staleTime: 999 * 60
+  })
+
+  const client = (cuid: string) => {
+    const name = clients.data?.find(e => e.id === cuid)?.name;
+    return name && name.length > 25? `${name.slice(0, 25)}...` : name || " - ";
+  };
 
   const handleOpenDetails = (id: number) => {
     setOpenDetails(id);
@@ -73,7 +83,7 @@ export default function OrdersTable() {
         <CardTitle className="text-2xl font-bold">Pedidos</CardTitle>
         <div className="flex items-center justify-end gap-3">
           {ordersQuery.isFetching && <Loader2 className="animate-spin" />}
-          <AddUpdateOrder queryKey={queryKey} open={openDetails === 0} setOpen={setOpenDetails} />
+          <AddUpdateOrder queryKey={queryKey} open={openDetails === 0} setOpen={setOpenDetails} productsData={productsQuery.data} />
         </div>
       </CardHeader>
       <CardContent>
@@ -101,10 +111,11 @@ export default function OrdersTable() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Creada</TableHead>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
+                <TableHead className="w-20">Entrega</TableHead>
+                <TableHead className="w-40">Cliente</TableHead>
+                <TableHead className="text-center w-20">Estado</TableHead>
+                <TableHead className="text-right w-20">Precio Final</TableHead>
+                <TableHead className="text-right w-10">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -122,8 +133,9 @@ export default function OrdersTable() {
                       handleOpenDetails={handleOpenDetails}
                       handleDeleteOrder={handleDeleteOrder}
                       client={client}
+                      productsData={productsQuery.data}
                     />
-                    <AddUpdateOrder order={order} queryKey={queryKey} open={openDetails === order.id} setOpen={setOpenDetails} />
+                    <AddUpdateOrder order={order} queryKey={queryKey} open={openDetails === order.id} setOpen={setOpenDetails} productsData={productsQuery.data} />
                   </React.Fragment>
                 ))}
             </TableBody>
