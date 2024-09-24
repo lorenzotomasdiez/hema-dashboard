@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 
 import { AuthSession, getUserAuth } from "@/lib/auth/utils";
 import Image from "next/image";
+import { APP_PATH } from "@/config/path";
 
 const Sidebar = async () => {
   const session = await getUserAuth();
@@ -14,9 +15,11 @@ const Sidebar = async () => {
     <aside className="h-screen min-w-52 bg-muted hidden md:block p-4 pt-8 border-r border-border shadow-inner">
       <div className="flex flex-col justify-between h-full">
         <div className="space-y-4">
-          <div className="flex items-center justify-center">
-            <Image src="/hema-logo.jpg" alt="Logo" width={100} height={100} className="rounded-full border-2 border-border" />
-          </div>
+          <Link href={APP_PATH.dashboard.root}>
+            <div className="flex items-center justify-center">
+              <Image src="/hema-logo.jpg" alt="Logo" width={100} height={100} className="rounded-full border-2 border-border cursor-pointer" />
+            </div>
+          </Link>
           <SidebarItems />
         </div>
         <UserDetails session={session} />
