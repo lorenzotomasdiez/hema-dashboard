@@ -293,7 +293,7 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
               </div>
               {
                 watch('products').length > 0 && (
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-2 max-h-[350px] overflow-y-scroll">
                     {
                       watch('products').map((p) => (
                         <div key={p.productId} className="grid grid-cols-4 gap-2 p-2 rounded-md bg-neutral-100 items-center">
