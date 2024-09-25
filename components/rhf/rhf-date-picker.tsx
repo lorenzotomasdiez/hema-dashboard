@@ -44,7 +44,6 @@ export const RHFDatePicker = ({ name, className, disabled = false }: { name: str
               selected={field.value}
               onSelect={field.onChange}
               locale={es}
-              initialFocus
               disabled={disabled}
             />
           </PopoverContent>
