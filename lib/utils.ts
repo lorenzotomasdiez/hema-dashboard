@@ -16,7 +16,8 @@ export const calculatePrice = (products: CompleteOrderProduct[], productsData?: 
   if (!productsData) return " - ";
   const price = products.reduce((acc, product) => {
     const productData = productsData?.find(p => p.id === product.productId);
-    return acc + (productData?.price ?? 0 * product.quantity);
+    if(!productData) return acc;
+    return acc + (productData.price * product.quantity);
   }, 0);
   return moneyMask(price);
 }
