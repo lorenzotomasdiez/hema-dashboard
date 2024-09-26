@@ -108,8 +108,8 @@ export default function OrdersTable() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-between mb-6">
-          <div className="relative w-72">
+        <div className="flex flex-col gap-2 items-start justify-center mb-6 md:flex-row md:justify-between md:items-center">
+          <div className="relative w-full md:w-72">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Ingrese un nombre de cliente..."
@@ -118,7 +118,7 @@ export default function OrdersTable() {
               value={keywordInput}
             />
           </div>
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex items-center justify-between gap-3 w-full md:w-auto md:justify-end">
             <Button
               variant={forToday ? "default" : "outline"}
               className={`h-9 px-3 ${forToday ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
