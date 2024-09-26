@@ -3,15 +3,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from "@/components/ui/input";
 import { CompleteOrderProduct } from "@/prisma/zod";
 import { deleteOrder } from "@/services/orders";
-import { Order } from "@/types";
+import { GetOrdersResponse, Order } from "@/types";
 import { QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
 interface OrderDeleteConfirmationProps {
-    orderId: number | null;
-    setOpen: (open: number | null) => void;
-    queryKey: QueryKey;
+  orderId: number | null;
+  setOpen: (open: number | null) => void;
+  queryKey: QueryKey;
 }
 
 export default function OrderDeleteConfirmation({ orderId, setOpen, queryKey }: OrderDeleteConfirmationProps) {
@@ -21,19 +21,31 @@ export default function OrderDeleteConfirmation({ orderId, setOpen, queryKey }: 
     mutationKey: ['delete-order'],
     mutationFn: (id: number) => deleteOrder(id),
     onMutate: async (id: number) => {
-        await queryClient.cancelQueries({ queryKey });
-        const previousOrders = queryClient.getQueryData<(Order & {products: CompleteOrderProduct[]})[]>(queryKey);
-        queryClient.setQueryData(queryKey, previousOrders?.filter((order) => order.id !== id));
-        return { previousOrders };
+      await queryClient.cancelQueries({ queryKey });
+      const previousOrders = queryClient.getQueryData<GetOrdersResponse>(queryKey);
+      queryClient.setQueryData<GetOrdersResponse>(queryKey, (prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          orders: prev.orders.filter((order) => order.id !== id),
+          ordersCount: prev.ordersCount - 1,
+        }
+      });
+      return { previousOrders };
     },
     onSuccess: () => {
-        toast.success("Pedido eliminado correctamente");
+      toast.success("Pedido eliminado correctamente");
     },
-    onError: (error, variables, context) => {
-        queryClient.setQueryData(queryKey, context?.previousOrders);
-        toast.error("Error al eliminar el pedido");
+    onError: (_error, _variables, context) => {
+      queryClient.setQueryData(queryKey, context?.previousOrders);
+      toast.error("Error al eliminar el pedido");
     },
-
+    onSettled: (_data, error) => {
+      if (error) {
+        console.error(error);
+      }
+      queryClient.invalidateQueries({ queryKey });
+    }
   });
 
   const handleDelete = () => {
