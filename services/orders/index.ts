@@ -2,12 +2,16 @@ import { CreateOrderType, GetOrdersParams, Order } from "@/types";
 import { API_ROUTES } from "@/lib/api/routes";
 
 export const getOrders = async (params?: GetOrdersParams) => {
-  const { page, per_page, status } = {
+  const { page, per_page, status, forToday, keyword } = {
     page: params?.page || 0,
     per_page: params?.per_page || 10,
-    status: params?.status || "ALL"
+    status: params?.status || "ALL",
+    forToday: params?.forToday || false,
+    keyword: params?.keyword || ""
   };
-  const res = await fetch(API_ROUTES.orders.root + `?page=${page}` + `&per_page=${per_page}` + `&status=${status}`);
+  const res = await fetch(
+    API_ROUTES.orders.root + `?page=${page}` + `&per_page=${per_page}` + `&status=${status}` + `&forToday=${forToday.toString()}` + `&keyword=${keyword}`
+  );
   const data = await res.json();
   return data;
 }

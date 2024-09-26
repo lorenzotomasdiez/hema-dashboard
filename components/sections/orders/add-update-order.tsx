@@ -105,7 +105,7 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
     }
   })
 
-  const { handleSubmit, watch, setValue, reset, formState: { isSubmitting } } = form;
+  const { handleSubmit, watch, setValue, reset, formState: { isSubmitting, isDirty } } = form;
 
   const onSubmit = async (data: CreateOrderType) => {
     setOpen(null);
@@ -160,8 +160,8 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
 
   return (
     <Dialog open={!!open} onOpenChange={(e) => setOpen(!!e ? (order?.id || 0) : null)}>
-      <DialogTrigger hidden={!!order}>
-        <Button>Agregar Pedido</Button>
+      <DialogTrigger hidden={!!order} className="bg-foreground text-background p-2 rounded-md text-sm font-medium">
+        Agregar Pedido
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <Form {...form}>
@@ -331,7 +331,7 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
               )}</span>
             </div>
             <div className="grid grid-cols-1 mt-10">
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || !isDirty}>
                 {order ? "Actualizar Pedido" : "Agregar Pedido"}
               </Button>
             </div>

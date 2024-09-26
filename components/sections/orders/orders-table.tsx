@@ -1,8 +1,7 @@
 "use client";
 import * as React from "react"
-import { Loader2, Search } from "lucide-react"
+import { CalendarIcon, Loader2, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Table,
   TableBody,
@@ -28,30 +27,39 @@ import OrderTableRow from "./order-table-row";
 import { useOrders } from "@/lib/tanstack";
 import OrderDeleteConfirmation from "./order-delete-confirmation";
 import { getProducts } from "@/services/products";
-
+import { Input } from "@/components/ui/input";
+import { debounce } from "lodash";
 
 export default function OrdersTable() {
   const [openDetails, setOpenDetails] = React.useState<number | null>(null);
   const [openDelete, setOpenDelete] = React.useState<number | null>(null);
+  const [keywordInput, setKeywordInput] = React.useState<string>("");
 
   const {
     ordersQuery,
     handlePrevPage,
     handleNextPage,
     handleStatus,
+    handleForToday,
+    handleKeyword,
     page,
     status,
     keyword,
     queryKey,
     per_page,
+    forToday,
     prefetchNextPage,
-    prefetchPrevPage
-  } = useOrders({initialParams: {
-    page: 0,
-    per_page: 10,
-    status: "ALL"
-  }})
-  
+    prefetchPrevPage,
+  } = useOrders({
+    initialParams: {
+      page: 0,
+      per_page: 10,
+      status: "ALL",
+      forToday: false,
+      keyword: ""
+    }
+  })
+
   const clients = useQuery<Client[]>({
     queryKey: ["clients"],
     queryFn: getClients,
@@ -66,7 +74,7 @@ export default function OrdersTable() {
 
   const client = (cuid: string) => {
     const name = clients.data?.find(e => e.id === cuid)?.name;
-    return name && name.length > 25? `${name.slice(0, 25)}...` : name || " - ";
+    return name && name.length > 25 ? `${name.slice(0, 25)}...` : name || " - ";
   };
 
   const handleOpenDetails = (id: number) => {
@@ -77,37 +85,63 @@ export default function OrdersTable() {
     setOpenDelete(id);
   }
 
+  React.useEffect(() => {
+    const debouncedHandleKeyword = debounce(() => handleKeyword(keywordInput), 500);
+    debouncedHandleKeyword();
+    return () => {
+      debouncedHandleKeyword.cancel();
+    }
+  }, [keywordInput])
+
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
         <CardTitle className="text-2xl font-bold">Pedidos</CardTitle>
         <div className="flex items-center justify-end gap-3">
           {ordersQuery.isFetching && <Loader2 className="animate-spin" />}
-          <AddUpdateOrder queryKey={queryKey} open={openDetails === 0} setOpen={setOpenDetails} productsData={productsQuery.data} />
+          <AddUpdateOrder
+            queryKey={queryKey}
+            open={openDetails === 0}
+            setOpen={setOpenDetails}
+            productsData={productsQuery.data}
+          />
         </div>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between mb-6">
           <div className="relative w-72">
-            {/* <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar pedido..."
+              placeholder="Ingrese un nombre de cliente..."
               className="pl-8"
-            /> */}
+              onChange={(e) => setKeywordInput(e.target.value)}
+              value={keywordInput}
+            />
           </div>
-          <Select value={status} onValueChange={(v) => handleStatus(v as (OrderStatus | "ALL"))}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filtrar por estado" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">Todos</SelectItem>
-              <SelectItem value={OrderStatus['PENDING']}>Pendiente</SelectItem>
-              <SelectItem value={OrderStatus['SHIPPED']}>En camino</SelectItem>
-              <SelectItem value={OrderStatus['DELIVERED']}>Entregado</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              variant={forToday ? "default" : "outline"}
+              className={`h-9 px-3 ${forToday ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
+              onClick={() => handleForToday(!forToday)}
+              aria-pressed={forToday}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              Hoy
+            </Button>
+            <Select value={status} onValueChange={(v) => handleStatus(v as (OrderStatus | "ALL"))}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filtrar por estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">Todos</SelectItem>
+                <SelectItem value={OrderStatus['PENDING']}>Pendiente</SelectItem>
+                <SelectItem value={OrderStatus['SHIPPED']}>En camino</SelectItem>
+                <SelectItem value={OrderStatus['DELIVERED']}>Entregado</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        <div className="rounded-md border">
+        <div className="rounded-md border min-h-[532px]">
           <Table>
             <TableHeader>
               <TableRow>
@@ -125,7 +159,7 @@ export default function OrdersTable() {
                     <TableRowSkeleton key={e} />
                   ))
               ) :
-                ordersQuery.data?.map((order) => (
+                ordersQuery.data?.orders.map((order) => (
                   <React.Fragment key={order.id}>
                     <OrderTableRow
                       key={order.id}
@@ -135,25 +169,56 @@ export default function OrdersTable() {
                       client={client}
                       productsData={productsQuery.data}
                     />
-                    <AddUpdateOrder order={order} queryKey={queryKey} open={openDetails === order.id} setOpen={setOpenDetails} productsData={productsQuery.data} />
+                    <AddUpdateOrder
+                      order={order}
+                      queryKey={queryKey}
+                      open={openDetails === order.id}
+                      setOpen={setOpenDetails}
+                      productsData={productsQuery.data}
+                    />
                   </React.Fragment>
                 ))}
             </TableBody>
           </Table>
         </div>
         <div className="flex items-center justify-between">
-          <p className="text-base font-bold">Pagina: {page + 1}</p>
+          <div className="flex flex-col items-start">
+            <p className="text-base">
+              Pagina: <span className="font-bold">{page + 1}</span>
+            </p>
+            <p className="text-base">
+              Pedidos totales: <span className="font-bold">{ordersQuery.data?.ordersCount}</span>
+            </p>
+          </div>
           <div className="flex items-center justify-end space-x-2 py-4">
-            <Button variant="outline" size="sm" onClick={handlePrevPage} disabled={page === 0} onMouseEnter={prefetchPrevPage}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePrevPage}
+              disabled={page === 0}
+              onMouseEnter={prefetchPrevPage}
+              className="bg-foreground text-background"
+            >
               Anterior
             </Button>
-            <Button variant="outline" size="sm" onClick={handleNextPage} disabled={(ordersQuery.data?.length || 0) < per_page} onMouseEnter={prefetchNextPage}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleNextPage}
+              disabled={(ordersQuery.data?.orders.length || 0) < per_page}
+              onMouseEnter={prefetchNextPage}
+              className="bg-foreground text-background"
+            >
               Siguiente
             </Button>
           </div>
         </div>
       </CardContent>
-      <OrderDeleteConfirmation orderId={openDelete} setOpen={setOpenDelete} queryKey={queryKey} />
+      <OrderDeleteConfirmation
+        orderId={openDelete}
+        setOpen={setOpenDelete}
+        queryKey={queryKey}
+      />
     </Card>
   )
 }

@@ -1,10 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys"
-import { GetOrdersParams, Order } from "@/types"
+import { GetOrdersParams, GetOrdersResponse, Order } from "@/types"
 import { getOrders } from "@/services/orders"
 import { OrderStatus } from "@prisma/client"
-import { useState } from "react"
-import { CompleteOrderProduct } from "@/prisma/zod"
+import { useEffect, useState } from "react"
 
 interface Props {
   initialParams: GetOrdersParams
@@ -14,14 +13,14 @@ export const useOrders = ({initialParams}: Props) => {
   const queryClient = useQueryClient();
   const [params, setParams] = useState<GetOrdersParams>(initialParams);
 
-  const ordersQuery = useQuery<(Order & { products: CompleteOrderProduct[]})[]>({
+  const ordersQuery = useQuery<GetOrdersResponse>({
     queryKey: QUERY_KEYS.orders.paginated(params),
     queryFn: () => getOrders(params),
-    staleTime: 999 * 60
+    staleTime: 999 * 60,
   })
 
   const prefetchNextPage = () => {
-    const hasNextPage = ordersQuery?.data?.length ?? 0 < params.per_page;
+    const hasNextPage = ordersQuery?.data?.orders.length ?? 0 < params.per_page;
     if (!hasNextPage) return;
     const nextPageParams = {
       ...params,
@@ -57,7 +56,7 @@ export const useOrders = ({initialParams}: Props) => {
   }
 
   const handleNextPage = () => {
-    const hasNextPage = ordersQuery?.data?.length ?? 0 < params.per_page;
+    const hasNextPage = ordersQuery?.data?.orders.length ?? 0 < params.per_page;
     if (!hasNextPage) return;
     const newPage = params.page + 1;
     setParams(prev => ({
@@ -81,6 +80,18 @@ export const useOrders = ({initialParams}: Props) => {
     }))
   }
 
+  const handleForToday = (forToday: boolean) => {
+    setParams(prev => ({
+      ...prev,
+      forToday,
+      page: 0
+    }))
+  }
+
+  useEffect(() => {
+    ordersQuery.refetch()
+  }, [params])
+
   return {
     ordersQuery,
     handlePrevPage,
@@ -89,10 +100,12 @@ export const useOrders = ({initialParams}: Props) => {
     per_page: params.per_page,
     status: params.status,
     keyword: params.keyword,
+    forToday: params.forToday,
     queryKey: QUERY_KEYS.orders.paginated(params),
     handleKeyword,
     handleStatus,
     prefetchNextPage,
-    prefetchPrevPage
+    prefetchPrevPage,
+    handleForToday
   };
 }
