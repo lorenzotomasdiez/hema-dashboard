@@ -16,13 +16,19 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get('status') || "ALL";
   const forToday = searchParams.get('forToday') === "true";
   const keyword = searchParams.get('keyword') || "";
+  const timezone = searchParams.get('timezone') || "America/Argentina/Buenos_Aires";
 
   const orders = await db.order.findMany({
     skip: page * per_page,
     take: per_page,
     where: {
       ...(status !== "ALL" && { status: OrderStatus[status as OrderStatus] }),
-      ...(forToday && { deliveredAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)), lte: new Date(new Date().setHours(23, 59, 59, 999)) } }),
+      ...(forToday && {
+        deliveredAt: {
+          gte: new Date(new Date(new Date().toLocaleString("en-US", { timeZone: timezone })).setHours(0, 0, 0, 0)),
+          lte: new Date(new Date(new Date().toLocaleString("en-US", { timeZone: timezone })).setHours(23, 59, 59, 999))
+        }
+      }),
       ...(keyword && { client: { name: { contains: keyword, mode: 'insensitive' } } }),
     },
     orderBy: [

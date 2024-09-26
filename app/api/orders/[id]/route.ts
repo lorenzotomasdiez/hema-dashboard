@@ -101,12 +101,10 @@ export async function DELETE(
 
   const id = Number(params.id);
 
-  // Primero, eliminamos los registros relacionados en OrderProduct
   await db.orderProduct.deleteMany({
     where: { orderId: id }
   });
 
-  // Luego, eliminamos la orden
   await db.order.delete({
     where: { id }
   });

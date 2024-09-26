@@ -59,9 +59,9 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
           return {
             ...old,
             orders: [
-              { 
-                ...orderData, 
-                createdAt: new Date().toISOString(), 
+              {
+                ...orderData,
+                createdAt: new Date().toISOString(),
                 id: new Date().getTime(),
               },
               ...old.orders
@@ -135,8 +135,16 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
 
   const onSubmit = async (data: CreateOrderType) => {
     setOpen(null);
+    const dataToSubmit = {
+      ...data,
+      ...(data.deliveredAt && 
+        { deliveredAt: new Date(
+          new Date(data.deliveredAt).toLocaleString("en-US", { timeZone: "UTC" })
+        )})
+    };
+
     if (order) {
-      updateOrderMutation.mutate({ ...order, ...data });
+      updateOrderMutation.mutate({ ...order, ...dataToSubmit });
     } else {
       addOrderMutation.mutate(data);
     }
@@ -260,36 +268,36 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
                   </div>
                 )}
               </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="status" className="text-right col-span-1">
-                Estado
-              </Label>
-              <Select
-                name="status"
-                value={watch('status')}
-                onValueChange={
-                  (e) => setValue('status', e as CreateOrderType['status'])
-                }
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="PENDING">Pendiente</SelectItem>
-                  <SelectItem value="SHIPPED">En camino</SelectItem>
-                  <SelectItem value="DELIVERED">Entregado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="deliveredAt" className="text-right col-span-1">
-                Fecha de entrega
-              </Label>
-              <div className="col-span-3">
-                <RHFDatePicker name="deliveredAt" />
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="status" className="text-right col-span-1">
+                  Estado
+                </Label>
+                <Select
+                  name="status"
+                  value={watch('status')}
+                  onValueChange={
+                    (e) => setValue('status', e as CreateOrderType['status'])
+                  }
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PENDING">Pendiente</SelectItem>
+                    <SelectItem value="SHIPPED">En camino</SelectItem>
+                    <SelectItem value="DELIVERED">Entregado</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="deliveredAt" className="text-right col-span-1">
+                  Fecha de entrega
+                </Label>
+                <div className="col-span-3">
+                  <RHFDatePicker name="deliveredAt" />
+                </div>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="type" className="text-right col-span-1">
                   Productos
                 </Label>
@@ -336,7 +344,7 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
                             </Button>
                           </div>
                           <Button
-                            onClick={() => handleRemoveProduct(p.productId)} 
+                            onClick={() => handleRemoveProduct(p.productId)}
                             type="button"
                             className="col-span-1"
                           >
@@ -346,8 +354,8 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
                       ))
                     }
                   </div>
-              )
-            }
+                )
+              }
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="price" className="text-right col-span-1">Precio Final</Label>
