@@ -220,6 +220,8 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
                       className={cn(
                         "w-full pl-3 text-left font-normal opacity-50 cursor-not-allowed col-span-3"
                       )}
+                      disabled
+                      type="button"
                     >
                       {format(new Date(order.createdAt), "PPP", { locale: es })}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
