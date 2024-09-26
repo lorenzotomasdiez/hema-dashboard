@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { CreateOrderType, GetOrdersParams, Order } from "@/types/order";
+import { CreateOrderType, GetOrdersParams, GetOrdersResponse, Order } from "@/types/order";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Client } from "@/types/client";
 import { getClients } from "@/services/clients";
@@ -53,19 +53,37 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
     onMutate: async (orderData: CreateOrderType) => {
       await queryClient.cancelQueries({ queryKey: queryKey });
       const previousOrders = queryClient.getQueryData(queryKey);
-      queryClient.setQueryData(queryKey, (old: CreateOrderType[]) => [{ ...orderData, createdAt: new Date().toISOString(), id: new Date().getTime() }, ...old]);
+      queryClient.setQueryData(
+        queryKey,
+        (old: GetOrdersResponse) => {
+          return {
+            ...old,
+            orders: [
+              { 
+                ...orderData, 
+                createdAt: new Date().toISOString(), 
+                id: new Date().getTime(),
+              },
+              ...old.orders
+            ],
+            total: old.ordersCount + 1
+          }
+        }
+      );
       return { previousOrders }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
       toast.success("Pedido creado correctamente!");
     },
-    onError: (err, _order, context) => {
-      console.error(err);
+    onError: (_err, _order, context) => {
       queryClient.setQueryData(queryKey, context?.previousOrders)
       toast.error("Error al crear el pedido");
     },
-    onSettled: () => {
+    onSettled: (_data, error) => {
+      if (error) {
+        console.log(error);
+      }
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.summary });
       queryClient.invalidateQueries({ queryKey });
     }
@@ -79,18 +97,26 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
     onMutate: async (orderData: Order) => {
       await queryClient.cancelQueries({ queryKey: queryKey });
       const previousOrders = queryClient.getQueryData(queryKey);
-      queryClient.setQueryData(queryKey, (old: Order[]) => old.map(o => o.id === orderData.id ? orderData : o));
+      queryClient.setQueryData(queryKey, (old: GetOrdersResponse) => {
+        return {
+          ...old,
+          orders: old.orders.map(o => o.id === orderData.id ? orderData : o)
+        }
+      });
       return { previousOrders }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       toast.success("Pedido actualizado correctamente!");
     },
-    onError: (err) => {
-      console.error(err);
+    onError: (_err, _order, context) => {
+      queryClient.setQueryData(queryKey, context?.previousOrders)
       toast.error("Error al actualizar el pedido");
     },
-    onSettled: () => {
+    onSettled: (_data, error) => {
+      if (error) {
+        console.log(error);
+      }
       queryClient.invalidateQueries({ queryKey });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.summary });
     }
