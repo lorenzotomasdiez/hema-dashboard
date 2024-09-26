@@ -154,12 +154,12 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
   const handleAddProduct = (productId: number) => {
     if (productId === 0) return;
     const products = watch('products');
-    setValue('products', [...products, { productId, quantity: 1 }]);
+    setValue('products', [...products, { productId, quantity: 1 }], {shouldDirty: true});
   }
 
   const handleRemoveProduct = (productId: number) => {
     const products = watch('products');
-    setValue('products', products.filter(p => p.productId !== productId));
+    setValue('products', products.filter(p => p.productId !== productId), {shouldDirty: true});
   }
 
   const handleDecreaseQuantity = (productId: number) => {
@@ -169,7 +169,7 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
       handleRemoveProduct(productId);
       return;
     }
-    setValue('products', products.map(p => p.productId === productId ? { ...p, quantity: p.quantity - 1 } : p));
+    setValue('products', products.map(p => p.productId === productId ? { ...p, quantity: p.quantity - 1 } : p), {shouldDirty: true});
   }
 
   const handleIncreaseQuantity = (productId: number) => {
@@ -180,7 +180,7 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
       toast.error("No hay suficiente stock del producto");
       return;
     }
-    setValue('products', products.map(p => p.productId === productId ? { ...p, quantity: p.quantity + 1 } : p));
+    setValue('products', products.map(p => p.productId === productId ? { ...p, quantity: p.quantity + 1 } : p), {shouldDirty: true});
   }
   const productsToShow = productsData && productsData.filter(
     (p) => !watch('products').map(e => e.productId).includes(p.id)
@@ -235,7 +235,7 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
                   <Select
                     name="clientId"
                     value={watch('clientId')}
-                    onValueChange={(e: CreateOrderType['clientId']) => setValue('clientId', e)}
+                    onValueChange={(e: CreateOrderType['clientId']) => setValue('clientId', e, {shouldDirty: true})}
                     disabled={!clients.data || clients.data.length === 0}
                   >
                     <SelectTrigger className="col-span-3">
@@ -276,7 +276,7 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
                   name="status"
                   value={watch('status')}
                   onValueChange={
-                    (e) => setValue('status', e as CreateOrderType['status'])
+                    (e) => setValue('status', e as CreateOrderType['status'], {shouldDirty: true})
                   }
                 >
                   <SelectTrigger className="col-span-3">
