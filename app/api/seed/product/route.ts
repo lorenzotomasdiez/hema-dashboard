@@ -1,39 +1,36 @@
+import { generateSlug } from "@/lib/api/routes";
 import { getUserAuth } from "@/lib/auth/utils";
 import { db } from "@/lib/db/index";
+import { faker } from "@faker-js/faker";
+import { Product } from "@prisma/client";
 
 
 export async function GET() {
-  const { session } = await getUserAuth();
-  if (!session) return new Response("Error", { status: 400 });
-  const products = [
-    {
-      name: "Bolsa de Hielo 3KG",
-    price: 300,
-    stock: 10,
-    slug: "bolsa-de-hielo-3kg",
-    },
-    {
-      name: "Bolsa de Hielo 5KG",
-      price: 450,
-      stock: 10,
-      slug: "bolsa-de-hielo-5kg",
-    },
-    {
-      name: "Bolsa de Hielo 10KG",
-      price: 900,
-      stock: 10,
-      slug: "bolsa-de-hielo-10kg",
-    },
-  ];
-  for (let i in products) {
-    await db.product.create({
-      data: {
-        name: products[i].name,
-        price: products[i].price,
-        stock: products[i].stock,
-        slug: products[i].slug,
-      }
-    })
+  if (process.env.NODE_ENV !== "development") {
+    return new Response("Error not allowed", { status: 403 });
   }
-  return new Response(JSON.stringify({ sucess: true }), { status: 201 })
+  try{
+    const numberOfProducts = 15;
+    const products: Product[] = [];
+    for (let i = 0; i < numberOfProducts; i++) {
+      products.push({
+        id: i,
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        price: faker.number.int({ min: 0, max: 100 }),
+        stock: faker.number.int({ min: 0, max: 100 }),
+        slug: faker.string.uuid(),
+      });
+    }
+    await db.product.createMany({
+      data: products.map(({id, ...product}) => ({
+        ...product,
+        slug: generateSlug(product.name),
+      })),
+    });
+    return new Response(JSON.stringify({ success: true }), { status: 201 });
+  }catch(error){
+    console.error("Error creating products:", error);
+    return new Response("Error creating products", { status: 500 });
+  }
 }
