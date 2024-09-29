@@ -15,7 +15,7 @@ const Sidebar = async () => {
     <aside className="h-screen min-w-52 bg-muted hidden md:block p-4 pt-8 border-r border-border shadow-inner">
       <div className="flex flex-col justify-between h-full">
         <div className="space-y-4">
-          <Link href={APP_PATH.dashboard.root}>
+          <Link href={APP_PATH.protected.dashboard.root}>
             <div className="flex items-center justify-center">
               <Image src="/hema-logo.jpg" alt="Logo" width={100} height={100} className="rounded-full border-2 border-border cursor-pointer" />
             </div>

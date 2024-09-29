@@ -1,6 +1,14 @@
 export const APP_PATH = {
-  landing: "/",
-  dashboard: {
-    root: "/dashboard"
+  public:{
+    landing: "/",
+    signin: "/api/auth/signin",
+    signout: "/api/auth/signout"
+  },
+  protected:{
+    chooseCompany: "/choose-company",
+    dashboard: {
+      root: "/dashboard"
+    },
   }
+  
 }

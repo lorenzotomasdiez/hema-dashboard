@@ -31,7 +31,7 @@ export default function Navbar() {
       <nav className="flex justify-between w-full items-center">
         <div className="flex-1"></div>
         <div className="flex items-center justify-center flex-1 py-2">
-          <Link href={APP_PATH.dashboard.root}>
+          <Link href={APP_PATH.protected.dashboard.root}>
             <Image src="/hema-logo.jpg" alt="Logo" width={50} height={50} className="rounded-full border-2 border-border cursor-pointer" />
           </Link>
         </div>

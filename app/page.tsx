@@ -13,7 +13,7 @@ export default function LandingPage() {
           <span className="ml-2 text-2xl font-bold text-gray-900">HemaIce</span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
-          <Link href={APP_PATH.dashboard.root}>
+          <Link href={APP_PATH.protected.dashboard.root}>
             <Button>
               Open dashboard
             </Button>

@@ -48,15 +48,47 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model Company {
+  id            String        @id @default(cuid())
+  name          String
+  orders        Order[]
+  clients       Client[]
+  userCompanies UserCompany[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
 model User {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String        @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
-  Order         Order[]
+  orders        Order[]
+  userCompanies UserCompany[]
+}
+
+model UserCompany {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  companyId String
+  role      UserRole @default(COMPANY_WORKER)
+  user      User     @relation(fields: [userId], references: [id])
+  company   Company  @relation(fields: [companyId], references: [id])
+  isEnabled Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, companyId])
+}
+
+enum UserRole {
+  ADMIN
+  COMPANY_OWNER
+  COMPANY_ADMIN
+  COMPANY_WORKER
 }
 
 model VerificationToken {
@@ -73,28 +105,33 @@ model Client {
   phone     String?
   address   String?
   createdAt DateTime @default(now())
-  Order     Order[]
+  orders    Order[]
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
 }
 
 model Order {
-  id          Int         @id @default(autoincrement())
-  client      Client      @relation(fields: [clientId], references: [id])
-  user        User        @relation(fields: [userId], references: [id])
-  status      OrderStatus @default(PENDING)
-  deliveredAt DateTime?   @default(now())
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @default(now())
+  id          Int            @id @default(autoincrement())
+  client      Client         @relation(fields: [clientId], references: [id])
+  user        User           @relation(fields: [userId], references: [id])
+  status      OrderStatus    @default(PENDING)
+  toDeliverAt DateTime
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deliveredAt DateTime?
   clientId    String
   userId      String
   products    OrderProduct[]
+  companyId   String
+  company     Company        @relation(fields: [companyId], references: [id])
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          Int            @id @default(autoincrement())
   name        String
   description String?
   stock       Int
-  slug        String   @unique
+  slug        String         @unique
   price       Int
   orders      OrderProduct[]
 }
