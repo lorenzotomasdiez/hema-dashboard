@@ -38,11 +38,11 @@ export default function ProductsTable() {
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full max-w-4xl mx-auto dark:bg-neutral-900">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
-        <CardTitle className="text-2xl font-bold">Productos</CardTitle>
+        <CardTitle className="text-2xl font-bold text-black dark:text-white">Productos</CardTitle>
         <div className="flex items-center justify-end gap-3">
-          {products.isFetching && <Loader2 className="animate-spin" />}
+          {products.isFetching && <Loader2 className="animate-spin text-black dark:text-white" />}
           <AddUpdateProduct queryKey={QUERY_KEYS.products.root} open={openDetails === 0} setOpen={setOpenDetails} />
         </div>
       </CardHeader>
@@ -56,8 +56,8 @@ export default function ProductsTable() {
             /> */}
           </div>
         </div>
-        <div className="rounded-md border">
-          <Table>
+        <div className="rounded-md border border-gray-200 dark:border-gray-700">
+          <Table className="dark:bg-neutral-800">
             <TableHeader>
               <TableRow>
                 <TableHead>Nombre</TableHead>
@@ -83,10 +83,10 @@ export default function ProductsTable() {
                     />
                     {
                       openDetails === product.id && (
-                        <AddUpdateProduct 
-                          queryKey={QUERY_KEYS.products.root} 
-                          open={openDetails === product.id} 
-                          setOpen={setOpenDetails} 
+                        <AddUpdateProduct
+                          queryKey={QUERY_KEYS.products.root}
+                          open={openDetails === product.id}
+                          setOpen={setOpenDetails}
                           product={product}
                         />
                       )

@@ -20,10 +20,10 @@ export default function ProductsTableRow({ product, handleOpenDetails, handleOpe
     handleOpenDeleteConfirmation(product.id);
   }
   return (
-    <TableRow className="hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleOpenDetails(product.id)}>
-      <TableCell className="font-bold">{product.name}</TableCell>
-      <TableCell align="center">{product.stock}</TableCell>
-      <TableCell align="center">{moneyMask(product.price)}</TableCell>
+    <TableRow className="transition-colors cursor-pointer dark:bg-neutral-900" onClick={() => handleOpenDetails(product.id)}>
+      <TableCell className="font-bold dark:text-neutral-300">{product.name}</TableCell>
+      <TableCell align="center" className="dark:text-neutral-300">{product.stock}</TableCell>
+      <TableCell align="center" className="dark:text-neutral-300">{moneyMask(product.price)}</TableCell>
       <TableCell className="text-right">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -32,11 +32,11 @@ export default function ProductsTableRow({ product, handleOpenDetails, handleOpe
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="bg-white dark:bg-neutral-800">
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => handleOpenDetails(product.id)}>Ver Detalles</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600" onClick={handleClickOpenDelete}>Eliminar</DropdownMenuItem>
+            <DropdownMenuItem className="text-red-600 dark:text-red-400" onClick={handleClickOpenDelete}>Eliminar</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>

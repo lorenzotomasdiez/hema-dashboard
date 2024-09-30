@@ -18,7 +18,7 @@ export default function ClientsTableRow({ client, handleOpenDetails, handleOpenD
     handleOpenDeleteConfirmation(client.id);
   }
   return (
-    <TableRow className="hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleOpenDetails(client.id)}>
+    <TableRow className="hover:bg-muted/50 transition-colors cursor-pointer dark:hover:bg-neutral-900" onClick={() => handleOpenDetails(client.id)}>
       <TableCell className="font-bold">{client.name}</TableCell>
       <TableCell align="left">{client.phone}</TableCell>
       <TableCell align="left">{client.address}</TableCell>

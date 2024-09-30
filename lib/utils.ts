@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { OrderStatus, Product } from "@prisma/client"
+import { OrderStatus, Product, UserRole } from "@prisma/client"
 import { CompleteOrderProduct } from "@/prisma/zod"
 
 export function cn(...inputs: ClassValue[]) {
@@ -16,7 +16,7 @@ export const calculatePrice = (products: CompleteOrderProduct[], productsData?: 
   if (!productsData) return " - ";
   const price = products.reduce((acc, product) => {
     const productData = productsData?.find(p => p.id === product.productId);
-    if(!productData) return acc;
+    if (!productData) return acc;
     return acc + (productData.price * product.quantity);
   }, 0);
   return moneyMask(price);
@@ -47,3 +47,19 @@ export const statusToSpanish = (status: OrderStatus) => {
       return "Entregado";
   }
 }
+
+export const UserRoleTranslator = (role: UserRole) => {
+  switch (role) {
+    case UserRole.ADMIN:
+      return "Admin";
+    case UserRole.COMPANY_ADMIN:
+      return "Admin";
+    case UserRole.COMPANY_OWNER:
+      return "Propietario";
+    case UserRole.COMPANY_WORKER:
+      return "Empleado";
+    default:
+      throw new Error("Invalid user role");
+  }
+}
+

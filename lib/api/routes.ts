@@ -1,4 +1,9 @@
 export const API_ROUTES = {
+  companies: {
+    root: "/api/companies",
+    create: "/api/companies/create",
+    info: "/api/companies/info"
+  },
   orders: {
     root: "/api/orders",
     id: (id: number) => `/api/orders/${id}`

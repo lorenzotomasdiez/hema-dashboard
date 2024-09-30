@@ -13,10 +13,10 @@ CREATE TABLE "Account" (
     "providerAccountId" TEXT NOT NULL,
     "refresh_token" TEXT,
     "access_token" TEXT,
-    "expires_at" INTEGER,
     "token_type" TEXT,
     "scope" TEXT,
     "id_token" TEXT,
+    "expires_at" INTEGER,
     "session_state" TEXT,
 
     CONSTRAINT "Account_pkey" PRIMARY KEY ("id")
@@ -33,24 +33,27 @@ CREATE TABLE "Session" (
 );
 
 -- CreateTable
-CREATE TABLE "Company" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Company_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "name" TEXT,
     "email" TEXT NOT NULL,
     "emailVerified" TIMESTAMP(3),
     "image" TEXT,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Company" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "image" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "Company_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -78,9 +81,12 @@ CREATE TABLE "Client" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "phone" TEXT,
+    "email" TEXT,
+    "city" TEXT,
     "address" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "companyId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Client_pkey" PRIMARY KEY ("id")
 );
@@ -89,10 +95,11 @@ CREATE TABLE "Client" (
 CREATE TABLE "Order" (
     "id" SERIAL NOT NULL,
     "status" "OrderStatus" NOT NULL DEFAULT 'PENDING',
-    "toDeliverAt" TIMESTAMP(3) NOT NULL,
+    "toDeliverAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deliveredAt" TIMESTAMP(3),
+    "deletedAt" TIMESTAMP(3),
     "clientId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "companyId" TEXT NOT NULL,
@@ -108,6 +115,8 @@ CREATE TABLE "Product" (
     "stock" INTEGER NOT NULL,
     "slug" TEXT NOT NULL,
     "price" INTEGER NOT NULL,
+    "companyId" TEXT NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
 );
@@ -140,7 +149,7 @@ CREATE UNIQUE INDEX "VerificationToken_token_key" ON "VerificationToken"("token"
 CREATE UNIQUE INDEX "VerificationToken_identifier_token_key" ON "VerificationToken"("identifier", "token");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Product_slug_key" ON "Product"("slug");
+CREATE UNIQUE INDEX "Product_companyId_slug_key" ON "Product"("companyId", "slug");
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -165,6 +174,9 @@ ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") RE
 
 -- AddForeignKey
 ALTER TABLE "Order" ADD CONSTRAINT "Order_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Product" ADD CONSTRAINT "Product_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "OrderProduct" ADD CONSTRAINT "OrderProduct_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

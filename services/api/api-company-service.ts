@@ -20,7 +20,7 @@ export default class APICompanyService {
 
     return company
   }
-  
+
   static async findCompanyById(id: string) {
     const company = await db.company.findUnique({
       where: {
@@ -30,7 +30,7 @@ export default class APICompanyService {
     return company
   }
 
-  static async findMyCompanies(userId: string) {
+  static async findCompaniesByUserId(userId: string) {
     const companies = await db.company.findMany({
       where: {
         userCompanies: {
@@ -41,13 +41,14 @@ export default class APICompanyService {
           },
         },
       },
+      include: {
+        userCompanies: true
+      }
     })
     return companies
   }
-  
 
-
-  static async ownerCreateCompany(name: string, userId: string) {
+  static async createCompany(name: string, userId: string) {
     const company = await db.company.create({
       data: {
         name,
@@ -63,6 +64,23 @@ export default class APICompanyService {
         }
       }
     })
+    return company
+  }
+
+  static async getCompanyInfo(companyId: string) {
+    const company = await db.company.findUnique({
+      where: {
+        id: companyId,
+      },
+      include: {
+        userCompanies: {
+          include: {
+            user: true
+          }
+        }
+      }
+    })
+
     return company
   }
 }

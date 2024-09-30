@@ -12,11 +12,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Client, CreateClientType } from "@/types/client";
-import { createClient, updateClient } from "@/services/clients";
 import { Input } from "@/components/ui/input";
-import { QUERY_KEYS } from "@/lib/tanstack";
+import { AddClientMutation, UpdateClientMutation } from "@/lib/tanstack/useClients";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface AddUpdateClientProps {
   client?: Client & { ordersTotal: number };
@@ -27,48 +26,8 @@ interface AddUpdateClientProps {
 
 export default function AddUpdateClient({ client, queryKey, open, setOpen }: AddUpdateClientProps) {
   const queryClient = useQueryClient();
-
-  const addClientMutation = useMutation({
-    mutationKey: ["addClient"],
-    mutationFn: (clientData: CreateClientType) => createClient(clientData),
-    onMutate: async (clientData: CreateClientType) => {
-      await queryClient.cancelQueries({ queryKey: queryKey });
-      const previousClients = queryClient.getQueryData(queryKey);
-      queryClient.setQueryData(queryKey, (old: CreateClientType[]) => [{ ...clientData, ordersTotal: 0, id: new Date().getTime().toString() }, ...old]);
-      return { previousClients }
-    },
-    onSuccess: () => {
-      toast.success("Cliente creado correctamente!");
-    },
-    onError: (err, _client, context) => {
-      queryClient.setQueryData(queryKey, context?.previousClients)
-      toast.error("Error al agregar el cliente");
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.clients.full });
-    }
-  })
-
-  const updateClientMutation = useMutation({
-    mutationKey: ["updateClient"],
-    mutationFn: (clientData: Client) => updateClient(clientData.id, {
-      ...clientData,
-    }),
-    onMutate: async (clientData: Client) => {
-      await queryClient.cancelQueries({ queryKey: queryKey });
-      const previousClients = queryClient.getQueryData(queryKey);
-      queryClient.setQueryData(queryKey, (old: Client[]) => old.map(o => o.id === clientData.id ? clientData : o));
-      return { previousClients }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['clients'] });
-      toast.success("Cliente actualizado correctamente!");
-    },
-    onError: (err) => {
-      console.error(err);
-      toast.error("Error al actualizar el cliente");
-    }
-  })
+  const addClient = AddClientMutation(queryKey, queryClient);
+  const updateClient = UpdateClientMutation(queryKey, queryClient);
 
   const {
     register,
@@ -86,10 +45,9 @@ export default function AddUpdateClient({ client, queryKey, open, setOpen }: Add
   const onSubmit = async (data: CreateClientType) => {
     setOpen(null);
     if (client) {
-      updateClientMutation.mutateAsync({ ...client, ...data }).then(() => {
-      });
+      updateClient.mutate({ ...client, ...data })
     } else {
-      addClientMutation.mutateAsync(data).then((res) => {
+      addClient.mutateAsync(data).then((res) => {
         if (!res.success) {
           console.error(res);
           return;
@@ -105,7 +63,7 @@ export default function AddUpdateClient({ client, queryKey, open, setOpen }: Add
       <DialogTrigger hidden={!!client}>
         <Button>Agregar Cliente</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] dark:bg-neutral-900">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
             <DialogTitle>{client ? "Actualizar Cliente" : "Agregar Cliente"}</DialogTitle>
@@ -148,7 +106,11 @@ export default function AddUpdateClient({ client, queryKey, open, setOpen }: Add
             </div>
           </div>
           <div className="grid grid-cols-1 mt-10">
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="dark:bg-neutral-700 dark:text-white"
+            >
               {client ? "Actualizar Cliente" : "Agregar Cliente"}
             </Button>
           </div>

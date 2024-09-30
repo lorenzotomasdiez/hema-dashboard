@@ -1,14 +1,20 @@
 export const APP_PATH = {
-  public:{
+  public: {
     landing: "/",
     signin: "/api/auth/signin",
     signout: "/api/auth/signout"
   },
-  protected:{
+  protected: {
+    account: "/account",
     chooseCompany: "/choose-company",
+    clients: "/clients",
     dashboard: {
       root: "/dashboard"
     },
+    notAllowed: "/not-allowed",
+    orders: "/orders",
+    organization: "/organization",
+    products: "/products",
+    settings: "/settings"
   }
-  
 }

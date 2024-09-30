@@ -1,18 +1,20 @@
 import { getUserAuth } from "@/lib/auth/utils";
 import { db } from "@/lib/db/index";
 import { CompleteOrder } from "@/prisma/zod";
+import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   const { session } = await getUserAuth();
-  if (!session) return new Response("Error", { status: 400 });
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session.user.selectedCompany) return NextResponse.json({ error: "No company selected" }, { status: 400 });
 
   const id = Number(params.id);
 
   const orderData = await db.order.findUnique({
-    where: { id },
+    where: { id, companyId: session.user.selectedCompany.id },
     include: {
       products: {
         include: {
@@ -32,10 +34,10 @@ export async function GET(
       total
     };
 
-    return Response.json(order, { status: 200 });
+    return NextResponse.json(order, { status: 200 });
   }
 
-  return Response.json(null, { status: 404 });
+  return NextResponse.json(null, { status: 404 });
 }
 
 export async function PATCH(
@@ -43,7 +45,8 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   const { session } = await getUserAuth();
-  if (!session) return new Response("Error", { status: 400 });
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session.user.selectedCompany) return NextResponse.json({ error: "No company selected" }, { status: 400 });
 
   const id = Number(params.id);
 
@@ -51,15 +54,14 @@ export async function PATCH(
 
   delete body.id;
 
-  const { client, user, ...updateData } = body;
+  const { client, user, company, ...updateData } = body;
 
   const orderProducts = body.products;
 
   const order = await db.order.update({
-    where: { id },
+    where: { id, companyId: session.user.selectedCompany.id },
     data: {
       ...updateData,
-      updatedAt: new Date().toISOString(),
       products: {
         deleteMany: {
           orderId: id,
@@ -89,7 +91,7 @@ export async function PATCH(
     }
   });
 
-  return Response.json(order, { status: 200 });
+  return NextResponse.json(order, { status: 200 });
 }
 
 export async function DELETE(
@@ -97,17 +99,18 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   const { session } = await getUserAuth();
-  if (!session) return new Response("Error", { status: 401 });
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session.user.selectedCompany) return NextResponse.json({ error: "No company selected" }, { status: 400 });
 
   const id = Number(params.id);
 
   await db.orderProduct.deleteMany({
-    where: { orderId: id }
+    where: { orderId: id, order: { companyId: session.user.selectedCompany.id } }
   });
 
   await db.order.delete({
     where: { id }
   });
 
-  return Response.json({ success: true }, { status: 200 });
+  return NextResponse.json({ success: true }, { status: 200 });
 }

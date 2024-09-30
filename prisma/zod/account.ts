@@ -9,10 +9,10 @@ export const accountSchema = z.object({
   providerAccountId: z.string(),
   refresh_token: z.string().nullish(),
   access_token: z.string().nullish(),
-  expires_at: z.number().int().nullish(),
   token_type: z.string().nullish(),
   scope: z.string().nullish(),
   id_token: z.string().nullish(),
+  expires_at: z.number().int().nullish(),
   session_state: z.string().nullish(),
 })
 

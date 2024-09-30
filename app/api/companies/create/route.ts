@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Company already exists" }, { status: 400 });
     }
 
-    const newCompany = await APICompanyService.ownerCreateCompany(name, session.user.id);
+    const newCompany = await APICompanyService.createCompany(name, session.user.id);
 
     return NextResponse.json(newCompany);
 

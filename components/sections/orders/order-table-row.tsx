@@ -25,19 +25,19 @@ export default function OrderTableRow({ order, handleOpenDetails, client, handle
     handleDeleteOrder(order.id);
   }
   return (
-    <TableRow className="hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleOpenDetails(order.id)}>
-      <TableCell className="font-bold">{order.deliveredAt && format(new Date(order.deliveredAt.toString()), 'dd/MM')}</TableCell>
+    <TableRow className="hover:bg-muted/50 transition-colors cursor-pointer dark:bg-neutral-900" onClick={() => handleOpenDetails(order.id)}>
+      <TableCell className="font-bold">{order.toDeliverAt && format(new Date(order.toDeliverAt.toString()), 'dd/MM')}</TableCell>
       <TableCell align="left">{client(order.clientId)}</TableCell>
       <TableCell align="center">
-          <span className={cn(
-            "relative px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 whitespace-nowrap",
-            order.status === "PENDING" && "bg-yellow-100 text-yellow-800",
-            order.status === "SHIPPED" && "bg-blue-100 text-blue-800",
-          )}>
-            {OrderStatus[order.status] === "PENDING" && "Pendiente"}
-            {OrderStatus[order.status] === "SHIPPED" && "En camino"}
-            {OrderStatus[order.status] === "DELIVERED" && "Entregado"}
-          </span>
+        <span className={cn(
+          "relative px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 whitespace-nowrap",
+          order.status === "PENDING" && "bg-yellow-100 text-yellow-800",
+          order.status === "SHIPPED" && "bg-blue-100 text-blue-800",
+        )}>
+          {OrderStatus[order.status] === "PENDING" && "Pendiente"}
+          {OrderStatus[order.status] === "SHIPPED" && "En camino"}
+          {OrderStatus[order.status] === "DELIVERED" && "Entregado"}
+        </span>
       </TableCell>
       <TableCell className="text-right">
         {calculatePrice(order.products, productsData)}

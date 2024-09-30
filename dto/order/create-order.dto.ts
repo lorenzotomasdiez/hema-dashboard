@@ -4,7 +4,7 @@ import { OrderStatus } from "@prisma/client"
 export const createOrderSchema = z.object({
   clientId: z.string().cuid(),
   status: z.nativeEnum(OrderStatus).optional(),
-  deliveredAt: z.date().optional(),
+  toDeliverAt: z.date().optional(),
   products: z.array(z.object({
     productId: z.number().int(),
     quantity: z.number().int(),

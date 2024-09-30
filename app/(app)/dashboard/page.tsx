@@ -1,14 +1,9 @@
 import { DashboardMain } from "@/components/sections";
-import { getUserAuth } from "@/lib/auth/utils";
+import { withRoleAccess } from "@/guard";
 
 export default async function DashboardPage() {
-  const { session } = await getUserAuth();
+  await withRoleAccess();
   return (
-    // <DashboardMain />
-    <div>
-      {
-        session && JSON.stringify(session)
-      }
-    </div>
+    <DashboardMain />
   )
 }

@@ -102,7 +102,7 @@ export default function AddUpdateProduct({ product, queryKey, open, setOpen }: A
 
   useEffect(() => {
     setValue('slug', generateSlug(watch('name')));
-  }, [watch('name')]);
+  }, [watch('name'), setValue]);
 
   const onSubmit = async (data: CreateProductType) => {
     setOpen(null);
@@ -124,13 +124,13 @@ export default function AddUpdateProduct({ product, queryKey, open, setOpen }: A
   return (
     <Dialog open={!!open} onOpenChange={(e) => setOpen(!!e ? (product?.id || 0) : null)}>
       <DialogTrigger hidden={!!product}>
-        <Button>Agregar Producto</Button>
+        <Button className="dark:bg-neutral-700 dark:text-white">Agregar Producto</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] dark:bg-neutral-900">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>{product ? "Actualizar Producto" : "Agregar Producto"}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-black dark:text-white">{product ? "Actualizar Producto" : "Agregar Producto"}</DialogTitle>
+            <DialogDescription className="text-muted-foreground dark:text-muted-foreground">
               {product
                 ? "Actualiza los detalles del producto. Click en 'Actualizar' cuando hayas terminado."
                 : "Completa los detalles para el nuevo producto. Click en 'Agregar' cuando hayas terminado."}
@@ -138,7 +138,7 @@ export default function AddUpdateProduct({ product, queryKey, open, setOpen }: A
           </DialogHeader>
           <div className="grid gap-6 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
+              <Label htmlFor="name" className="text-right text-black dark:text-white">
                 Nombre
               </Label>
               <Input
@@ -148,7 +148,7 @@ export default function AddUpdateProduct({ product, queryKey, open, setOpen }: A
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">
+              <Label htmlFor="description" className="text-right text-black dark:text-white">
                 Descripción
               </Label>
               <Input
@@ -158,7 +158,7 @@ export default function AddUpdateProduct({ product, queryKey, open, setOpen }: A
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="stock" className="text-right">
+              <Label htmlFor="stock" className="text-right text-black dark:text-white">
                 Stock
               </Label>
               <Input
@@ -169,7 +169,7 @@ export default function AddUpdateProduct({ product, queryKey, open, setOpen }: A
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="price" className="text-right">
+              <Label htmlFor="price" className="text-right text-black dark:text-white">
                 Precio
               </Label>
               <Input
@@ -180,7 +180,7 @@ export default function AddUpdateProduct({ product, queryKey, open, setOpen }: A
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="slug" className="text-right">
+              <Label htmlFor="slug" className="text-right text-black dark:text-white">
                 Slug
               </Label>
               <Input
@@ -191,7 +191,11 @@ export default function AddUpdateProduct({ product, queryKey, open, setOpen }: A
             </div>
           </div>
           <div className="grid grid-cols-1 mt-10">
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="dark:bg-neutral-700 dark:text-white"
+            >
               {product ? "Actualizar Producto" : "Agregar Producto"}
             </Button>
           </div>

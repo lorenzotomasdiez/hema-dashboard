@@ -14,13 +14,10 @@ import {
   Legend,
 } from "chart.js"
 import { Bar } from "react-chartjs-2"
-import { DashboardSummaryData } from "@/types"
 import { generateDashboardPalette, moneyMask, statusToSpanish } from "@/lib/utils"
 import { OrdersTable } from "../orders"
-import { useQuery } from "@tanstack/react-query"
-import { getDashboardSummary } from "@/services/dashboard"
-import HemaLogo from "@/components/HemaLogo"
-import { QUERY_KEYS } from "@/lib/tanstack"
+import AppLogo from "@/components/AppLogo"
+import { useDashboardQuery } from "@/lib/tanstack"
 
 ChartJS.register(
   CategoryScale,
@@ -33,11 +30,7 @@ ChartJS.register(
 
 
 export function DashboardMain() {
-  const { data, isLoading } = useQuery<DashboardSummaryData>({
-    queryKey: QUERY_KEYS.dashboard.summary,
-    queryFn: getDashboardSummary,
-    staleTime: 1000 * 60
-  })
+  const { data, isLoading } = useDashboardQuery()
 
   const chartOptions = {
     responsive: true,
@@ -107,28 +100,28 @@ export function DashboardMain() {
       },
     ],
   }
-  if (isLoading || !data) return <HemaLogo />
+  if (isLoading || !data) return <AppLogo />
   return (
-    <div className="bg-gray-100 min-h-screen p-2 md:p-8">
+    <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen p-2 md:p-8">
       <div className="flex justify-center items-center mb-6 md:justify-start">
-        <h1 className="text-3xl font-bold text-gray-800 text-center">Resumen</h1>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 text-center">Resumen</h1>
       </div>
       <div className="grid grid-cols-1 gap-6 mb-6 sm:grid-cols-2 lg:grid-cols-3">
-        <Card>
+        <Card className="dark:bg-neutral-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ingresos Totales</CardTitle>
+            <CardTitle className="text-sm font-medium dark:text-gray-100">Ingresos Totales</CardTitle>
             <BarChart3 className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{moneyMask(data?.totalIncome?.currentMonth || 0)}</div>
+            <div className="text-2xl font-bold dark:text-gray-100">{moneyMask(data?.totalIncome?.currentMonth || 0)}</div>
             <p className="text-xs">
               <span className={`${data?.totalIncome?.previousMonth !== 0
-                  ? ((data?.totalIncome?.currentMonth - data?.totalIncome?.previousMonth) / data?.totalIncome?.previousMonth * 100) < 0
-                    ? 'text-red-500'
-                    : 'text-green-500'
-                  : data?.totalIncome?.currentMonth > 0
-                    ? 'text-green-500'
-                    : 'text-neutral-500 dark:text-neutral-400'
+                ? ((data?.totalIncome?.currentMonth - data?.totalIncome?.previousMonth) / data?.totalIncome?.previousMonth * 100) < 0
+                  ? 'text-red-500'
+                  : 'text-green-500'
+                : data?.totalIncome?.currentMonth > 0
+                  ? 'text-green-500'
+                  : 'text-neutral-500 dark:text-neutral-400'
                 }`}>
                 {data?.totalIncome?.previousMonth !== 0
                   ? `${((data?.totalIncome?.currentMonth - data?.totalIncome?.previousMonth) / data?.totalIncome?.previousMonth * 100).toFixed(2)}%`
@@ -141,21 +134,21 @@ export function DashboardMain() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="dark:bg-neutral-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Pedidos</CardTitle>
+            <CardTitle className="text-sm font-medium dark:text-gray-100">Total de Pedidos</CardTitle>
             <ShoppingCart className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.newOrders?.currentMonth} pedidos</div>
+            <div className="text-2xl font-bold dark:text-gray-100">{data?.newOrders?.currentMonth} pedidos</div>
             <p className="text-xs">
               <span className={`${data?.newOrders?.previousMonth !== 0
-                  ? ((data?.newOrders?.currentMonth - data?.newOrders?.previousMonth) / data?.newOrders?.previousMonth * 100) < 0
-                    ? 'text-red-500'
-                    : 'text-green-500'
-                  : data?.newOrders?.currentMonth > 0
-                    ? 'text-green-500'
-                    : 'text-neutral-500 dark:text-neutral-400'
+                ? ((data?.newOrders?.currentMonth - data?.newOrders?.previousMonth) / data?.newOrders?.previousMonth * 100) < 0
+                  ? 'text-red-500'
+                  : 'text-green-500'
+                : data?.newOrders?.currentMonth > 0
+                  ? 'text-green-500'
+                  : 'text-neutral-500 dark:text-neutral-400'
                 }`}>
                 {data?.newOrders?.previousMonth !== 0
                   ? `${((data?.newOrders?.currentMonth - data?.newOrders?.previousMonth) / data?.newOrders?.previousMonth * 100).toFixed(2)}%`
@@ -168,21 +161,21 @@ export function DashboardMain() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="dark:bg-neutral-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Clientes Activos</CardTitle>
+            <CardTitle className="text-sm font-medium dark:text-gray-100">Total de Clientes Activos</CardTitle>
             <Users className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.totalActiveClients?.currentMonth}</div>
+            <div className="text-2xl font-bold dark:text-gray-100">{data?.totalActiveClients?.currentMonth}</div>
             <p className="text-xs">
               <span className={`${data?.totalActiveClients?.previousMonth !== 0
-                  ? ((data?.totalActiveClients?.currentMonth - data?.totalActiveClients?.previousMonth) / data?.totalActiveClients?.previousMonth * 100) < 0
-                    ? 'text-red-500'
-                    : 'text-green-500'
-                  : data?.totalActiveClients?.currentMonth > 0
-                    ? 'text-green-500'
-                    : 'text-neutral-500 dark:text-neutral-400'
+                ? ((data?.totalActiveClients?.currentMonth - data?.totalActiveClients?.previousMonth) / data?.totalActiveClients?.previousMonth * 100) < 0
+                  ? 'text-red-500'
+                  : 'text-green-500'
+                : data?.totalActiveClients?.currentMonth > 0
+                  ? 'text-green-500'
+                  : 'text-neutral-500 dark:text-neutral-400'
                 }`}>
                 {data?.totalActiveClients?.previousMonth !== 0
                   ? `${((data?.totalActiveClients?.currentMonth - data?.totalActiveClients?.previousMonth) / data?.totalActiveClients?.previousMonth * 100).toFixed(2)}%`
@@ -198,17 +191,17 @@ export function DashboardMain() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-2">
-        <Card>
+        <Card className="dark:bg-neutral-800">
           <CardHeader>
-            <CardTitle>Estado de Pedidos</CardTitle>
+            <CardTitle className="dark:text-gray-100">Estado de Pedidos</CardTitle>
           </CardHeader>
           <CardContent>
             <Bar data={orderStatusData} options={chartOptions} />
           </CardContent>
         </Card>
-        <Card>
+        <Card className="dark:bg-neutral-800">
           <CardHeader>
-            <CardTitle>Productos Más Demandados</CardTitle>
+            <CardTitle className="dark:text-gray-100">Productos Más Demandados</CardTitle>
           </CardHeader>
           <CardContent>
             <Bar data={topProductsData} options={chartOptions} />

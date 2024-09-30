@@ -10,16 +10,18 @@ export async function GET() {
   try {
     const { session } = await getUserAuth();
     if (!session) return new Response("Unauthorized", { status: 401 });
+    if (!session.user.selectedCompany) return new Response("No company selected", { status: 400 });
 
     const now = new Date();
+    const selectedCompanyId = session.user.selectedCompany?.id as string;
     const firstDayOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const firstDayOfPreviousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
     const [currentMonthData, previousMonthData, orderStatuses, topProducts] = await Promise.all([
-      getMonthlyData(firstDayOfCurrentMonth, now),
-      getMonthlyData(firstDayOfPreviousMonth, firstDayOfCurrentMonth),
-      getOrderStatuses(),
-      getTopProducts(firstDayOfCurrentMonth, now),
+      getMonthlyData(firstDayOfCurrentMonth, now, selectedCompanyId),
+      getMonthlyData(firstDayOfPreviousMonth, firstDayOfCurrentMonth, selectedCompanyId),
+      getOrderStatuses(selectedCompanyId),
+      getTopProducts(firstDayOfCurrentMonth, now, selectedCompanyId),
     ]);
 
     const summary: DashboardSummaryData = {
@@ -52,7 +54,7 @@ export async function GET() {
   }
 }
 
-async function getMonthlyData(startDate: Date, endDate: Date) {
+async function getMonthlyData(startDate: Date, endDate: Date, selectedCompanyId: string) {
   const [totalIncomeResult, newOrders, activeClientsResult] = await Promise.all([
     db.$queryRaw<TotalIncomeResult[]>`
       SELECT SUM(p.price * op.quantity) as total
@@ -60,6 +62,7 @@ async function getMonthlyData(startDate: Date, endDate: Date) {
       JOIN "OrderProduct" op ON o.id = op."orderId"
       JOIN "Product" p ON op."productId" = p.id
       WHERE o."createdAt" >= ${startDate} AND o."createdAt" < ${endDate}
+      AND o."companyId" = ${selectedCompanyId}
     `,
     db.order.count({
       where: {
@@ -67,6 +70,7 @@ async function getMonthlyData(startDate: Date, endDate: Date) {
           gte: startDate,
           lt: endDate,
         },
+        companyId: selectedCompanyId as string,
       },
     }),
     db.order.groupBy({
@@ -76,6 +80,7 @@ async function getMonthlyData(startDate: Date, endDate: Date) {
           gte: startDate,
           lt: endDate,
         },
+        companyId: selectedCompanyId as string,
       },
     }).then((result) => result.length),
   ]);
@@ -91,11 +96,14 @@ async function getMonthlyData(startDate: Date, endDate: Date) {
   };
 }
 
-async function getOrderStatuses() {
+async function getOrderStatuses(companyId: string) {
   const statuses = await db.order.groupBy({
     by: ['status'],
     _count: {
       status: true,
+    },
+    where: {
+      companyId,
     },
   });
 
@@ -105,7 +113,7 @@ async function getOrderStatuses() {
   }, {} as Record<string, number>);
 }
 
-async function getTopProducts(startDate: Date, endDate: Date) {
+async function getTopProducts(startDate: Date, endDate: Date, companyId: string) {
   const topProducts = await db.orderProduct.groupBy({
     by: ['productId'],
     where: {
@@ -114,7 +122,8 @@ async function getTopProducts(startDate: Date, endDate: Date) {
           gte: startDate,
           lt: endDate,
         },
-      },
+        companyId,
+      }
     },
     _sum: {
       quantity: true,

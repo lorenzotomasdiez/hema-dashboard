@@ -1,23 +1,29 @@
 import { db } from "@/lib/db/index";
 import { CreateOrderType } from "@/types/order";
 import { OrderStatus } from "@prisma/client";
+import { NextResponse } from "next/server";
 
-export async function GET(request: Request, { params }: { params: { userId: string } }) {
+export async function GET(request: Request, { params }: { params: { userId: string, companyId: string } }) {
   if (process.env.NODE_ENV !== "development") {
-    return new Response("Error not allowed", { status: 403 });
+    return NextResponse.json({ error: "Not allowed" }, { status: 403 });
   }
   const userId = params.userId;
-
-  if (!userId) {
-    return new Response("User id is required", { status: 400 });
+  const companyId = params.companyId;
+  if (!userId || !companyId) {
+    return NextResponse.json({ error: "Params are required" }, { status: 400 });
   }
 
   const user = await db.user.findUnique({
     where: { id: userId }
   });
 
-  if (!user) {
-    return new Response("User not found", { status: 404 });
+  const company = await db.company.findUnique({
+    where: { id: companyId }
+  });
+
+  if (!user || !company) {
+    console.error("User or company not found", { user, company });
+    return NextResponse.json({ error: "User or company not found" }, { status: 404 });
   }
 
   try {
@@ -36,7 +42,7 @@ export async function GET(request: Request, { params }: { params: { userId: stri
         clientId: client.id,
         products: [{ productId: product.id, quantity: Math.floor(Math.random() * 10) + 1 }],
         status: status as OrderStatus,
-        deliveredAt: status === "DELIVERED" ? new Date() : undefined
+        toDeliverAt: new Date()
       };
       orders.push(order);
     }
@@ -47,13 +53,14 @@ export async function GET(request: Request, { params }: { params: { userId: stri
           clientId: order.clientId,
           userId: userId,
           status: order.status,
-          deliveredAt: order.deliveredAt,
+          deliveredAt: order.toDeliverAt,
           products: {
             create: order.products.map(product => ({
               product: { connect: { id: product.productId } },
               quantity: product.quantity
             }))
-          }
+          },
+          companyId: companyId
         },
         include: {
           products: true

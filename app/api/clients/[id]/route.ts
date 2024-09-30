@@ -8,20 +8,21 @@ export async function PATCH(
 ) {
   const { session } = await getUserAuth();
   if (!session) return new Response("Error", { status: 400 });
+  if (!session.user.selectedCompany) return new Response("No company selected", { status: 400 });
 
   const id = params.id;
 
-  const body = (await request.json()) as Partial<Client & {ordersTotal: number}>;
+  const body = (await request.json()) as Partial<Client & { ordersTotal: number }>;
 
-  const {id: _, ordersTotal, ...updatedData} = body;
+  const { id: _, ordersTotal, ...updatedData } = body;
 
 
   const client = await db.client.update({
-    where: { id },
+    where: { id, companyId: session.user.selectedCompany.id },
     data: {
       ...updatedData,
     }
-  });   
+  });
 
 
   return Response.json(client, { status: 200 });
@@ -33,23 +34,25 @@ export async function DELETE(
 ) {
   const { session } = await getUserAuth();
   if (!session) return new Response("Error", { status: 400 });
+  if (!session.user.selectedCompany) return new Response("No company selected", { status: 400 });
 
   const id = params.id;
 
   await db.orderProduct.deleteMany({
     where: {
       order: {
-        clientId: id
+        clientId: id,
+        companyId: session.user.selectedCompany.id
       }
     }
   });
 
   await db.order.deleteMany({
-    where: { clientId: id }
+    where: { clientId: id, companyId: session.user.selectedCompany.id }
   });
 
   const client = await db.client.delete({
-    where: { id }
+    where: { id, companyId: session.user.selectedCompany.id }
   });
 
   return Response.json(client, { status: 200 });

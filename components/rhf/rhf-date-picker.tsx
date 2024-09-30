@@ -24,7 +24,7 @@ export const RHFDatePicker = ({ name, className, disabled = false }: { name: str
             <Button
               variant={"outline"}
               className={cn(
-                "w-full pl-3 text-left font-normal",
+                "w-full pl-3 text-left font-normal dark:bg-neutral-700 dark:text-white",
                 className,
                 !field.value && "text-muted-foreground",
                 disabled && "opacity-50 cursor-not-allowed"

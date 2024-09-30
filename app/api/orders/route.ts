@@ -8,7 +8,7 @@ import { CreateOrderType } from "@/types";
 export async function GET(request: NextRequest) {
   const { session } = await getUserAuth();
   if (!session) return new Response("Error", { status: 400 });
-
+  if (!session.user.selectedCompany) return new Response("Error", { status: 400 });
   const searchParams = request.nextUrl.searchParams
 
   const page = Number(searchParams.get('page') || 0);
@@ -22,9 +22,10 @@ export async function GET(request: NextRequest) {
     skip: page * per_page,
     take: per_page,
     where: {
+      companyId: session.user.selectedCompany.id,
       ...(status !== "ALL" && { status: OrderStatus[status as OrderStatus] }),
       ...(forToday && {
-        deliveredAt: {
+        toDeliverAt: {
           gte: new Date(new Date(new Date().toLocaleString("en-US", { timeZone: timezone })).setHours(0, 0, 0, 0)),
           lte: new Date(new Date(new Date().toLocaleString("en-US", { timeZone: timezone })).setHours(23, 59, 59, 999))
         }
@@ -44,8 +45,9 @@ export async function GET(request: NextRequest) {
   const ordersCount = await db.order.count({
     where: {
       ...(status !== "ALL" && { status: OrderStatus[status as OrderStatus] }),
-      ...(forToday && { deliveredAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)), lte: new Date(new Date().setHours(23, 59, 59, 999)) } }),
+      ...(forToday && { toDeliverAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)), lte: new Date(new Date().setHours(23, 59, 59, 999)) } }),
       ...(keyword && { client: { name: { contains: keyword, mode: 'insensitive' } } }),
+      companyId: session.user.selectedCompany.id,
     }
   });
 
@@ -55,32 +57,34 @@ export async function GET(request: NextRequest) {
 export async function POST(request: Request) {
   const { session } = await getUserAuth();
   if (!session) return new Response("Error", { status: 400 });
+  if (!session.user.selectedCompany) return new Response("Error", { status: 400 });
 
   const body = (await request.json()) as CreateOrderType;
 
   const newOrderDTO = createOrderSchema.safeParse({
     ...body,
-    deliveredAt: body.deliveredAt ? new Date(body.deliveredAt) : undefined
+    toDeliverAt: body.toDeliverAt ? new Date(body.toDeliverAt) : undefined
   });
 
   if (!newOrderDTO.success) {
     return new Response(JSON.stringify(newOrderDTO.error), { status: 422 });
   }
 
-  const { status, products, clientId, deliveredAt } = newOrderDTO.data;
+  const { status, products, clientId, toDeliverAt } = newOrderDTO.data;
 
   const order = await db.order.create({
     data: {
       clientId,
       userId: session.user.id,
       status,
-      deliveredAt,
+      toDeliverAt,
       products: {
         create: products.map(product => ({
           product: { connect: { id: product.productId } },
           quantity: product.quantity
         }))
-      }
+      },
+      companyId: session.user.selectedCompany.id,
     },
     include: {
       products: true

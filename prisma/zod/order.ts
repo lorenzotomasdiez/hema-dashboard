@@ -1,14 +1,15 @@
 import * as z from "zod"
 import { OrderStatus } from "@prisma/client"
-import { CompleteClient, relatedClientSchema, CompleteUser, relatedUserSchema, CompleteOrderProduct, relatedOrderProductSchema, CompleteCompany, relatedCompanySchema } from "./index"
+import { CompleteClient, relatedClientSchema, CompleteUser, relatedUserSchema, CompleteCompany, relatedCompanySchema, CompleteOrderProduct, relatedOrderProductSchema } from "./index"
 
 export const orderSchema = z.object({
   id: z.number().int(),
   status: z.nativeEnum(OrderStatus),
-  toDeliverAt: z.date(),
+  toDeliverAt: z.date().nullish(),
   createdAt: z.date(),
   updatedAt: z.date(),
   deliveredAt: z.date().nullish(),
+  deletedAt: z.date().nullish(),
   clientId: z.string(),
   userId: z.string(),
   companyId: z.string(),
@@ -17,8 +18,8 @@ export const orderSchema = z.object({
 export interface CompleteOrder extends z.infer<typeof orderSchema> {
   client: CompleteClient
   user: CompleteUser
-  products: CompleteOrderProduct[]
   company: CompleteCompany
+  products: CompleteOrderProduct[]
 }
 
 /**
@@ -29,6 +30,6 @@ export interface CompleteOrder extends z.infer<typeof orderSchema> {
 export const relatedOrderSchema: z.ZodSchema<CompleteOrder> = z.lazy(() => orderSchema.extend({
   client: relatedClientSchema,
   user: relatedUserSchema,
-  products: relatedOrderProductSchema.array(),
   company: relatedCompanySchema,
+  products: relatedOrderProductSchema.array(),
 }))

@@ -8,6 +8,9 @@ import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { defaultLinks, additionalLinks } from "@/config/nav";
 import { useQueryClient } from "@tanstack/react-query";
+import { UserRole } from "@prisma/client";
+import { useSession } from "next-auth/react";
+import { AuthSession } from "@/lib/auth/utils";
 
 export interface SidebarLink {
   title: string;
@@ -18,21 +21,24 @@ export interface SidebarLink {
     queryFn: () => Promise<any>;
     staleTime: number;
   }[];
+  roles: UserRole[];
 }
 
 const SidebarItems = () => {
+  const { data: session } = useSession();
   return (
     <>
-      <SidebarLinkGroup links={defaultLinks} />
+      <SidebarLinkGroup links={defaultLinks} session={session as AuthSession["session"]} />
       {additionalLinks.length > 0
         ? additionalLinks.map((l) => (
-            <SidebarLinkGroup
-              links={l.links}
-              title={l.title}
-              border
-              key={l.title}
-            />
-          ))
+          <SidebarLinkGroup
+            links={l.links}
+            title={l.title}
+            border
+            key={l.title}
+            session={session as AuthSession["session"]}
+          />
+        ))
         : null}
     </>
   );
@@ -43,10 +49,12 @@ const SidebarLinkGroup = ({
   links,
   title,
   border,
+  session
 }: {
   links: SidebarLink[];
   title?: string;
   border?: boolean;
+  session: AuthSession["session"];
 }) => {
   const fullPathname = usePathname();
   const pathname = "/" + fullPathname.split("/")[1];
@@ -60,10 +68,11 @@ const SidebarLinkGroup = ({
       ) : null}
       <ul>
         {links.map((link) => (
-          <li key={link.title}>
-            <SidebarLink link={link} active={pathname === link.href} />
-          </li>
-        ))}
+          link.roles.includes(session?.user.selectedCompany?.role as UserRole) && (
+            <li key={link.title}>
+              <SidebarLink link={link} active={pathname === link.href} />
+            </li>
+          )))}
       </ul>
     </div>
   );
@@ -84,9 +93,8 @@ const SidebarLink = ({ link, active }: { link: SidebarLink; active: boolean }) =
   return (
     <Link
       href={link.href}
-      className={`group transition-colors p-2 inline-block hover:bg-popover hover:text-primary text-muted-foreground text-xs hover:shadow rounded-md w-full${
-        active ? " text-primary font-semibold" : ""
-      }`}
+      className={`group transition-colors p-2 inline-block hover:bg-popover hover:text-primary text-muted-foreground text-xs hover:shadow rounded-md w-full${active ? " text-primary font-semibold" : ""
+        }`}
       onMouseEnter={prefetchQuery}
     >
       <div className="flex items-center">

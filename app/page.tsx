@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { APP_PATH } from "@/config/path"
 import { Snowflake, ThermometerSnowflake, Clock, Droplet } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 
 export default function LandingPage() {
@@ -76,7 +77,13 @@ export default function LandingPage() {
                     <CardTitle>{product.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <img src={product.image} alt={product.title} className="w-full h-48 object-cover mb-4 rounded-md" />
+                    <Image
+                      src={product.image}
+                      alt={product.title}
+                      width={300}
+                      height={200}
+                      className="w-full h-48 object-cover mb-4 rounded-md"
+                    />
                     <CardDescription>{product.description}</CardDescription>
                   </CardContent>
                 </Card>

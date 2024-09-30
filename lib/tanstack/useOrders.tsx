@@ -9,7 +9,7 @@ interface Props {
   initialParams: GetOrdersParams
 }
 
-export const useOrders = ({initialParams}: Props) => {
+export const useOrders = ({ initialParams }: Props) => {
   const queryClient = useQueryClient();
   const [params, setParams] = useState<GetOrdersParams>(initialParams);
 

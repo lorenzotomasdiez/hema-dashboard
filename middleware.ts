@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export default withAuth(
   function middleware(req: NextRequestWithAuth) {
     const token = req.nextauth.token;
-    if (token && !token.selectedCompanyId) {
+    if (token && !token.selectedCompany) {
       return NextResponse.redirect(new URL(APP_PATH.protected.chooseCompany, req.url));
     }
     return NextResponse.next();

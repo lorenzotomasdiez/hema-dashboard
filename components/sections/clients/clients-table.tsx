@@ -1,7 +1,6 @@
 "use client";
 import * as React from "react"
-import { Loader2, Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { Loader2 } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -10,10 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useQuery } from "@tanstack/react-query";
-import { Client } from "@/types/client";
-import { getClientsFull } from "@/services/clients";
-import { QUERY_KEYS } from "@/lib/tanstack";
+import { QUERY_KEYS, useClientsQuery } from "@/lib/tanstack";
 import ClientsTableRowSkeleton from "./clients-table-row-skeleton";
 import AddUpdateClient from "./add-update-client";
 import ClientsTableRow from "./clients-table-row";
@@ -23,11 +19,8 @@ import ClientsDeleteConfirmation from "./clients-delete-confirmation";
 export default function ClientsTable() {
   const [openDetails, setOpenDetails] = React.useState<string | null>(null);
   const [openDeleteConfirmation, setOpenDeleteConfirmation] = React.useState<string | null>(null);
-  const clients = useQuery<(Client & {ordersTotal: number})[]>({
-    queryKey: QUERY_KEYS.clients.full,
-    queryFn: getClientsFull,
-    staleTime: 999 * 60
-  })
+
+  const clients = useClientsQuery();
 
   const handleOpenDetails = (id: string) => {
     setOpenDetails(id);
@@ -38,7 +31,7 @@ export default function ClientsTable() {
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full max-w-4xl mx-auto dark:bg-neutral-900">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
         <CardTitle className="text-2xl font-bold">Clientes</CardTitle>
         <div className="flex items-center justify-end gap-3">
@@ -56,7 +49,7 @@ export default function ClientsTable() {
             /> */}
           </div>
         </div>
-        <div className="rounded-md border">
+        <div className="rounded-md border dark:bg-neutral-800">
           <Table>
             <TableHeader>
               <TableRow>
@@ -84,10 +77,10 @@ export default function ClientsTable() {
                     />
                     {
                       openDetails === client.id && (
-                        <AddUpdateClient 
-                          queryKey={QUERY_KEYS.clients.full} 
-                          open={openDetails === client.id} 
-                          setOpen={setOpenDetails} 
+                        <AddUpdateClient
+                          queryKey={QUERY_KEYS.clients.full}
+                          open={openDetails === client.id}
+                          setOpen={setOpenDetails}
                           client={client}
                         />
                       )

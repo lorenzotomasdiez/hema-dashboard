@@ -10,8 +10,11 @@ import { AlignRight } from "lucide-react";
 import { defaultLinks } from "@/config/nav";
 import Image from "next/image";
 import { APP_PATH } from "@/config/path";
+import { useSession } from "next-auth/react";
+import { UserRole } from "@prisma/client";
 
 export default function Navbar() {
+  const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const listRef = useRef<HTMLDivElement>(null);
@@ -32,7 +35,7 @@ export default function Navbar() {
         <div className="flex-1"></div>
         <div className="flex items-center justify-center flex-1 py-2">
           <Link href={APP_PATH.protected.dashboard.root}>
-            <Image src="/hema-logo.jpg" alt="Logo" width={50} height={50} className="rounded-full border-2 border-border cursor-pointer" />
+            <Image src="/app-logo.png" alt="Logo" width={50} height={50} className="cursor-pointer" />
           </Link>
         </div>
         <div className="flex-1 flex justify-end">
@@ -41,7 +44,7 @@ export default function Navbar() {
           </Button>
         </div>
       </nav>
-      <div 
+      <div
         ref={listRef}
         className="overflow-hidden transition-all duration-300 ease-in-out"
         style={{ maxHeight: '0px' }}
@@ -49,23 +52,24 @@ export default function Navbar() {
         <div className="my-4 p-4 bg-muted">
           <ul className="space-y-4">
             {defaultLinks.map((link) => (
-              <li key={link.title} onClick={() => setOpen(false)} className="w-full">
-                <Link
-                  href={link.href}
-                  className={`
+              link.roles.includes(session?.user.selectedCompany?.role as UserRole) && (
+                <li key={link.title} onClick={() => setOpen(false)} className="w-full">
+                  <Link
+                    href={link.href}
+                    className={`
                     block w-full py-3 px-4 rounded-lg text-lg
                     ${pathname === link.href
-                      ? "bg-primary text-primary-foreground font-semibold"
-                      : "bg-background text-muted-foreground hover:bg-secondary"}
+                        ? "bg-primary text-primary-foreground font-semibold"
+                        : "bg-background text-muted-foreground hover:bg-secondary"}
                   `}
-                >
-                  <div className="flex items-center">
-                    {link.icon && <link.icon className="mr-3 h-5 w-5" />}
-                    {link.title}
-                  </div>
-                </Link>
-              </li>
-            ))}
+                  >
+                    <div className="flex items-center">
+                      {link.icon && <link.icon className="mr-3 h-5 w-5" />}
+                      {link.title}
+                    </div>
+                  </Link>
+                </li>
+              )))}
           </ul>
         </div>
       </div>

@@ -5,9 +5,12 @@ export const clientSchema = z.object({
   id: z.string(),
   name: z.string(),
   phone: z.string().nullish(),
+  email: z.string().nullish(),
+  city: z.string().nullish(),
   address: z.string().nullish(),
-  createdAt: z.date(),
   companyId: z.string(),
+  createdAt: z.date(),
+  deletedAt: z.date().nullish(),
 })
 
 export interface CompleteClient extends z.infer<typeof clientSchema> {

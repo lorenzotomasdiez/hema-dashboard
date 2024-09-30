@@ -125,7 +125,7 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
   const form = useForm<CreateOrderType>({
     defaultValues: {
       clientId: order?.clientId || undefined,
-      deliveredAt: order?.deliveredAt || new Date(),
+      toDeliverAt: order?.toDeliverAt || new Date(),
       status: order?.status || "PENDING",
       products: order?.products || []
     }
@@ -137,10 +137,12 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
     setOpen(null);
     const dataToSubmit = {
       ...data,
-      ...(data.deliveredAt && 
-        { deliveredAt: new Date(
-          new Date(data.deliveredAt).toLocaleString("en-US", { timeZone: "UTC" })
-        )})
+      ...(data.toDeliverAt &&
+      {
+        toDeliverAt: new Date(
+          new Date(data.toDeliverAt).toLocaleString("en-US", { timeZone: "UTC" })
+        )
+      })
     };
 
     if (order) {
@@ -154,12 +156,12 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
   const handleAddProduct = (productId: number) => {
     if (productId === 0) return;
     const products = watch('products');
-    setValue('products', [...products, { productId, quantity: 1 }], {shouldDirty: true});
+    setValue('products', [...products, { productId, quantity: 1 }], { shouldDirty: true });
   }
 
   const handleRemoveProduct = (productId: number) => {
     const products = watch('products');
-    setValue('products', products.filter(p => p.productId !== productId), {shouldDirty: true});
+    setValue('products', products.filter(p => p.productId !== productId), { shouldDirty: true });
   }
 
   const handleDecreaseQuantity = (productId: number) => {
@@ -169,7 +171,7 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
       handleRemoveProduct(productId);
       return;
     }
-    setValue('products', products.map(p => p.productId === productId ? { ...p, quantity: p.quantity - 1 } : p), {shouldDirty: true});
+    setValue('products', products.map(p => p.productId === productId ? { ...p, quantity: p.quantity - 1 } : p), { shouldDirty: true });
   }
 
   const handleIncreaseQuantity = (productId: number) => {
@@ -180,7 +182,7 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
       toast.error("No hay suficiente stock del producto");
       return;
     }
-    setValue('products', products.map(p => p.productId === productId ? { ...p, quantity: p.quantity + 1 } : p), {shouldDirty: true});
+    setValue('products', products.map(p => p.productId === productId ? { ...p, quantity: p.quantity + 1 } : p), { shouldDirty: true });
   }
   const productsToShow = productsData && productsData.filter(
     (p) => !watch('products').map(e => e.productId).includes(p.id)
@@ -190,14 +192,17 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
     if (!open) {
       reset();
     }
-  }, [open]);
+  }, [open, reset]);
 
   return (
     <Dialog open={!!open} onOpenChange={(e) => setOpen(!!e ? (order?.id || 0) : null)}>
-      <DialogTrigger hidden={!!order} className="bg-foreground text-background p-2 rounded-md text-sm font-medium">
+      <DialogTrigger
+        hidden={!!order}
+        className="bg-foreground text-background p-2 rounded-md text-sm font-medium dark:bg-neutral-700 dark:text-white"
+      >
         Agregar Pedido
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] dark:bg-neutral-900">
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <DialogHeader>
@@ -237,7 +242,7 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
                   <Select
                     name="clientId"
                     value={watch('clientId')}
-                    onValueChange={(e: CreateOrderType['clientId']) => setValue('clientId', e, {shouldDirty: true})}
+                    onValueChange={(e: CreateOrderType['clientId']) => setValue('clientId', e, { shouldDirty: true })}
                     disabled={!clients.data || clients.data.length === 0}
                   >
                     <SelectTrigger className="col-span-3">
@@ -278,7 +283,7 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
                   name="status"
                   value={watch('status')}
                   onValueChange={
-                    (e) => setValue('status', e as CreateOrderType['status'], {shouldDirty: true})
+                    (e) => setValue('status', e as CreateOrderType['status'], { shouldDirty: true })
                   }
                 >
                   <SelectTrigger className="col-span-3">
@@ -292,11 +297,11 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
                 </Select>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="deliveredAt" className="text-right col-span-1">
+                <Label htmlFor="toDeliverAt" className="text-right col-span-1">
                   Fecha de entrega
                 </Label>
                 <div className="col-span-3">
-                  <RHFDatePicker name="deliveredAt" />
+                  <RHFDatePicker name="toDeliverAt" />
                 </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -367,7 +372,11 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
               )}</span>
             </div>
             <div className="grid grid-cols-1 mt-10">
-              <Button type="submit" disabled={isSubmitting || !isDirty}>
+              <Button
+                type="submit"
+                disabled={isSubmitting || !isDirty}
+                className="dark:bg-neutral-700 dark:text-white"
+              >
                 {order ? "Actualizar Pedido" : "Agregar Pedido"}
               </Button>
             </div>
