@@ -13,21 +13,15 @@ import { QUERY_KEYS, useClientsQuery } from "@/lib/tanstack";
 import ClientsTableRowSkeleton from "./clients-table-row-skeleton";
 import AddUpdateClient from "./add-update-client";
 import ClientsTableRow from "./clients-table-row";
-import ClientsDeleteConfirmation from "./clients-delete-confirmation";
 
 
 export default function ClientsTable() {
   const [openDetails, setOpenDetails] = React.useState<string | null>(null);
-  const [openDeleteConfirmation, setOpenDeleteConfirmation] = React.useState<string | null>(null);
 
   const clients = useClientsQuery();
 
   const handleOpenDetails = (id: string) => {
     setOpenDetails(id);
-  }
-
-  const handleOpenDeleteConfirmation = (id: string) => {
-    setOpenDeleteConfirmation(id);
   }
 
   return (
@@ -73,7 +67,6 @@ export default function ClientsTable() {
                       key={client.id}
                       client={client}
                       handleOpenDetails={handleOpenDetails}
-                      handleOpenDeleteConfirmation={handleOpenDeleteConfirmation}
                     />
                     {
                       openDetails === client.id && (
@@ -91,11 +84,6 @@ export default function ClientsTable() {
           </Table>
         </div>
       </CardContent>
-      <ClientsDeleteConfirmation
-        clientId={openDeleteConfirmation}
-        setOpen={setOpenDeleteConfirmation}
-        queryKey={QUERY_KEYS.clients.full}
-      />
     </Card>
   )
 }

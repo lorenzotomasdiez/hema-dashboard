@@ -70,10 +70,13 @@ model Company {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  orders        Order[]
-  clients       Client[]
-  userCompanies UserCompany[]
-  products      Product[]
+  orders         Order[]
+  clients        Client[]
+  userCompanies  UserCompany[]
+  products       Product[]
+  CompanyExpense CompanyExpense[]
+  productions    Production[]
+  stockMovements StockMovement[]
 }
 
 model UserCompany {
@@ -143,16 +146,32 @@ model Product {
   id          Int       @id @default(autoincrement())
   name        String
   description String?
-  stock       Int
+  stock       Int       @default(0)
   slug        String
   price       Int
   companyId   String
   deletedAt   DateTime?
 
-  orders  OrderProduct[]
-  company Company        @relation(fields: [companyId], references: [id])
+  productions    Production[]
+  stockMovements StockMovement[]
+  orders         OrderProduct[]
+  company        Company                @relation(fields: [companyId], references: [id])
+  costComponents ProductCostComponent[]
 
   @@unique([companyId, slug])
+}
+
+model ProductCostComponent {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  name      String
+  cost      Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([productId])
 }
 
 model OrderProduct {
@@ -170,4 +189,63 @@ enum OrderStatus {
   PENDING
   SHIPPED
   DELIVERED
+}
+
+model CompanyExpense {
+  id          Int              @id @default(autoincrement())
+  companyId   String
+  date        DateTime         @default(now())
+  amount      Decimal          @db.Decimal(10, 2)
+  description String?
+  category    ExpenseCategory?
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+}
+
+enum ExpenseCategory {
+  RENT
+  SALARY
+  UTILITIES
+  MARKETING
+  OTHER
+}
+
+model Production {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  companyId String
+  quantity  Int
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([productId])
+  @@index([companyId])
+}
+
+model StockMovement {
+  id           Int               @id @default(autoincrement())
+  productId    Int
+  companyId    String
+  quantity     Int
+  movementType StockMovementType
+  date         DateTime          @default(now())
+  createdAt    DateTime          @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([productId])
+  @@index([companyId])
+}
+
+enum StockMovementType {
+  PRODUCTION
+  SALE
+  RETURN
+  ADJUSTMENT
 }

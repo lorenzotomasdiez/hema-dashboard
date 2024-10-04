@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { deleteClient } from "@/services/clients";
 import { Client } from "@/types";
 import { QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -18,7 +17,7 @@ export default function ClientsDeleteConfirmation({ clientId, setOpen, queryKey 
   const [inputValue, setInputValue] = useState("");
   const deleteClientMutation = useMutation({
     mutationKey: ['delete-client'],
-    mutationFn: (id: string) => deleteClient(id),
+    // mutationFn: (id: string) => ,
     onMutate: async (id: string) => {
       await queryClient.cancelQueries({ queryKey });
       const previousClients = queryClient.getQueryData<(Client & { ordersTotal: number })[]>(queryKey);

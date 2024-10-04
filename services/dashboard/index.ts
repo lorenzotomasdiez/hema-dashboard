@@ -1,7 +1,7 @@
 import { API_ROUTES } from "@/lib/api/routes";
+import { responseHandler } from "../request";
 
 export async function getDashboardSummary() {
     const res = await fetch(API_ROUTES.dashboard.summary);
-    const data = await res.json();
-    return data;
+    return await responseHandler(res);
 }

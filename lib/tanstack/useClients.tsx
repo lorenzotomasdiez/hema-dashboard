@@ -33,7 +33,9 @@ export const AddClientMutation = (queryKey: QueryKey, queryClient: QueryClient) 
     },
     onError: (err, _client, context) => {
       queryClient.setQueryData(queryKey, context?.previousClients)
-      toast.error("Error al agregar el cliente");
+      toast.error("Error al agregar el cliente", {
+        description: err.message
+      });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.clients.full });
@@ -48,19 +50,22 @@ export const UpdateClientMutation = (queryKey: QueryKey, queryClient: QueryClien
     mutationFn: (clientData: CreateClientType & { id: string }) => updateClient(clientData.id, {
       ...clientData,
     }),
-    onMutate: async (clientData: Client) => {
+    onMutate: async (clientData: CreateClientType & { id: string }) => {
       await queryClient.cancelQueries({ queryKey: queryKey });
       const previousClients = queryClient.getQueryData(queryKey);
       queryClient.setQueryData(queryKey, (old: Client[]) => old.map(o => o.id === clientData.id ? clientData : o));
       return { previousClients }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['clients'] });
       toast.success("Cliente actualizado correctamente!");
     },
     onError: (err) => {
       console.error(err);
       toast.error("Error al actualizar el cliente");
+    },
+    onSettled: (data, error) => {
+      console.log(data, error);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.clients.full });
     }
   })
 }

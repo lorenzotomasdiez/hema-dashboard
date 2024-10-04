@@ -18,6 +18,8 @@ export async function GET() {
         name: true,
         phone: true,
         address: true,
+        email: true,
+        city: true,
         _count: {
           select: {
             orders: true

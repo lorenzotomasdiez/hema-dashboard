@@ -1,10 +1,10 @@
 import { API_ROUTES } from "@/lib/api/routes";
 import { CreateCompanyDTO } from "@/types/company";
+import { responseHandler } from "../request";
 
 export const getMyCompanies = async () => {
   const res = await fetch(API_ROUTES.companies.root);
-  const data = await res.json();
-  return data;
+  return await responseHandler(res);
 }
 
 export const createCompany = async (company: CreateCompanyDTO) => {
@@ -12,12 +12,10 @@ export const createCompany = async (company: CreateCompanyDTO) => {
     method: "POST",
     body: JSON.stringify(company)
   });
-  const data = await res.json();
-  return data;
+  return await responseHandler(res);
 }
 
 export const getCompanyInfo = async () => {
   const res = await fetch(API_ROUTES.companies.info);
-  const data = await res.json();
-  return data;
+  return await responseHandler(res);
 }

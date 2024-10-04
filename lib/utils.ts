@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { OrderStatus, Product, UserRole } from "@prisma/client"
 import { CompleteOrderProduct } from "@/prisma/zod"
+import { ZodError } from "zod"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -63,3 +64,16 @@ export const UserRoleTranslator = (role: UserRole) => {
   }
 }
 
+export function formatZodError(error: ZodError) {
+  const { fieldErrors } = error.flatten();
+  return {
+    error: Object.values(fieldErrors).map(err => err?.join(", ")).join(" - "),
+    details: fieldErrors,
+  };
+}
+
+export function replaceEmptyStringsWithUndefined<T extends Record<string, any>>(obj: T): T {
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [key, value === '' ? undefined : value])
+  ) as T;
+}
