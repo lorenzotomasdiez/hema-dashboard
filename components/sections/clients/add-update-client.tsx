@@ -61,7 +61,7 @@ export default function AddUpdateClient({ client, queryKey, open, setOpen }: Add
 
   return (
     <Dialog open={!!open} onOpenChange={(e) => setOpen(!!e ? (client?.id || "new") : null)}>
-      <DialogTrigger hidden={!!client}>
+      <DialogTrigger hidden={!!client} asChild>
         <Button>Agregar Cliente</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] dark:bg-neutral-900">

@@ -1,7 +1,6 @@
 "use client";
 import * as React from "react"
-import { Loader2, Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { Loader2 } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -10,28 +9,18 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useQuery } from "@tanstack/react-query";
 import ProductsTableRowSkeleton from "./products-table-row-skeleton";
 import ProductsTableRow from "./products-table-row";
-import AddUpdateProduct from "./add-update-product";
-import { Product } from "@/types";
-import { getProducts } from "@/services/products";
 import { QUERY_KEYS } from "@/lib/tanstack";
 import ProductsDeleteConfirmation from "./products-delete-confirmation";
-
+import Link from "next/link";
+import { APP_PATH } from "@/config/path";
+import { Button } from "@/components/ui/button";
+import { useProductsQuery } from "@/lib/tanstack/useProducts";
 
 export default function ProductsTable() {
-  const [openDetails, setOpenDetails] = React.useState<number | null>(null);
   const [openDeleteConfirmation, setOpenDeleteConfirmation] = React.useState<number | null>(null);
-  const products = useQuery<Product[]>({
-    queryKey: QUERY_KEYS.products.root,
-    queryFn: getProducts,
-    staleTime: 999 * 60
-  })
-
-  const handleOpenDetails = (id: number) => {
-    setOpenDetails(id);
-  }
+  const products = useProductsQuery();
 
   const handleOpenDeleteConfirmation = (id: number) => {
     setOpenDeleteConfirmation(id);
@@ -42,8 +31,15 @@ export default function ProductsTable() {
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
         <CardTitle className="text-2xl font-bold text-black dark:text-white">Productos</CardTitle>
         <div className="flex items-center justify-end gap-3">
-          {products.isFetching && <Loader2 className="animate-spin text-black dark:text-white" />}
-          <AddUpdateProduct queryKey={QUERY_KEYS.products.root} open={openDetails === 0} setOpen={setOpenDetails} />
+          {
+            products.isFetching
+            && <Loader2 className="animate-spin text-black dark:text-white" />
+          }
+          <Link href={APP_PATH.protected.products.add}>
+            <Button>
+              Agregar Producto
+            </Button>
+          </Link>
         </div>
       </CardHeader>
       <CardContent>
@@ -78,19 +74,8 @@ export default function ProductsTable() {
                     <ProductsTableRow
                       key={product.id}
                       product={product}
-                      handleOpenDetails={handleOpenDetails}
                       handleOpenDeleteConfirmation={handleOpenDeleteConfirmation}
                     />
-                    {
-                      openDetails === product.id && (
-                        <AddUpdateProduct
-                          queryKey={QUERY_KEYS.products.root}
-                          open={openDetails === product.id}
-                          setOpen={setOpenDetails}
-                          product={product}
-                        />
-                      )
-                    }
                   </React.Fragment>
                 ))}
             </TableBody>

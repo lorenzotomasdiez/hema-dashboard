@@ -29,3 +29,8 @@ export async function deleteProduct(id: number) {
   });
   return await responseHandler(res);
 }
+
+export async function getProductBySlug(slug: string) {
+  const res = await fetch(API_ROUTES.products.slug(slug));
+  return await responseHandler(res);
+}

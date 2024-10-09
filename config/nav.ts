@@ -45,7 +45,7 @@ export const defaultLinks: SidebarLink[] = [
     ]
   },
   {
-    href: APP_PATH.protected.products,
+    href: APP_PATH.protected.products.root,
     title: "Productos",
     icon: Package,
     prefetchData: [prefetchProductsData],

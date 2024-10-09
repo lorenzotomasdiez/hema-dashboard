@@ -14,7 +14,11 @@ export const APP_PATH = {
     notAllowed: "/not-allowed",
     orders: "/orders",
     organization: "/organization",
-    products: "/products",
+    products: {
+      root: "/products",
+      add: "/products/add",
+      update: (slug: string) => `/products/${slug}`
+    },
     settings: "/settings"
   }
 }

@@ -15,7 +15,8 @@ export const API_ROUTES = {
   },
   products: {
     root: "/api/products",
-    id: (id: number) => `/api/products/${id}`
+    id: (id: number) => `/api/products/${id}`,
+    slug: (slug: string) => `/api/products/slug/${slug}`
   },
   dashboard: {
     summary: "/api/dashboard/summary"
