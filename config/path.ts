@@ -19,6 +19,9 @@ export const APP_PATH = {
       add: "/products/add",
       update: (slug: string) => `/products/${slug}`
     },
+    costs: {
+      root: "/costs"
+    },
     settings: "/settings"
   }
 }

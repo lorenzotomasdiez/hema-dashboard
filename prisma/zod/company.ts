@@ -1,5 +1,5 @@
 import * as z from "zod"
-import { CompleteOrder, relatedOrderSchema, CompleteClient, relatedClientSchema, CompleteUserCompany, relatedUserCompanySchema, CompleteProduct, relatedProductSchema, CompleteCompanyExpense, relatedCompanyExpenseSchema, CompleteProduction, relatedProductionSchema, CompleteStockMovement, relatedStockMovementSchema } from "./index"
+import { CompleteOrder, relatedOrderSchema, CompleteClient, relatedClientSchema, CompleteUserCompany, relatedUserCompanySchema, CompleteProduct, relatedProductSchema, CompleteCompanyExpense, relatedCompanyExpenseSchema, CompleteProduction, relatedProductionSchema, CompleteStockMovement, relatedStockMovementSchema, CompleteCostComponent, relatedCostComponentSchema } from "./index"
 
 export const companySchema = z.object({
   id: z.string(),
@@ -18,6 +18,7 @@ export interface CompleteCompany extends z.infer<typeof companySchema> {
   CompanyExpense: CompleteCompanyExpense[]
   productions: CompleteProduction[]
   stockMovements: CompleteStockMovement[]
+  costComponents: CompleteCostComponent[]
 }
 
 /**
@@ -33,4 +34,5 @@ export const relatedCompanySchema: z.ZodSchema<CompleteCompany> = z.lazy(() => c
   CompanyExpense: relatedCompanyExpenseSchema.array(),
   productions: relatedProductionSchema.array(),
   stockMovements: relatedStockMovementSchema.array(),
+  costComponents: relatedCostComponentSchema.array(),
 }))

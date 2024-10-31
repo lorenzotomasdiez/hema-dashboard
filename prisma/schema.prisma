@@ -77,6 +77,7 @@ model Company {
   CompanyExpense CompanyExpense[]
   productions    Production[]
   stockMovements StockMovement[]
+  costComponents CostComponent[]
 }
 
 model UserCompany {
@@ -161,17 +162,32 @@ model Product {
   @@unique([companyId, slug])
 }
 
-model ProductCostComponent {
+model CostComponent {
   id        Int      @id @default(autoincrement())
-  productId Int
-  name      String
+  name      String   @unique
   cost      Decimal  @db.Decimal(10, 2)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  companyId String
 
-  product Product @relation(fields: [productId], references: [id])
+  company  Company                @relation(fields: [companyId], references: [id])
+  products ProductCostComponent[]
+
+  @@index([companyId])
+}
+
+model ProductCostComponent {
+  id              Int      @id @default(autoincrement())
+  productId       Int
+  costComponentId Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  product       Product       @relation(fields: [productId], references: [id])
+  costComponent CostComponent @relation(fields: [costComponentId], references: [id])
 
   @@index([productId])
+  @@index([costComponentId])
 }
 
 model OrderProduct {

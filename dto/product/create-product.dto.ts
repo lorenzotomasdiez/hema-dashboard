@@ -1,5 +1,4 @@
-
-import { productCostComponentSchema } from "@/prisma/zod";
+import { costComponentSchema } from "@/prisma/zod";
 import { z } from "zod";
 
 export const createProductSchema = z.object({
@@ -8,5 +7,5 @@ export const createProductSchema = z.object({
   slug: z.string().min(1, "Slug is required").optional(),
   price: z.number().nonnegative("Price must be positive"),
   stock: z.number().int().nonnegative("Stock must be non-negative"),
-  costComponents: z.array(productCostComponentSchema),
+  costComponents: z.array(costComponentSchema).optional(),
 });

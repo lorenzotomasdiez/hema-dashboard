@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { Decimal } from "decimal.js";
 import { useForm } from "react-hook-form";
-import { ProductCostComponent } from "@prisma/client";
+import { CostComponent, ProductCostComponent } from "@prisma/client";
 import { UseMutationResult } from "@tanstack/react-query";
 import { RHFInput } from "@/components/rhf/rhf-input";
 import { Button } from "@/components/ui/button";
@@ -10,9 +10,10 @@ import { Form } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { CreateProductType, ProductWithCostComponents } from "@/types";
 import { generateSlug } from "@/lib/api/routes";
-import AddCostComponent from "./add-cost-component";
 import { cn, moneyMask } from "@/lib/utils";
-import { Trash, Search } from 'lucide-react';
+import { Trash } from 'lucide-react';
+import { useRouter } from "next/navigation";
+import { APP_PATH } from "@/config/path";
 
 interface AddUpdateProductFormProps {
   product?: ProductWithCostComponents;
@@ -26,6 +27,8 @@ export default function AddUpdateProductForm({
   updateProductMutation: updateClientMutation
 }: AddUpdateProductFormProps) {
 
+  const router = useRouter();
+
   const form = useForm<CreateProductType>({
     defaultValues: {
       name: product?.name || "",
@@ -33,12 +36,13 @@ export default function AddUpdateProductForm({
       stock: product?.stock || 0,
       slug: product?.slug || "",
       price: product?.price || 0,
-      costComponents: product?.costComponents?.map(component => ({
-        ...component,
-        cost: Number(component.cost)
+      costComponents: product?.costComponents.map(e => ({
+        ...e,
+        cost: Number(e.cost)
       })) || [],
     }
   })
+
 
   const {
     handleSubmit,
@@ -48,23 +52,25 @@ export default function AddUpdateProductForm({
     setValue,
   } = form;
 
+
+  const costComponents = watch('costComponents');
+
+  const price = watch('price');
+
   useEffect(() => {
     setValue('slug', generateSlug(watch('name')));
   }, [watch('name'), setValue]);
 
-  const handleAddCostComponent = (cost: ProductCostComponent) => {
-    setValue('costComponents', [...watch('costComponents'), {
+  const handleAddCostComponent = (cost: CostComponent) => {
+    const newCost = {
       ...cost,
-      cost: cost.cost.toNumber()
-    }],
-      { shouldValidate: true, shouldDirty: true }
-    );
+      cost: typeof cost.cost === 'number' ? cost.cost : Number(cost.cost)
+    };
+    setValue('costComponents', [...(costComponents || []), newCost], { shouldValidate: true, shouldDirty: true });
   }
 
   const handleDeleteCostComponent = (index: number) => {
-    const costComponents = watch('costComponents');
-    costComponents.splice(index, 1);
-    setValue('costComponents', costComponents, { shouldValidate: true, shouldDirty: true });
+    setValue('costComponents', costComponents?.filter((_, i) => i !== index) || [], { shouldValidate: true, shouldDirty: true });
   }
 
 
@@ -83,13 +89,11 @@ export default function AddUpdateProductForm({
       addClientMutation.mutateAsync(data);
       reset();
     }
+    router.push(APP_PATH.protected.products.root);
   }
 
-  const costComponents = watch('costComponents');
-  const price = watch('price');
-
   const calculateProfitMargin = () => {
-    const totalCost = costComponents.reduce((acc, component) => acc.plus(component.cost), new Decimal(0));
+    const totalCost = costComponents?.reduce((acc, component) => acc.plus(component.cost), new Decimal(0)) || new Decimal(0);
     return price - Number(totalCost);
   }
 
@@ -150,7 +154,7 @@ export default function AddUpdateProductForm({
         </div>
         <div className="border-t border-gray-300 my-4" />
         {
-          costComponents.length > 0 && (
+          costComponents && costComponents.length > 0 && (
             <div className="grid grid-cols-4 items-center gap-4 mb-4">
               <Label htmlFor="costComponents" className="text-center text-black dark:text-white col-span-4 text-lg font-medium">
                 Costos de Produccion
@@ -158,7 +162,7 @@ export default function AddUpdateProductForm({
               <div className="col-span-4">
                 <div className="flex flex-col gap-4">
                   {
-                    costComponents.map((component, index) => (
+                    costComponents?.map((component, index) => (
                       <div key={index} className="flex justify-between items-center p-2 border border-gray-300 rounded-lg shadow-sm">
                         <span className="font-medium text-gray-800 dark:text-white">{component?.name}</span>
                         <div className="flex items-center gap-2">
@@ -180,10 +184,8 @@ export default function AddUpdateProductForm({
             </div>
           )
         }
-        <AddCostComponent
-          handleAddCostComponent={(cost: ProductCostComponent) => handleAddCostComponent(cost)}
-          productId={product?.id || 0}
-        />
+        {/* // here the costs component selector will be added */}
+
         <div className="border-t border-gray-300 my-4" />
         <div className="flex justify-between items-center border border-gray-300 rounded-lg shadow-sm p-4">
           <Label htmlFor="profitMargin" className="text-right text-black dark:text-white">

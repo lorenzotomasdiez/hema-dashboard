@@ -1,32 +1,17 @@
 import * as z from "zod"
-import { Decimal } from "decimal.js"
-import { CompleteProduct, relatedProductSchema } from "./index"
-
-// Helper schema for Decimal fields
-z
-  .instanceof(Decimal)
-  .or(z.string())
-  .or(z.number())
-  .refine((value) => {
-    try {
-      return new Decimal(value)
-    } catch (error) {
-      return false
-    }
-  })
-  .transform((value) => new Decimal(value))
+import { CompleteProduct, relatedProductSchema, CompleteCostComponent, relatedCostComponentSchema } from "./index"
 
 export const productCostComponentSchema = z.object({
   id: z.number().int(),
   productId: z.number().int(),
-  name: z.string(),
-  cost: z.number(),
+  costComponentId: z.number().int(),
   createdAt: z.date(),
   updatedAt: z.date(),
 })
 
 export interface CompleteProductCostComponent extends z.infer<typeof productCostComponentSchema> {
   product: CompleteProduct
+  costComponent: CompleteCostComponent
 }
 
 /**
@@ -36,4 +21,5 @@ export interface CompleteProductCostComponent extends z.infer<typeof productCost
  */
 export const relatedProductCostComponentSchema: z.ZodSchema<CompleteProductCostComponent> = z.lazy(() => productCostComponentSchema.extend({
   product: relatedProductSchema,
+  costComponent: relatedCostComponentSchema,
 }))

@@ -128,11 +128,22 @@ CREATE TABLE "Product" (
 );
 
 -- CreateTable
+CREATE TABLE "CostComponent" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "cost" DECIMAL(10,2) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "companyId" TEXT NOT NULL,
+
+    CONSTRAINT "CostComponent_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "ProductCostComponent" (
     "id" SERIAL NOT NULL,
     "productId" INTEGER NOT NULL,
-    "name" TEXT NOT NULL,
-    "cost" DECIMAL(10,2) NOT NULL,
+    "costComponentId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -207,7 +218,16 @@ CREATE UNIQUE INDEX "VerificationToken_identifier_token_key" ON "VerificationTok
 CREATE UNIQUE INDEX "Product_companyId_slug_key" ON "Product"("companyId", "slug");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "CostComponent_name_key" ON "CostComponent"("name");
+
+-- CreateIndex
+CREATE INDEX "CostComponent_companyId_idx" ON "CostComponent"("companyId");
+
+-- CreateIndex
 CREATE INDEX "ProductCostComponent_productId_idx" ON "ProductCostComponent"("productId");
+
+-- CreateIndex
+CREATE INDEX "ProductCostComponent_costComponentId_idx" ON "ProductCostComponent"("costComponentId");
 
 -- CreateIndex
 CREATE INDEX "CompanyExpense_companyId_idx" ON "CompanyExpense"("companyId");
@@ -252,7 +272,13 @@ ALTER TABLE "Order" ADD CONSTRAINT "Order_companyId_fkey" FOREIGN KEY ("companyI
 ALTER TABLE "Product" ADD CONSTRAINT "Product_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "CostComponent" ADD CONSTRAINT "CostComponent_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "ProductCostComponent" ADD CONSTRAINT "ProductCostComponent_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductCostComponent" ADD CONSTRAINT "ProductCostComponent_costComponentId_fkey" FOREIGN KEY ("costComponentId") REFERENCES "CostComponent"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "OrderProduct" ADD CONSTRAINT "OrderProduct_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

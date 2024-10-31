@@ -1,4 +1,4 @@
-import { Cog, User, LayoutList, UserSearch, Package, Inbox, Building } from "lucide-react";
+import { Cog, User, LayoutList, UserSearch, Package, Inbox, Building, DollarSign } from "lucide-react";
 import { SidebarLink } from "@/components/SidebarItems";
 import { prefetchClientsData, prefetchClientsFullData, prefetchDashboardSummaryData, prefetchOrdersData, prefetchProductsData } from "@/lib/tanstack";
 import { UserRole } from "@prisma/client";
@@ -49,6 +49,16 @@ export const defaultLinks: SidebarLink[] = [
     title: "Productos",
     icon: Package,
     prefetchData: [prefetchProductsData],
+    roles: [
+      UserRole.ADMIN,
+      UserRole.COMPANY_OWNER,
+      UserRole.COMPANY_ADMIN,
+    ]
+  },
+  {
+    href: APP_PATH.protected.costs.root,
+    title: "Costos",
+    icon: DollarSign,
     roles: [
       UserRole.ADMIN,
       UserRole.COMPANY_OWNER,

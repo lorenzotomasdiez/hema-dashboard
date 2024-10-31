@@ -1,6 +1,6 @@
 import { getUserAuth } from "@/lib/auth/utils";
 import { db } from "@/lib/db/index";
-import { Product, ProductWithCostComponents } from "@/types/product";
+import { ProductWithCostComponents } from "@/types/product";
 import { Decimal } from "decimal.js";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -25,9 +25,9 @@ export async function PATCH(
           deleteMany: {
             productId: id
           },
-          create: costComponents?.map(component => ({
-            name: component.name,
-            cost: new Decimal(component.cost),
+          create: costComponents?.map((cost) => ({
+            name: cost.name as string,
+            cost: new Decimal(cost.cost || 0)
           })) || []
         }
       },

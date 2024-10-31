@@ -59,10 +59,13 @@ export const UpdateClientMutation = (queryKey: QueryKey, queryClient: QueryClien
     onSuccess: () => {
       toast.success("Cliente actualizado correctamente!");
     },
-    onError: (err) => {
-      toast.error("Error al actualizar el cliente");
+    onError: (err, _client, context) => {
+      queryClient.setQueryData(queryKey, context?.previousClients)
+      toast.error("Error al actualizar el cliente", {
+        description: err.message
+      });
     },
-    onSettled: (data, error) => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.clients.full });
     }
   })

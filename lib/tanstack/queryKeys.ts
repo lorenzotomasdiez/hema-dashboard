@@ -14,5 +14,8 @@ export const QUERY_KEYS = {
     products: {
         root: ["products"] as const,
         bySlug: (slug: string) => ["products", slug] as const,
+    },
+    costComponent: {
+        root: ["cost-component"] as const,
     }
 } as const;
