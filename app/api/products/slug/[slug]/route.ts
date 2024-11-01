@@ -1,9 +1,9 @@
 import { getUserAuth } from "@/lib/auth/utils";
-import { db } from "@/lib/db/index";
+import ProductService from "@/services/api/product";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { slug: string } }
 ) {
   const { session } = await getUserAuth();
@@ -12,12 +12,16 @@ export async function GET(
 
   const slug = params.slug;
 
-  const product = await db.product.findUnique({
-    where: { companyId_slug: { companyId: session.user.selectedCompany.id, slug } },
-    include: {
-      costComponents: true,
-    }
-  });
+  const product = await ProductService.findBySlug(slug, session.user.selectedCompany.id);
 
-  return NextResponse.json(product, { status: 200 });
+  const productWithCostComponentDTO = {
+    ...product,
+    costComponents: product?.costComponents?.map(cost => ({
+      name: cost.costComponent.name,
+      id: cost.costComponent.id,
+      cost: cost.costComponent.cost
+    }))
+  }
+
+  return NextResponse.json(productWithCostComponentDTO, { status: 200 });
 }

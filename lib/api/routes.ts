@@ -2,7 +2,10 @@ export const API_ROUTES = {
   companies: {
     root: "/api/companies",
     create: "/api/companies/create",
-    info: "/api/companies/info"
+    info: "/api/companies/info",
+  },
+  expenses:{
+    root: "/api/expenses"
   },
   orders: {
     root: "/api/orders",

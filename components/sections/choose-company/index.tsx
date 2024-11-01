@@ -11,8 +11,6 @@ import { APP_PATH } from "@/config/path";
 import AppLogo from "@/components/AppLogo";
 import { CompanyWithUserCompanies } from "@/types/company";
 
-const companyLogoUrlPlaceholder = "https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg";
-
 export const ChooseCompanySection = () => {
 
   const { data: session, update } = useSession();
@@ -32,7 +30,7 @@ export const ChooseCompanySection = () => {
         selectedCompany: {
           id: company.id,
           name: company.name,
-          image: company.image || companyLogoUrlPlaceholder,
+          image: company.image,
           role: roleInCompany
         }
       }
@@ -64,10 +62,10 @@ export const ChooseCompanySection = () => {
                 >
                   <Avatar>
                     <AvatarImage
-                      src={companyLogoUrlPlaceholder}
+                      src={company.image || ""}
                     />
                     <AvatarFallback>
-                      {company.name.charAt(0)}
+                      {company.name?.split(" ").map((name) => name.charAt(0)).join("")}
                     </AvatarFallback>
                   </Avatar>
                   <p>{company.name}</p>

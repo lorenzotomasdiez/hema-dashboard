@@ -17,5 +17,8 @@ export const QUERY_KEYS = {
     },
     costComponent: {
         root: ["cost-component"] as const,
+    },
+    expenses: {
+        root: ["expenses"] as const,
     }
 } as const;

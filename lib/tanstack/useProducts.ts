@@ -1,7 +1,7 @@
 import { useMutation, useQuery, QueryClient } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys";
 import { createProduct, getProductBySlug, getProducts, updateProduct } from "@/services/products";
-import { CreateProductType, ProductWithCostComponents } from "@/types";
+import { CreateProductType, ProductWithCostComponents, UpdatedProductWithCostComponents } from "@/types";
 import { toast } from "sonner";
 
 export const useProductBySlugQuery = (slug: string) => {
@@ -13,7 +13,7 @@ export const useProductBySlugQuery = (slug: string) => {
   });
 }
 
-export const usePrefetchProductBySlug = (slug: string, queryClient: QueryClient) => {
+export const prefetchProductBySlug = (slug: string, queryClient: QueryClient) => {
   return queryClient.prefetchQuery({
     queryKey: [QUERY_KEYS.products.bySlug, slug],
     queryFn: () => getProductBySlug(slug),
@@ -67,15 +67,15 @@ export const AddProductMutation = (queryClient: QueryClient) => {
 export const UpdateProductMutation = (queryClient: QueryClient) => {
   return useMutation({
     mutationKey: ["updateProduct"],
-    mutationFn: (product: ProductWithCostComponents) => updateProduct(product.id, {
+    mutationFn: (product: UpdatedProductWithCostComponents) => updateProduct(product.id, {
       ...product,
       price: Number(product.price),
     }),
-    onMutate: async (productData: ProductWithCostComponents) => {
+    onMutate: async (productData: UpdatedProductWithCostComponents) => {
       await queryClient.cancelQueries({ queryKey: QUERY_KEYS.products.root });
       const previousProducts = queryClient.getQueryData(QUERY_KEYS.products.root);
       queryClient.setQueryData(QUERY_KEYS.products.root,
-        (old: ProductWithCostComponents[]) => old?.map(o => o.id === productData.id ? productData : o)
+        (old: UpdatedProductWithCostComponents[]) => old?.map(o => o.id === productData.id ? productData : o)
       );
       return { previousProducts }
     },

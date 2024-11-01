@@ -19,10 +19,12 @@ z
 
 export const companyExpenseSchema = z.object({
   id: z.number().int(),
+  name: z.string(),
   companyId: z.string(),
   date: z.date(),
   amount: z.number(),
   description: z.string().nullish(),
+  isMonthly: z.boolean(),
   category: z.nativeEnum(ExpenseCategory).nullish(),
 })
 

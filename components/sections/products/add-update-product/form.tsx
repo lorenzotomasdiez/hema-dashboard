@@ -2,23 +2,25 @@
 import { useEffect } from "react";
 import { Decimal } from "decimal.js";
 import { useForm } from "react-hook-form";
-import { CostComponent, ProductCostComponent } from "@prisma/client";
+import { CostComponent } from "@prisma/client";
 import { UseMutationResult } from "@tanstack/react-query";
 import { RHFInput } from "@/components/rhf/rhf-input";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
-import { CreateProductType, ProductWithCostComponents } from "@/types";
+import { CreateProductType, ProductWithCostComponents, UpdatedProductWithCostComponents } from "@/types";
 import { generateSlug } from "@/lib/api/routes";
 import { cn, moneyMask } from "@/lib/utils";
 import { Trash } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { APP_PATH } from "@/config/path";
+import { useCostComponentsQuery } from "@/lib/tanstack";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface AddUpdateProductFormProps {
   product?: ProductWithCostComponents;
   addProductMutation: UseMutationResult<any, unknown, CreateProductType, unknown>;
-  updateProductMutation: UseMutationResult<any, unknown, ProductWithCostComponents, unknown>;
+  updateProductMutation: UseMutationResult<any, unknown, UpdatedProductWithCostComponents, unknown>;
 }
 
 export default function AddUpdateProductForm({
@@ -27,7 +29,11 @@ export default function AddUpdateProductForm({
   updateProductMutation: updateClientMutation
 }: AddUpdateProductFormProps) {
 
+  console.log(product);
+
   const router = useRouter();
+
+  const { data: costs } = useCostComponentsQuery();
 
   const form = useForm<CreateProductType>({
     defaultValues: {
@@ -53,9 +59,13 @@ export default function AddUpdateProductForm({
   } = form;
 
 
-  const costComponents = watch('costComponents');
+  const productCostComponents = watch('costComponents');
+
+  console.log(productCostComponents);
 
   const price = watch('price');
+
+  const costsToShow = costs?.filter(cost => !productCostComponents?.some(component => component.id === cost.id));
 
   useEffect(() => {
     setValue('slug', generateSlug(watch('name')));
@@ -66,11 +76,11 @@ export default function AddUpdateProductForm({
       ...cost,
       cost: typeof cost.cost === 'number' ? cost.cost : Number(cost.cost)
     };
-    setValue('costComponents', [...(costComponents || []), newCost], { shouldValidate: true, shouldDirty: true });
+    setValue('costComponents', [...(productCostComponents || []), newCost], { shouldValidate: true, shouldDirty: true });
   }
 
   const handleDeleteCostComponent = (index: number) => {
-    setValue('costComponents', costComponents?.filter((_, i) => i !== index) || [], { shouldValidate: true, shouldDirty: true });
+    setValue('costComponents', productCostComponents?.filter((_, i) => i !== index) || [], { shouldValidate: true, shouldDirty: true });
   }
 
 
@@ -80,8 +90,7 @@ export default function AddUpdateProductForm({
         ...product,
         ...data,
         costComponents: data.costComponents?.map(component => ({
-          ...component,
-          cost: new Decimal(component.cost)
+          ...component
         })) || []
       };
       updateClientMutation.mutateAsync(updatedProduct);
@@ -93,7 +102,7 @@ export default function AddUpdateProductForm({
   }
 
   const calculateProfitMargin = () => {
-    const totalCost = costComponents?.reduce((acc, component) => acc.plus(component.cost), new Decimal(0)) || new Decimal(0);
+    const totalCost = productCostComponents?.reduce((acc, component) => acc.plus(component.cost), new Decimal(0)) || new Decimal(0);
     return price - Number(totalCost);
   }
 
@@ -154,7 +163,7 @@ export default function AddUpdateProductForm({
         </div>
         <div className="border-t border-gray-300 my-4" />
         {
-          costComponents && costComponents.length > 0 && (
+          productCostComponents && productCostComponents.length > 0 && (
             <div className="grid grid-cols-4 items-center gap-4 mb-4">
               <Label htmlFor="costComponents" className="text-center text-black dark:text-white col-span-4 text-lg font-medium">
                 Costos de Produccion
@@ -162,7 +171,7 @@ export default function AddUpdateProductForm({
               <div className="col-span-4">
                 <div className="flex flex-col gap-4">
                   {
-                    costComponents?.map((component, index) => (
+                    productCostComponents?.map((component, index) => (
                       <div key={index} className="flex justify-between items-center p-2 border border-gray-300 rounded-lg shadow-sm">
                         <span className="font-medium text-gray-800 dark:text-white">{component?.name}</span>
                         <div className="flex items-center gap-2">
@@ -184,10 +193,42 @@ export default function AddUpdateProductForm({
             </div>
           )
         }
-        {/* // here the costs component selector will be added */}
-
-        <div className="border-t border-gray-300 my-4" />
-        <div className="flex justify-between items-center border border-gray-300 rounded-lg shadow-sm p-4">
+        {
+          costsToShow && costsToShow.length > 0 && (
+            <>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="costComponents" className="text-right text-black dark:text-white col-span-1">
+                  Costo
+                </Label>
+                <Select
+                  value="0"
+                  onValueChange={(value) => {
+                    const cost = costsToShow?.find(cost => cost.id.toString() === value);
+                    if (cost) {
+                      handleAddCostComponent(cost);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Selecciona un costo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="0">Selecciona un costo</SelectItem>
+                      {
+                        costsToShow?.map(cost => (
+                          <SelectItem key={cost.id} value={cost.id.toString()}>{cost.name}</SelectItem>
+                        ))
+                      }
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="border-t border-gray-300 my-4" />
+            </>
+          )
+        }
+        <div className="flex justify-between items-center p-4">
           <Label htmlFor="profitMargin" className="text-right text-black dark:text-white">
             Margen de Ganancia
           </Label>
@@ -210,7 +251,7 @@ export default function AddUpdateProductForm({
         </div>
         {
           errors && Object.values(errors).map(error => (
-            <div className="text-red-500 text-sm">
+            <div className="text-red-500 text-sm" key={error.message}>
               {error.message}
             </div>
           ))

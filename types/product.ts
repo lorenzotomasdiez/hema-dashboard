@@ -10,3 +10,11 @@ export type Product = z.infer<typeof productSchema>;
 export type ProductWithCostComponents = Product & {
   costComponents: CostComponent[];
 };
+
+export type UpdatedProductWithCostComponents = Product & {
+  costComponents?: {
+    name: string;
+    id: number;
+    cost: number;
+  }[] | undefined;
+};

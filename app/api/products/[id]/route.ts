@@ -1,7 +1,6 @@
 import { getUserAuth } from "@/lib/auth/utils";
-import { db } from "@/lib/db/index";
+import ProductService from "@/services/api/product";
 import { ProductWithCostComponents } from "@/types/product";
-import { Decimal } from "decimal.js";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
@@ -15,27 +14,7 @@ export async function PATCH(
   try {
     const id = Number(params.id);
     const body = (await request.json()) as Partial<ProductWithCostComponents>;
-    const { id: _, costComponents, ...updatedData } = body;
-
-    const product = await db.product.update({
-      where: { id, companyId: session.user.selectedCompany.id },
-      data: {
-        ...updatedData,
-        costComponents: {
-          deleteMany: {
-            productId: id
-          },
-          create: costComponents?.map((cost) => ({
-            name: cost.name as string,
-            cost: new Decimal(cost.cost || 0)
-          })) || []
-        }
-      },
-      include: {
-        costComponents: true
-      }
-    });
-
+    const product = await ProductService.updateById(id, body, session.user.selectedCompany.id);
     return NextResponse.json(product, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Error desconocido" }, { status: 500 });
@@ -52,24 +31,7 @@ export async function DELETE(
 
   try {
     const id = Number(params.id);
-    await db.orderProduct.deleteMany({
-      where: {
-        productId: id,
-        order: {
-          companyId: session.user.selectedCompany.id
-        }
-      }
-    });
-
-    await db.product.delete({
-      where: { id, companyId: session.user.selectedCompany.id },
-      include: {
-        costComponents: true,
-        productions: true,
-        stockMovements: true
-      }
-    });
-
+    await ProductService.deleteById(id, session.user.selectedCompany.id);
     return NextResponse.json({ message: "Producto eliminado correctamente" }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Error desconocido" }, { status: 500 });

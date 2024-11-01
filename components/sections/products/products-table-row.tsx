@@ -9,7 +9,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { moneyMask } from "@/lib/utils";
 import { APP_PATH } from "@/config/path";
 import { useQueryClient } from "@tanstack/react-query";
-import { usePrefetchProductBySlug } from "@/lib/tanstack/useProducts";
+import { prefetchProductBySlug } from "@/lib/tanstack/useProducts";
 
 interface Props {
   product: ProductWithCostComponents;
@@ -24,7 +24,7 @@ export default function ProductsTableRow({ product, handleOpenDeleteConfirmation
   }
 
   const handlePrefetch = () => {
-    usePrefetchProductBySlug(product.slug, queryClient);
+    prefetchProductBySlug(product.slug, queryClient);
   }
 
   return (

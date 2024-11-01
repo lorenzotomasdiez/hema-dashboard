@@ -54,7 +54,7 @@ export async function PATCH(
 
   delete body.id;
 
-  const { client, user, company, ...updateData } = body;
+  const { client, user, company, deliveredAt, status, ...updateData } = body;
 
   const orderProducts = body.products;
 
@@ -62,6 +62,8 @@ export async function PATCH(
     where: { id, companyId: session.user.selectedCompany.id },
     data: {
       ...updateData,
+      deliveredAt: status === "DELIVERED" ? (deliveredAt ? new Date(deliveredAt) : new Date()) : undefined,
+      status,
       products: {
         deleteMany: {
           orderId: id,

@@ -202,7 +202,7 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
       >
         Agregar Pedido
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] dark:bg-neutral-900">
+      <DialogContent className="sm:max-w-[425px] dark:bg-neutral-900 dark:border-neutral-800">
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <DialogHeader>
@@ -262,7 +262,11 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
                 {watch('clientId') && (
                   <div className="grid grid-cols-4 items-center gap-4">
                     <div className="col-span-1" />
-                    <div className="col-span-3 space-y-2 p-1 rounded-md bg-card">
+                    <div className="col-span-3 space-y-2 p-1 rounded-md bg-card dark:bg-neutral-800">
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium text-xs">Ciudad:</span>
+                        <span className="text-gray-600 text-xs">{clients.data?.find(e => e.id === watch('clientId'))?.city}</span>
+                      </div>
                       <div className="flex justify-between items-center">
                         <span className="font-medium text-xs">Dirección:</span>
                         <span className="text-gray-600 text-xs">{clients.data?.find(e => e.id === watch('clientId'))?.address}</span>
@@ -337,8 +341,8 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
                   <div className="flex flex-col gap-2 max-h-[350px] overflow-y-scroll">
                     {
                       watch('products').map((p) => (
-                        <div key={p.productId} className="grid grid-cols-4 gap-2 p-2 rounded-md bg-neutral-100 items-center">
-                          <span className="text-xs font-medium col-span-2">
+                        <div key={p.productId} className="grid grid-cols-4 gap-2 p-2 rounded-md bg-neutral-100 dark:bg-neutral-800 items-center">
+                          <span className="text-xs font-medium col-span-2 dark:text-neutral-200">
                             {productsData?.find(e => e.id === p.productId)?.name}
                           </span>
                           <div className="flex items-center gap-2 col-span-1">
@@ -366,7 +370,7 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="price" className="text-right col-span-1">Precio Final</Label>
-              <span className="col-span-3 text-right font-medium text-green-500">{calculatePrice(
+              <span className="col-span-3 text-right font-medium text-green-500 dark:text-green-400">{calculatePrice(
                 (watch('products') as unknown as CompleteOrderProduct[]),
                 productsData
               )}</span>
