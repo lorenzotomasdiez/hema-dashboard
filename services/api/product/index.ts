@@ -25,4 +25,8 @@ export default class APIProductService {
   static async findBySlug(slug: string, companyId: string) {
     return ProductRepository.findBySlug(slug, companyId);
   }
+
+  static async updateStock(id: number, stock: number, companyId: string) {
+    return ProductRepository.updateStock(id, stock, companyId);
+  }
 }

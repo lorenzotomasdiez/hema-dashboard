@@ -22,3 +22,8 @@ export type GetOrdersResponse = {
   orders: OrderWithProducts[];
   ordersCount: number;
 }
+
+export interface UpdateOrderStatusProps {
+  id: number;
+  status: OrderStatus;
+}

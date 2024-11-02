@@ -1,6 +1,8 @@
 import { CreateOrderType, GetOrdersParams, Order } from "@/types";
 import { API_ROUTES } from "@/lib/api/routes";
+import { OrderStatus } from "@prisma/client";
 import { responseHandler } from "../request";
+
 export const getOrders = async (params?: GetOrdersParams) => {
   const { page, per_page, status, forToday, keyword } = {
     page: params?.page || 0,
@@ -15,7 +17,6 @@ export const getOrders = async (params?: GetOrdersParams) => {
   return await responseHandler(res);
 }
 
-
 export const createOrder = async (dto: CreateOrderType) => {
   const res = await fetch(API_ROUTES.orders.root, {
     "method": "POST",
@@ -28,6 +29,14 @@ export const updateOrder = async (id: number, body: Partial<Order>) => {
   const res = await fetch(API_ROUTES.orders.id(id), {
     "method": "PATCH",
     body: JSON.stringify(body)
+  });
+  return await responseHandler(res);
+}
+
+export const changeOrderStatus = async (id: number, status: OrderStatus) => {
+  const res = await fetch(API_ROUTES.orders.status(id), {
+    "method": "PATCH",
+    body: JSON.stringify({ status })
   });
   return await responseHandler(res);
 }

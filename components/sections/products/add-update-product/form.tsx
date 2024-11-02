@@ -11,11 +11,13 @@ import { Label } from "@/components/ui/label";
 import { CreateProductType, ProductWithCostComponents, UpdatedProductWithCostComponents } from "@/types";
 import { generateSlug } from "@/lib/api/routes";
 import { cn, moneyMask } from "@/lib/utils";
-import { Trash } from 'lucide-react';
+import { Info, Trash } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { APP_PATH } from "@/config/path";
 import { useCostComponentsQuery } from "@/lib/tanstack";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import Link from "next/link";
 
 interface AddUpdateProductFormProps {
   product?: ProductWithCostComponents;
@@ -28,8 +30,6 @@ export default function AddUpdateProductForm({
   addProductMutation: addClientMutation,
   updateProductMutation: updateClientMutation
 }: AddUpdateProductFormProps) {
-
-  console.log(product);
 
   const router = useRouter();
 
@@ -60,8 +60,6 @@ export default function AddUpdateProductForm({
 
 
   const productCostComponents = watch('costComponents');
-
-  console.log(productCostComponents);
 
   const price = watch('price');
 
@@ -130,6 +128,7 @@ export default function AddUpdateProductForm({
               className="col-span-3"
             />
           </div>
+          
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="stock" className="text-right text-black dark:text-white">
               Stock
@@ -141,6 +140,7 @@ export default function AddUpdateProductForm({
               disabled={!!product}
             />
           </div>
+
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="price" className="text-right text-black dark:text-white">
               Precio
@@ -163,7 +163,7 @@ export default function AddUpdateProductForm({
         </div>
         <div className="border-t border-gray-300 my-4" />
         {
-          productCostComponents && productCostComponents.length > 0 && (
+          productCostComponents && productCostComponents.length > 0 ? (
             <div className="grid grid-cols-4 items-center gap-4 mb-4">
               <Label htmlFor="costComponents" className="text-center text-black dark:text-white col-span-4 text-lg font-medium">
                 Costos de Produccion
@@ -191,8 +191,19 @@ export default function AddUpdateProductForm({
                 </div>
               </div>
             </div>
+          ) : (
+            <Link href={APP_PATH.protected.costs.root}>
+              <Alert>
+                <Info className="h-4 w-4" />
+              <AlertTitle>No hay costos de producción agregados</AlertTitle>
+              <AlertDescription>
+                Para agregar costos, primero debes crearlos desde la sección de costos
+              </AlertDescription>
+            </Alert>
+            </Link>
           )
         }
+        <div className="border-t border-gray-300 my-4" />
         {
           costsToShow && costsToShow.length > 0 && (
             <>

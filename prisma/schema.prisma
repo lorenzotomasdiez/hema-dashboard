@@ -121,8 +121,9 @@ model Client {
   createdAt DateTime  @default(now())
   deletedAt DateTime?
 
-  orders  Order[]
-  company Company @relation(fields: [companyId], references: [id])
+  orders       Order[]
+  company      Company        @relation(fields: [companyId], references: [id])
+  productPrices ClientProduct[]
 }
 
 model Order {
@@ -136,6 +137,7 @@ model Order {
   clientId    String
   userId      String
   companyId   String
+  total       Int         @default(0)
 
   client   Client         @relation(fields: [clientId], references: [id])
   user     User           @relation(fields: [userId], references: [id])
@@ -149,7 +151,7 @@ model Product {
   description String?
   stock       Int       @default(0)
   slug        String
-  price       Int
+  price       Int       // Este será el precio base
   companyId   String
   deletedAt   DateTime?
 
@@ -158,6 +160,7 @@ model Product {
   orders         OrderProduct[]
   company        Company                @relation(fields: [companyId], references: [id])
   costComponents ProductCostComponent[]
+  clientPrices   ClientProduct[]        // Nueva relación
 
   @@unique([companyId, slug])
 }
@@ -196,6 +199,7 @@ model OrderProduct {
   orderId   Int
   productId Int
   quantity  Int
+  price     Int      @default(0)
 
   order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id])
@@ -281,4 +285,21 @@ enum StockMovementType {
   SALE
   RETURN
   ADJUSTMENT
+}
+
+model ClientProduct {
+  id        Int       @id @default(autoincrement())
+  clientId  String
+  productId Int
+  price     Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  client  Client  @relation(fields: [clientId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([clientId, productId])
+  @@index([clientId])
+  @@index([productId])
 }

@@ -9,7 +9,8 @@ export const API_ROUTES = {
   },
   orders: {
     root: "/api/orders",
-    id: (id: number) => `/api/orders/${id}`
+    id: (id: number) => `/api/orders/${id}`,
+    status: (id: number) => `/api/orders/status/${id}`
   },
   clients: {
     root: "/api/clients",

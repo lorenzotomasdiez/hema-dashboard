@@ -25,7 +25,11 @@ export async function findAllByCompanyIdPaginated(companyId: string, params: Get
       }
     ],
     include: {
-      products: true,
+      products: {
+        include: {
+          product: true
+        }
+      },
     },
   });
 }
@@ -38,6 +42,20 @@ export async function ordersCountByCompanyId(companyId: string, params: GetOrder
       ...(forToday && { toDeliverAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)), lte: new Date(new Date().setHours(23, 59, 59, 999)) } }),
       ...(keyword && { client: { name: { contains: keyword, mode: 'insensitive' } } }),
       companyId,
+    }
+  });
+}
+
+export async function changeStatus(id: number, status: OrderStatus) {
+  return db.order.update({
+    where: { id },
+    data: { status: OrderStatus[status as OrderStatus] },
+    include: {
+      products: {
+        include: {
+          product: true
+        }
+      },
     }
   });
 }

@@ -2,6 +2,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { AddProductMutation, UpdateProductMutation, useProductBySlugQuery } from "@/lib/tanstack/useProducts";
 import AddUpdateProductForm from "./form";
+import Loading from "@/app/loading";
 
 interface AddUpdateProductProps {
   slug?: string;
@@ -19,7 +20,7 @@ export default function AddUpdateProduct({
 
   const updateProductMutation = UpdateProductMutation(queryClient);
 
-  if (slug && isLoading) return <div>Cargando...</div>;
+  if (slug && isLoading) return <Loading />;
 
   return (
     <div className="container mx-auto p-4 max-w-screen-sm">

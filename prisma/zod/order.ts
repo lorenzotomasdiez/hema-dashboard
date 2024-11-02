@@ -13,6 +13,7 @@ export const orderSchema = z.object({
   clientId: z.string(),
   userId: z.string(),
   companyId: z.string(),
+  total: z.number().int(),
 })
 
 export interface CompleteOrder extends z.infer<typeof orderSchema> {

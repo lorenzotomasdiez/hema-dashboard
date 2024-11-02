@@ -37,6 +37,12 @@ interface AddUpdateOrderProps {
   productsData?: Product[];
 }
 
+interface OrderProductComplete {
+  productId: number;
+  quantity: number;
+  product: Product;
+}
+
 export default function AddUpdateOrder({ order, queryKey, open, setOpen, productsData }: AddUpdateOrderProps) {
   const queryClient = useQueryClient();
 
@@ -343,7 +349,11 @@ export default function AddUpdateOrder({ order, queryKey, open, setOpen, product
                       watch('products').map((p) => (
                         <div key={p.productId} className="grid grid-cols-4 gap-2 p-2 rounded-md bg-neutral-100 dark:bg-neutral-800 items-center">
                           <span className="text-xs font-medium col-span-2 dark:text-neutral-200">
-                            {productsData?.find(e => e.id === p.productId)?.name}
+                            {(p as unknown as OrderProductComplete).product ? (
+                              (p as unknown as OrderProductComplete).product.name
+                            ) : (
+                              productsData?.find(e => e.id === p.productId)?.name
+                            )}
                           </span>
                           <div className="flex items-center gap-2 col-span-1">
                             <Button variant={"ghost"} size={"icon"} onClick={() => handleDecreaseQuantity(p.productId)} type="button">

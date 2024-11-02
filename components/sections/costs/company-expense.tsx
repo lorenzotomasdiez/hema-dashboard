@@ -56,10 +56,6 @@ export default function CompanyExpenseSection() {
     form.reset();
   }
 
-  watch((e) => {
-    console.log(e);
-  });
-
   return (
     <div className="w-full flex flex-col gap-12">
       <Card className="w-full shadow-lg hover:shadow-xl transition-shadow duration-300 dark:bg-neutral-800 dark:border-neutral-700">

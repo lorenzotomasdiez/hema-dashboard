@@ -51,7 +51,6 @@ export default function ProductsTableRow({ product, handleOpenDeleteConfirmation
             <DropdownMenuItem
               className="text-red-600 dark:text-red-400"
               onClick={handleClickOpenDelete}
-              disabled
             >
               Eliminar
             </DropdownMenuItem>

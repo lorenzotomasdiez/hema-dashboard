@@ -64,7 +64,7 @@ export default function ProductsDeleteConfirmation({ productId, setOpen, queryKe
           <Button variant="outline" onClick={() => setOpen(null)}>
             Cancelar
           </Button>
-          <Button onClick={handleDelete} disabled={inputValue !== "OK"}>
+          <Button onClick={handleDelete} disabled={inputValue.toLowerCase() !== "ok"}>
             Eliminar
           </Button>
         </DialogFooter>
