@@ -1,7 +1,7 @@
 import { CreateProductType, ProductWithCostComponents } from "@/types";
 import { ProductRepository } from "@/repositories";
 
-export default class ProductService {
+export default class APIProductService {
   static async create(product: CreateProductType, companyId: string) {
     return ProductRepository.create(product, companyId);
   }

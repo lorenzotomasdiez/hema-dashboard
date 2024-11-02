@@ -3,14 +3,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { createProductSchema } from "@/dto/product/create-product.dto";
 import { CreateProductType } from "@/types";
 import { formatZodError } from "@/lib/utils";
-import ProductService from "@/services/api/product";
+import APIProductService from "@/services/api/product";
 
 export async function GET(request: NextRequest) {
   const { session } = await getUserAuth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (!session.user.selectedCompany) return NextResponse.json({ error: "No company selected" }, { status: 400 });
 
-  const products = await ProductService.findAllByCompanyId(session.user.selectedCompany.id);
+  const products = await APIProductService.findAllByCompanyId(session.user.selectedCompany.id);
 
   return NextResponse.json(products, { status: 200 });
 }
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(formatZodError(newProductDTO.error), { status: 422 });
     }
 
-    const product = await ProductService.create(newProductDTO.data, session.user.selectedCompany.id);
+    const product = await APIProductService.create(newProductDTO.data, session.user.selectedCompany.id);
 
     return NextResponse.json(product, { status: 201 });
   } catch (error) {

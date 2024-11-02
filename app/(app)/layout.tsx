@@ -24,7 +24,7 @@ export default async function AppLayout({
     <main>
       <NextAuthProvider>
         <TanstackProvider>
-          <div className="flex h-screen">
+          <div className="flex min-h-screen h-full">
             <Sidebar />
             <main className="flex-1 overflow-y-auto">
               <Navbar />

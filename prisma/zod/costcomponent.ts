@@ -23,6 +23,8 @@ export const costComponentSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   companyId: z.string(),
+  deletedAt: z.date().nullish(),
+  disabledFrom: z.date().nullish(),
 })
 
 export interface CompleteCostComponent extends z.infer<typeof costComponentSchema> {

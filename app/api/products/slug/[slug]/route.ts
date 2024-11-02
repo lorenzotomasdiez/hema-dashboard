@@ -1,5 +1,5 @@
 import { getUserAuth } from "@/lib/auth/utils";
-import ProductService from "@/services/api/product";
+import APIProductService from "@/services/api/product";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -12,7 +12,7 @@ export async function GET(
 
   const slug = params.slug;
 
-  const product = await ProductService.findBySlug(slug, session.user.selectedCompany.id);
+  const product = await APIProductService.findBySlug(slug, session.user.selectedCompany.id);
 
   const productWithCostComponentDTO = {
     ...product,

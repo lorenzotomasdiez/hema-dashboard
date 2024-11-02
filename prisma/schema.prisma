@@ -163,12 +163,14 @@ model Product {
 }
 
 model CostComponent {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  cost      Decimal  @db.Decimal(10, 2)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  companyId String
+  id            Int       @id @default(autoincrement())
+  name          String    @unique
+  cost          Decimal   @db.Decimal(10, 2)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  companyId     String
+  deletedAt     DateTime? 
+  disabledFrom  DateTime? 
 
   company  Company                @relation(fields: [companyId], references: [id])
   products ProductCostComponent[]
@@ -208,14 +210,16 @@ enum OrderStatus {
 }
 
 model CompanyExpense {
-  id          Int              @id @default(autoincrement())
-  name        String
-  companyId   String
-  date        DateTime         @default(now())
-  amount      Decimal          @db.Decimal(10, 2)
-  description String?
-  isMonthly   Boolean          @default(false)
-  category    ExpenseCategory?
+  id            Int              @id @default(autoincrement())
+  name          String
+  companyId     String
+  date          DateTime         @default(now())
+  amount        Decimal          @db.Decimal(10, 2)
+  description   String?
+  isMonthly     Boolean          @default(false)
+  category      ExpenseCategory?
+  deletedAt     DateTime?        
+  disabledFrom  DateTime?        
 
   company Company @relation(fields: [companyId], references: [id])
 
@@ -223,11 +227,22 @@ model CompanyExpense {
 }
 
 enum ExpenseCategory {
-  RENT
-  SALARY
-  UTILITIES
-  MARKETING
-  OTHER
+  RENT                
+  SALARY              
+  UTILITIES           
+  MARKETING           
+  RAW_MATERIALS       
+  MACHINERY           
+  MAINTENANCE         
+  PACKAGING           
+  TRANSPORTATION      
+  INSURANCE           
+  TAXES               
+  TRAINING            
+  CLEANING            
+  OFFICE_SUPPLIES     
+  TECHNOLOGY          
+  OTHER               
 }
 
 model Production {

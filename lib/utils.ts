@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { OrderStatus, Product, UserRole } from "@prisma/client"
+import { ExpenseCategory, OrderStatus, Product, UserRole } from "@prisma/client"
 import { CompleteOrderProduct } from "@/prisma/zod"
 import { ZodError } from "zod"
 
@@ -76,4 +76,41 @@ export function replaceEmptyStringsWithUndefined<T extends Record<string, any>>(
   return Object.fromEntries(
     Object.entries(obj).map(([key, value]) => [key, value === '' ? undefined : value])
   ) as T;
+}
+
+export const expenseCategoryTranslator = (category: ExpenseCategory) => {
+  switch (category) {
+    case ExpenseCategory.RENT:
+      return "Alquiler";
+    case ExpenseCategory.SALARY:
+      return "Sueldos";
+    case ExpenseCategory.UTILITIES:
+      return "Servicios";
+    case ExpenseCategory.MARKETING:
+      return "Marketing y publicidad";
+    case ExpenseCategory.RAW_MATERIALS:
+      return "Materias primas";
+    case ExpenseCategory.MACHINERY:
+      return "Maquinaria y equipamiento";
+    case ExpenseCategory.MAINTENANCE:
+      return "Mantenimiento de equipos";
+    case ExpenseCategory.PACKAGING:
+      return "Embalaje y packaging";
+    case ExpenseCategory.TRANSPORTATION:
+      return "Transporte y logística";
+    case ExpenseCategory.INSURANCE:
+      return "Seguros";
+    case ExpenseCategory.TAXES:
+      return "Impuestos";
+    case ExpenseCategory.TRAINING:
+      return "Capacitación";
+    case ExpenseCategory.CLEANING:
+      return "Limpieza e higiene";
+    case ExpenseCategory.OFFICE_SUPPLIES:
+      return "Insumos de oficina";
+    case ExpenseCategory.TECHNOLOGY:
+      return "Software y tecnología";
+    case ExpenseCategory.OTHER:
+      return "Otros gastos";
+  }
 }

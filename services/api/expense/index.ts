@@ -10,4 +10,14 @@ export default class APIExpenseService {
     const newExpense = await CompanyExpenseRepository.createCompanyExpense(expense);
     return newExpense;
   }
+
+  static async delete(expenseId: number) {
+    const deletedExpense = await CompanyExpenseRepository.deleteCompanyExpense(expenseId);
+    return deletedExpense;
+  }
+
+  static async disableExpense(expenseId: number) {
+    const disabledExpense = await CompanyExpenseRepository.disableCompanyExpense(expenseId);
+    return disabledExpense;
+  }
 }

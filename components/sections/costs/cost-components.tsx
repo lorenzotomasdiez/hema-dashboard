@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react";
-import { Plus, Trash } from "lucide-react";
+import { Plus } from "lucide-react";
 import { DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RHFInput } from "@/components/rhf/rhf-input";
@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateCostComponentType } from "@/types";
 import { moneyMask } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import DeleteCostModal from "./delete-cost-modal";
 
 export default function CostComponentsSection() {
   const { data: session } = useSession();
@@ -91,38 +92,79 @@ export default function CostComponentsSection() {
       <Card className="shadow-lg dark:bg-neutral-800 dark:border-neutral-700">
         <CardHeader>
           <div className="flex items-center">
-            {isLoading ? (
-              <span className="text-gray-500 dark:text-gray-400">Cargando...</span>
-            ) : (
-              <CardTitle className="text-2xl font-semibold text-gray-700 dark:text-gray-200">Lista de Costos del Producto</CardTitle>
-            )}
+            <CardTitle className="text-2xl font-semibold text-gray-700 dark:text-gray-200">Lista de Costos del Producto</CardTitle>
           </div>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-left dark:text-gray-200">Nombre del Costo</TableHead>
-                <TableHead className="text-right dark:text-gray-200">Monto</TableHead>
-                <TableHead className="text-right dark:text-gray-200">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {costs?.map((cost, index) => (
-                <TableRow key={index} className="hover:bg-gray-50 dark:hover:bg-neutral-700">
-                  <TableCell className="font-medium dark:text-gray-200">{cost.name}</TableCell>
-                  <TableCell className="text-right dark:text-gray-200">${moneyMask(Number(cost.cost))}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" className="dark:hover:bg-neutral-700">
-                      <Trash className="w-4 h-4 dark:text-gray-200" />
-                    </Button>
-                  </TableCell>
+        {isLoading ? (
+          <CostComponentSkeleton />
+        ) : (
+          costs?.length === 0 ? (
+            <CostComponentEmptyList />
+          ) : (
+            <CardContent>
+              <Table>
+                <TableHeader>
+                <TableRow>
+                  <TableHead className="text-left dark:text-gray-200">Nombre del Costo</TableHead>
+                  <TableHead className="text-right dark:text-gray-200">Monto</TableHead>
+                  <TableHead className="text-right dark:text-gray-200">Acciones</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+              </TableHeader >
+              <TableBody>
+                {costs?.map((cost, index) => (
+                  <TableRow key={index} className="hover:bg-gray-50 dark:hover:bg-neutral-700">
+                    <TableCell className="font-medium dark:text-gray-200">{cost.name}</TableCell>
+                    <TableCell className="text-right dark:text-gray-200">${moneyMask(Number(cost.cost))}</TableCell>
+                    <TableCell className="text-right">
+                      <DeleteCostModal costComponentId={cost.id} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table >
+            </CardContent >
+          )
+        )}
+      </Card >
+    </div >
+  )
+}
+
+const CostComponentSkeleton = () => {
+  return (
+    <CardContent>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-left dark:text-gray-200">Nombre del Costo</TableHead>
+            <TableHead className="text-right dark:text-gray-200">Monto</TableHead>
+            <TableHead className="text-right dark:text-gray-200">Acciones</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {[1, 2, 3].map((_, index) => (
+            <TableRow key={index} className="hover:bg-gray-50 dark:hover:bg-neutral-700">
+              <TableCell className="font-medium">
+                <div className="h-4 w-32 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse" />
+              </TableCell>
+              <TableCell className="text-right">
+                <div className="h-4 w-20 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse ml-auto" />
+              </TableCell>
+              <TableCell className="text-right">
+                <div className="h-8 w-8 bg-gray-200 dark:bg-neutral-700 rounded animate-pulse ml-auto" />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </CardContent>
+  )
+}
+
+const CostComponentEmptyList = () => {
+  return (
+    <CardContent>
+      <p className="text-left text-gray-500 dark:text-gray-400">No hay costos registrados</p>
+    </CardContent>
   )
 }

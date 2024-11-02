@@ -26,6 +26,8 @@ export const companyExpenseSchema = z.object({
   description: z.string().nullish(),
   isMonthly: z.boolean(),
   category: z.nativeEnum(ExpenseCategory).nullish(),
+  deletedAt: z.date().nullish(),
+  disabledFrom: z.date().nullish(),
 })
 
 export interface CompleteCompanyExpense extends z.infer<typeof companyExpenseSchema> {

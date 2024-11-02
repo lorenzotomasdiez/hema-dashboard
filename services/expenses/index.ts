@@ -14,3 +14,17 @@ export const addCompanyExpense = async (expense: CreateCompanyExpenseDTO) => {
   });
   return await responseHandler(res);
 }
+
+export const deleteCompanyExpense = async (expenseId: number) => {
+  const res = await fetch(API_ROUTES.expenses.root + `/${expenseId}`, {
+    method: "DELETE"
+  });
+  return await responseHandler(res);
+}
+
+export const disableCompanyExpense = async (expenseId: number) => {
+  const res = await fetch(API_ROUTES.expenses.root + `/disable/${expenseId}`, {
+    method: "DELETE"
+  });
+  return await responseHandler(res);
+}
