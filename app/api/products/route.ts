@@ -27,6 +27,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(formatZodError(newProductDTO.error), { status: 422 });
     }
 
+    console.log("newProductDTO", newProductDTO);
+
     const product = await APIProductService.create(newProductDTO.data, session.user.selectedCompany.id);
 
     return NextResponse.json(product, { status: 201 });

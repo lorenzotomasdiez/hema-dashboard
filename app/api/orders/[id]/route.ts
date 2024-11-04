@@ -1,6 +1,8 @@
 import { getUserAuth } from "@/lib/auth/utils";
 import { db } from "@/lib/db/index";
 import { CompleteOrder } from "@/prisma/zod";
+import { APIOrderService } from "@/services/api";
+import { UpdateOrderDTO } from "@/types";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -48,52 +50,15 @@ export async function PATCH(
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (!session.user.selectedCompany) return NextResponse.json({ error: "No company selected" }, { status: 400 });
 
-  const id = Number(params.id);
+  try {
+    const id = Number(params.id);
+    const body = (await request.json()) as UpdateOrderDTO;
+    const order = await APIOrderService.updateOrder(id, body, session.user.selectedCompany.id);
+    return NextResponse.json(order, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Internal server error" }, { status: 500 });
+  }
 
-  const body = (await request.json()) as Partial<CompleteOrder>;
-
-  delete body.id;
-
-  const { client, user, company, deliveredAt, status, ...updateData } = body;
-
-  const orderProducts = body.products;
-
-  const order = await db.order.update({
-    where: { id, companyId: session.user.selectedCompany.id },
-    data: {
-      ...updateData,
-      deliveredAt: status === "DELIVERED" ? (deliveredAt ? new Date(deliveredAt) : new Date()) : undefined,
-      status,
-      products: {
-        deleteMany: {
-          orderId: id,
-          productId: {
-            notIn: orderProducts?.map(p => p.productId) ?? []
-          }
-        },
-        upsert: orderProducts?.map((product) => ({
-          where: {
-            orderId_productId: {
-              orderId: id,
-              productId: product.productId
-            }
-          },
-          create: {
-            productId: product.productId,
-            quantity: product.quantity
-          },
-          update: {
-            quantity: product.quantity
-          }
-        })) ?? []
-      },
-    },
-    include: {
-      products: true
-    }
-  });
-
-  return NextResponse.json(order, { status: 200 });
 }
 
 export async function DELETE(

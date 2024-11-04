@@ -35,7 +35,7 @@ export async function deleteCostComponent(costComponentId: number) {
 
   const deletedCostComponent = await db.costComponent.update({
     where: { id: costComponentId },
-    data: { deletedAt: new Date() }
+    data: { deletedAt: new Date().toISOString() }
   });
   return deletedCostComponent;
 }
@@ -43,7 +43,7 @@ export async function deleteCostComponent(costComponentId: number) {
 export async function disableCostComponent(costComponentId: number) {
   const disabledCostComponent = await db.costComponent.update({
     where: { id: costComponentId },
-    data: { disabledFrom: new Date() }
+    data: { disabledFrom: new Date().toISOString() }
   });
   return disabledCostComponent;
 }

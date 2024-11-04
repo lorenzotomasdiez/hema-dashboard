@@ -2,30 +2,31 @@
 
 import { format } from "date-fns";
 import { MoreHorizontal } from "lucide-react";
-import { OrderStatus, Product } from "@prisma/client"
+import { OrderStatus } from "@prisma/client"
 
 import { Order } from "@/types";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { calculatePrice, cn } from "@/lib/utils";
+import { cn, moneyMask } from "@/lib/utils";
 import { CompleteOrderProduct } from "@/prisma/zod";
+import { useRouter } from "next/navigation";
+import { APP_PATH } from "@/config/path";
 
 interface Props {
   order: Order & { products: CompleteOrderProduct[] };
-  productsData: Product[] | undefined;
-  handleOpenDetails: (id: number) => void;
   client: (cuid: string) => string
   handleDeleteOrder: (id: number) => void;
 }
 
-export default function OrderTableRow({ order, handleOpenDetails, client, handleDeleteOrder, productsData }: Props) {
+export default function OrderTableRow({ order, client, handleDeleteOrder }: Props) {
+  const router = useRouter();
   const handleClickDelete = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
     handleDeleteOrder(order.id);
   }
   return (
-    <TableRow className="hover:bg-muted/50 transition-colors cursor-pointer dark:bg-neutral-900" onClick={() => handleOpenDetails(order.id)}>
+    <TableRow className="hover:bg-muted/50 transition-colors cursor-pointer dark:bg-neutral-900">
       <TableCell className="font-bold">{order.toDeliverAt && format(new Date(order.toDeliverAt.toString()), 'dd/MM')}</TableCell>
       <TableCell align="left">{client(order.clientId)}</TableCell>
       <TableCell align="center">
@@ -40,7 +41,7 @@ export default function OrderTableRow({ order, handleOpenDetails, client, handle
         </span>
       </TableCell>
       <TableCell className="text-right">
-        {calculatePrice(order.products, productsData)}
+        {moneyMask(order.total)}
       </TableCell>
       <TableCell className="text-right">
         <DropdownMenu>
@@ -52,7 +53,7 @@ export default function OrderTableRow({ order, handleOpenDetails, client, handle
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => handleOpenDetails(order.id)}>Ver Detalles</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push(APP_PATH.protected.orders.details(order.id))}>Ver Detalles</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-red-600" onClick={handleClickDelete}>Eliminar</DropdownMenuItem>
           </DropdownMenuContent>

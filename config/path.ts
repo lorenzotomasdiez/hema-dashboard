@@ -12,7 +12,11 @@ export const APP_PATH = {
       root: "/dashboard"
     },
     notAllowed: "/not-allowed",
-    orders: "/orders",
+    orders: {
+      root: "/orders",
+      add: "/orders/create",
+      details: (id: number) => `/orders/${id}`,
+    },
     organization: "/organization",
     products: {
       root: "/products",
@@ -22,6 +26,7 @@ export const APP_PATH = {
     costs: {
       root: "/costs"
     },
-    settings: "/settings"
+    settings: "/settings",
+    delivery: "/delivery"
   }
 }

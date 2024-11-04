@@ -1,9 +1,9 @@
 import { getUserAuth } from "@/lib/auth/utils";
-import { db } from "@/lib/db/index";
 import { NextRequest, NextResponse } from "next/server";
 import { createOrderSchema } from "@/dto/order/create-order.dto";
-import { CreateOrderType, GetOrdersParams } from "@/types";
+import { CreateOrderDTO, GetOrdersParams } from "@/types";
 import { APIOrderService } from "@/services/api";
+import { formatZodError } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   const { session } = await getUserAuth();
@@ -25,10 +25,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: Request) {
   const { session } = await getUserAuth();
-  if (!session) return new Response("Error", { status: 400 });
-  if (!session.user.selectedCompany) return new Response("Error", { status: 400 });
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session.user.selectedCompany) return NextResponse.json({ error: "No company selected" }, { status: 400 });
 
-  const body = (await request.json()) as CreateOrderType;
+  const body = (await request.json()) as CreateOrderDTO;
 
   const newOrderDTO = createOrderSchema.safeParse({
     ...body,
@@ -36,29 +36,13 @@ export async function POST(request: Request) {
   });
 
   if (!newOrderDTO.success) {
-    return new Response(JSON.stringify(newOrderDTO.error), { status: 422 });
+    return NextResponse.json(formatZodError(newOrderDTO.error), { status: 422 });
   }
 
-  const { status, products, clientId, toDeliverAt } = newOrderDTO.data;
-
-  const order = await db.order.create({
-    data: {
-      clientId,
-      userId: session.user.id,
-      status,
-      toDeliverAt,
-      products: {
-        create: products.map(product => ({
-          product: { connect: { id: product.productId } },
-          quantity: product.quantity
-        }))
-      },
-      companyId: session.user.selectedCompany.id,
-    },
-    include: {
-      products: true
-    }
-  });
-
-  return new Response(JSON.stringify(order), { status: 201 });
+  try {
+    const newOrder = await APIOrderService.createOrder(newOrderDTO.data, session.user.selectedCompany.id, session.user.id);
+    return NextResponse.json(newOrder, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Internal server error" }, { status: 500 });
+  }
 }

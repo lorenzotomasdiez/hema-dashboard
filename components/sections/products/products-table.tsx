@@ -58,7 +58,7 @@ export default function ProductsTable() {
               <TableRow>
                 <TableHead>Nombre</TableHead>
                 <TableHead className="text-center">Stock</TableHead>
-                <TableHead className="text-center">Precio</TableHead>
+                <TableHead className="text-center">Precio Base</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>

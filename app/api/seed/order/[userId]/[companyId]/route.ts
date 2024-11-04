@@ -1,5 +1,5 @@
 import { db } from "@/lib/db/index";
-import { CreateOrderType } from "@/types/order";
+import { CreateOrderDTO } from "@/types/order";
 import { OrderStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 
@@ -32,13 +32,13 @@ export async function GET(request: Request, { params }: { params: { userId: stri
     const products = await db.product.findMany();
     const orderStatus = ["PENDING", "SHIPPED", "DELIVERED"];
 
-    const orders: CreateOrderType[] = [];
+    const orders: CreateOrderDTO[] = [];
 
     for (let i = 0; i < 10; i++) {
       const client = clients[Math.floor(Math.random() * clients.length)];
       const product = products[Math.floor(Math.random() * products.length)];
       const status = orderStatus[Math.floor(Math.random() * orderStatus.length)];
-      const order: CreateOrderType = {
+      const order: CreateOrderDTO = {
         clientId: client.id,
         products: [{ productId: product.id, quantity: Math.floor(Math.random() * 10) + 1 }],
         status: status as OrderStatus,

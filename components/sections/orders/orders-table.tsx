@@ -18,7 +18,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useQuery } from "@tanstack/react-query";
-import AddUpdateOrder from "./add-update-order";
 import { Client } from "@/types/client";
 import { getClients } from "@/services/clients";
 import { OrderStatus, Product } from "@prisma/client"
@@ -30,9 +29,10 @@ import { getProducts } from "@/services/products";
 import { Input } from "@/components/ui/input";
 import { debounce } from "lodash";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { APP_PATH } from "@/config/path";
 
 export default function OrdersTable() {
-  const [openDetails, setOpenDetails] = React.useState<number | null>(null);
   const [openDelete, setOpenDelete] = React.useState<number | null>(null);
   const [keywordInput, setKeywordInput] = React.useState<string>("");
 
@@ -67,20 +67,10 @@ export default function OrdersTable() {
     staleTime: 999 * 60
   })
 
-  const productsQuery = useQuery<Product[]>({
-    queryKey: ["products"],
-    queryFn: getProducts,
-    staleTime: 999 * 60
-  })
-
   const client = (cuid: string) => {
     const name = clients.data?.find(e => e.id === cuid)?.name;
     return name && name.length > 25 ? `${name.slice(0, 25)}...` : name || " - ";
   };
-
-  const handleOpenDetails = (id: number) => {
-    setOpenDetails(id);
-  }
 
   const handleDeleteOrder = (id: number) => {
     setOpenDelete(id);
@@ -100,12 +90,11 @@ export default function OrdersTable() {
         <CardTitle className="text-2xl font-bold">Pedidos</CardTitle>
         <div className="flex items-center justify-end gap-3">
           {ordersQuery.isFetching && <Loader2 className="animate-spin" />}
-          <AddUpdateOrder
-            queryKey={queryKey}
-            open={openDetails === 0}
-            setOpen={setOpenDetails}
-            productsData={productsQuery.data}
-          />
+          <Link href={APP_PATH.protected.orders.add}>
+            <Button className="bg-foreground text-background dark:bg-neutral-700 dark:text-white">
+              Agregar Pedido
+            </Button>
+          </Link>
         </div>
       </CardHeader>
       <CardContent>
@@ -168,17 +157,8 @@ export default function OrdersTable() {
                     <OrderTableRow
                       key={order.id}
                       order={order}
-                      handleOpenDetails={handleOpenDetails}
                       handleDeleteOrder={handleDeleteOrder}
                       client={client}
-                      productsData={productsQuery.data}
-                    />
-                    <AddUpdateOrder
-                      order={order}
-                      queryKey={queryKey}
-                      open={openDetails === order.id}
-                      setOpen={setOpenDetails}
-                      productsData={productsQuery.data}
                     />
                   </React.Fragment>
                 ))}

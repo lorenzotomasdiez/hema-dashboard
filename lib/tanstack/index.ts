@@ -6,3 +6,4 @@ export * from "./useDashboard";
 export * from "./useClients";
 export * from "./useCostComponents";
 export * from "./useCompanyExpenses";
+export * from "./useProducts";

@@ -1,4 +1,4 @@
-import { CompanyInfo } from "@/components/sections";
+import { CompanyInfo, CompanySettings } from "@/components/sections";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { withRoleAccess } from "@/guard";
@@ -39,6 +39,7 @@ export default async function OrganizationPage() {
         </CardContent>
       </Card>
       <CompanyInfo />
+      <CompanySettings />
     </div>
   )
 }

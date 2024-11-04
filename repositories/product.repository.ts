@@ -1,6 +1,7 @@
 import { generateSlug } from "@/lib/api/routes";
 import { db } from "@/lib/db";
 import { CreateProductType, ProductWithCostComponents } from "@/types";
+import { Prisma } from "@prisma/client";
 
 export async function findAllByCompanyId(companyId: string) {
   return db.product.findMany({
@@ -87,4 +88,27 @@ export async function updateStock(id: number, stock: number, companyId: string) 
     where: { id, companyId },
     data: { stock }
   });
+}
+
+export async function getPrice(id: number, clientId: string, tx?: Prisma.TransactionClient) {
+  const dbContext = tx || db;
+  const clientProduct = await dbContext.clientProduct.findUnique({
+    where: { 
+      clientId_productId: { clientId, productId: id },
+      deletedAt: null
+    }
+  })
+
+  if (clientProduct) return clientProduct.price;
+
+  const normalProduct = await dbContext.product.findUnique({
+    where: { 
+      id,
+      deletedAt: null
+    }
+  })
+
+  if (!normalProduct) throw new Error('Product not found');
+
+  return normalProduct.price;
 }

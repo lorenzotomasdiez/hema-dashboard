@@ -1,4 +1,4 @@
-import { Cog, User, LayoutList, UserSearch, Package, Inbox, Building, DollarSign } from "lucide-react";
+import { Cog, LayoutList, UserSearch, Package, Inbox, Building, DollarSign, Truck } from "lucide-react";
 import { SidebarLink } from "@/components/SidebarItems";
 import { prefetchClientsData, prefetchClientsFullData, prefetchDashboardSummaryData, prefetchOrdersData, prefetchProductsData } from "@/lib/tanstack";
 import { UserRole } from "@prisma/client";
@@ -22,7 +22,7 @@ export const defaultLinks: SidebarLink[] = [
     ]
   },
   {
-    href: APP_PATH.protected.orders,
+    href: APP_PATH.protected.orders.root,
     title: "Pedidos",
     icon: Inbox,
     prefetchData: [prefetchOrdersData, prefetchClientsData],
@@ -30,7 +30,6 @@ export const defaultLinks: SidebarLink[] = [
       UserRole.ADMIN,
       UserRole.COMPANY_OWNER,
       UserRole.COMPANY_ADMIN,
-      UserRole.COMPANY_WORKER,
     ]
   },
   {
@@ -79,6 +78,17 @@ export const defaultLinks: SidebarLink[] = [
     href: APP_PATH.protected.settings,
     title: "Configuracion",
     icon: Cog,
+    roles: [
+      UserRole.ADMIN,
+      UserRole.COMPANY_OWNER,
+      UserRole.COMPANY_ADMIN,
+      UserRole.COMPANY_WORKER,
+    ]
+  },
+  {
+    href: APP_PATH.protected.delivery,
+    title: "Delivery",
+    icon: Truck,
     roles: [
       UserRole.ADMIN,
       UserRole.COMPANY_OWNER,
