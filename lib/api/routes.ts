@@ -10,7 +10,8 @@ export const API_ROUTES = {
   orders: {
     root: "/api/orders",
     id: (id: number) => `/api/orders/${id}`,
-    status: (id: number) => `/api/orders/status/${id}`
+    status: (id: number) => `/api/orders/status/${id}`,
+    markAsDelivered: "/api/orders/mark-as-delivered"
   },
   clients: {
     root: "/api/clients",

@@ -110,7 +110,6 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
-
 model Client {
   id        String    @id @default(cuid())
   name      String
@@ -304,3 +303,4 @@ model ClientProduct {
   @@index([clientId])
   @@index([productId])
 }
+

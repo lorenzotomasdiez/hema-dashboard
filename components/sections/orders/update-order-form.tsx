@@ -92,19 +92,19 @@ export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
           />
           <div>
             {watch('clientId') && (
-              <Card className="bg-muted">
+              <Card className="bg-muted dark:bg-muted/50 border border-white/10 dark:border-white/50">
                 <CardContent className="p-4 space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium">Ciudad:</span>
-                    <span className="text-sm">{clients?.find(c => c.id === watch('clientId'))?.city}</span>
+                    <span className="text-sm font-medium text-foreground/80 dark:text-foreground/70">Ciudad:</span>
+                    <span className="text-sm dark:text-foreground/80">{clients?.find(c => c.id === watch('clientId'))?.city}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium">Dirección:</span>
-                    <span className="text-sm">{clients?.find(c => c.id === watch('clientId'))?.address}</span>
+                    <span className="text-sm font-medium text-foreground/80 dark:text-foreground/70">Dirección:</span>
+                    <span className="text-sm dark:text-foreground/80">{clients?.find(c => c.id === watch('clientId'))?.address}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium">Teléfono:</span>
-                    <span className="text-sm">{clients?.find(c => c.id === watch('clientId'))?.phone}</span>
+                    <span className="text-sm font-medium text-foreground/80 dark:text-foreground/70">Teléfono:</span>
+                    <span className="text-sm dark:text-foreground/80">{clients?.find(c => c.id === watch('clientId'))?.phone}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -165,11 +165,13 @@ export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
           </div>
 
           {watch('products').length > 0 && (
-            <Card>
+            <Card className="dark:border-border/50">
               <CardContent className="p-4 space-y-4">
                 {watch('products').map((p) => (
                   <div key={p.productId} className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{products?.find(prod => prod.id === p.productId)?.name}</span>
+                    <span className="text-sm font-medium dark:text-foreground/90">
+                      {products?.find(prod => prod.id === p.productId)?.name}
+                    </span>
                     <div className="flex items-center space-x-2">
                       <Button
                         variant="outline"
@@ -205,7 +207,11 @@ export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
         </div>
         <Separator className="my-4" />
         <div>
-          <Button type="submit" className="w-full" disabled={isSubmitting || !isDirty}>
+          <Button 
+            type="submit" 
+            className="w-full dark:hover:bg-primary/90" 
+            disabled={isSubmitting || !isDirty}
+          >
             Actualizar Pedido
           </Button>
         </div>

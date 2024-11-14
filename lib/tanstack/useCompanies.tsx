@@ -29,6 +29,7 @@ export const CompanyAddMutation = ({ onSuccess, onError, queryClient }: UseCompa
         id: new Date().getTime().toString(),
         createdAt: new Date(),
         updatedAt: new Date(),
+        useStockSystem: false,
         userCompanies: [
           {
             id: 1,

@@ -53,8 +53,8 @@ export default function CostComponentsSection() {
     }
   }, [session?.user.selectedCompany?.id]);
   return (
-    <div className="w-full flex flex-col gap-12">
-      <Card className="w-full shadow-lg hover:shadow-xl transition-shadow duration-300 dark:bg-neutral-800 dark:border-neutral-700">
+    <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <Card className="h-full w-full shadow-lg hover:shadow-xl transition-shadow duration-300 dark:bg-neutral-800 dark:border-neutral-700">
         <CardHeader>
           <CardTitle className="text-2xl font-semibold text-gray-700 dark:text-gray-200">Costos de los Productos</CardTitle>
         </CardHeader>
@@ -89,7 +89,7 @@ export default function CostComponentsSection() {
           </Form>
         </CardContent>
       </Card>
-      <Card className="shadow-lg dark:bg-neutral-800 dark:border-neutral-700">
+      <Card className="h-full w-full shadow-lg hover:shadow-xl transition-shadow duration-300 dark:bg-neutral-800 dark:border-neutral-700">
         <CardHeader>
           <div className="flex items-center">
             <CardTitle className="text-2xl font-semibold text-gray-700 dark:text-gray-200">Lista de Costos del Producto</CardTitle>

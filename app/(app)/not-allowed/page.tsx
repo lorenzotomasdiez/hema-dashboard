@@ -2,7 +2,6 @@
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { APP_PATH } from "@/config/path";
 import { AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -12,7 +11,7 @@ export default function NotAllowedPage() {
   const router = useRouter()
   const handleGoBack = () => {
     setIsRedirecting(true)
-    router.push(APP_PATH.protected.orders)
+    router.back()
   }
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

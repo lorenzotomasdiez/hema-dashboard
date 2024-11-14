@@ -8,7 +8,7 @@ import { useCompaniesQuery } from "@/lib/tanstack";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { APP_PATH } from "@/config/path";
-import AppLogo from "@/components/AppLogo";
+import AppLogoLoader from "@/components/AppLogoLoader";
 import { CompanyWithUserCompanies } from "@/types/company";
 
 export const ChooseCompanySection = () => {
@@ -79,7 +79,7 @@ export const ChooseCompanySection = () => {
           }
         </div>
         {
-          isRedirecting && (<AppLogo />)
+          isRedirecting && (<AppLogoLoader />)
         }
       </CardContent>
       <CardFooter className="flex justify-center">

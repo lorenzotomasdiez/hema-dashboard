@@ -16,7 +16,7 @@ import {
 import { Bar } from "react-chartjs-2"
 import { generateDashboardPalette, moneyMask, statusToSpanish } from "@/lib/utils"
 import { OrdersTable } from "../orders"
-import AppLogo from "@/components/AppLogo"
+import AppLogoLoader from "@/components/AppLogoLoader"
 import { useDashboardQuery } from "@/lib/tanstack"
 
 ChartJS.register(
@@ -100,7 +100,7 @@ export function DashboardMain() {
       },
     ],
   }
-  if (isLoading || !data) return <AppLogo />
+  if (isLoading || !data) return <AppLogoLoader />
   return (
     <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen p-2 md:p-8">
       <div className="flex justify-center items-center mb-6 md:justify-start">

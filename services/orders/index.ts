@@ -52,3 +52,11 @@ export const deleteOrder = async (id: number) => {
   });
   return await responseHandler(res);
 }
+
+export const orderMarkAsDelivered = async (orderIds: number[]) => {
+  const res = await fetch(API_ROUTES.orders.markAsDelivered, {
+    method: "POST",
+    body: JSON.stringify({ orderIds })
+  });
+  return await responseHandler(res);
+}

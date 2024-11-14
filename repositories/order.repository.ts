@@ -32,6 +32,14 @@ export async function findAllByCompanyIdPaginated(companyId: string, params: Get
           product: true
         }
       },
+      client: {
+        select: {
+          name: true,
+          address: true,
+          city: true,
+          phone: true,
+        }
+      }
     },
   });
 }
@@ -205,5 +213,12 @@ export async function update(id: number, updateOrderDto: UpdateOrderDTO, company
         client: true
       }
     });
+  });
+}
+
+export async function markAsDelivered(orderIds: number[]) {
+  return db.order.updateMany({
+    where: { id: { in: orderIds } },
+    data: { status: OrderStatus.DELIVERED }
   });
 }

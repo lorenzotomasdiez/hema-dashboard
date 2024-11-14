@@ -19,6 +19,12 @@ export type UpdateOrderDTO = z.infer<typeof updateOrderSchema>;
 
 export interface OrderWithProducts extends Order {
   products: CompleteOrderProduct[];
+  client: {
+    name: string;
+    address: string;
+    city: string;
+    phone: string;
+  };
 };
 
 export type GetOrdersResponse = {

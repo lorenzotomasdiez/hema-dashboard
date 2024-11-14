@@ -48,7 +48,7 @@ export default function DeleteCostModal({ costComponentId }: { costComponentId: 
           <AlertDialogDescription>
             Si desea deshabilitar el costo ingrese {" "}
             <span className="text-red-500">
-              "Deshabilitar"
+              &quot;Deshabilitar&quot;
             </span>
             <br />
             El costo sera tenido en cuenta en las operaciones anteriores pero no en las futuras.
@@ -56,7 +56,7 @@ export default function DeleteCostModal({ costComponentId }: { costComponentId: 
             <br />
             Si desea eliminar el costo para futuras operaciones, ingrese {" "}
             <span className="text-red-500">
-              "Eliminar"
+              &quot;Eliminar&quot;
             </span>
             <br />
             El costo sera eliminado permanentemente y no sera tenido en cuenta en las anteriores y futuras operaciones.

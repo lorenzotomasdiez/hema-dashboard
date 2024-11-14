@@ -35,4 +35,10 @@ export default class APIOrderService {
     // TO DO: Handle status and stock update
     return order;
   }
+
+  static async markAsDelivered(orderIds: number[]) {
+    const orders = await OrderRepository.markAsDelivered(orderIds);
+    return orders;
+  }
+
 }

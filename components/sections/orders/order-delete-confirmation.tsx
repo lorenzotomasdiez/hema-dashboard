@@ -82,7 +82,7 @@ export default function OrderDeleteConfirmation({ orderId, setOpen, queryKey }: 
           <Button
             variant="destructive"
             onClick={handleDelete}
-            disabled={inputValue !== "OK"}
+            disabled={inputValue.toLowerCase() !== "ok"}
           >
             Eliminar Pedido
           </Button>
