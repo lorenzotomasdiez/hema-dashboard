@@ -28,6 +28,11 @@ export const API_ROUTES = {
   },
   costComponent: {
     root: "/api/cost-component"
+  },
+  invitations: {
+    root: "/api/invitations",
+    inviteUser: "/api/invitations/invite-user",
+    acceptInvitation: (invitationId: string) => `/api/invitations/accept/${invitationId}` 
   }
 }
 

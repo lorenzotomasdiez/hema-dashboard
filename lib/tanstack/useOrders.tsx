@@ -137,7 +137,6 @@ export const AddOrderMutation = (queryClient: QueryClient) => {
   mutationKey: ["addOrder"],
   mutationFn: (orderData: CreateOrderDTO) => createOrder(orderData),
   onMutate: async (orderData: CreateOrderDTO) => {
-    console.log(orderData);
     await queryClient.cancelQueries({ queryKey: QUERY_KEYS.orders.root });
     const previousOrders = queryClient.getQueryData(QUERY_KEYS.orders.root);
     queryClient.setQueryData(
@@ -165,7 +164,6 @@ export const AddOrderMutation = (queryClient: QueryClient) => {
     toast.success("Pedido creado correctamente!");
   },
   onError: (_err, _order, context) => {
-    console.log(_err);
     queryClient.setQueryData(QUERY_KEYS.orders.root, context?.previousOrders)
     toast.error("Error al crear el pedido");
   },

@@ -20,6 +20,7 @@ import { UserRole } from "@prisma/client";
 import { APP_PATH } from "@/config/path";
 import { Building, Cog, DollarSign, Inbox, LayoutList, LucideIcon, Package, Truck, UserSearch } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 type AdditionalLinks = {
   title: string;
@@ -42,6 +43,7 @@ export const defaultLinks: SidebarLink[] = [
       UserRole.ADMIN,
       UserRole.COMPANY_OWNER,
       UserRole.COMPANY_ADMIN,
+      UserRole.COMPANY_WORKER,
     ]
   },
   {
@@ -122,7 +124,9 @@ export const additionalLinks: AdditionalLinks[] = [];
 
 
 const AppSidebar = async () => {
+  const { data: session } = useSession();
   const pathname = usePathname();
+  const userRole = session?.user?.selectedCompany?.role as UserRole;
   return (
     <Sidebar collapsible="icon">
       <AppSidebarHeader />
@@ -132,7 +136,9 @@ const AppSidebar = async () => {
           <SidebarGroupContent>
             <SidebarMenu>
               {defaultLinks.map((link) => (
-                <AppSidebarItem key={link.title} link={link} isActive={pathname.startsWith(link.href)} />
+                (userRole && link.roles.includes(userRole)) && (
+                  <AppSidebarItem key={link.title} link={link} isActive={pathname.startsWith(link.href)} />
+                )
               ))}
             </SidebarMenu>
           </SidebarGroupContent>

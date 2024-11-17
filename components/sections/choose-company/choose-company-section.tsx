@@ -1,20 +1,22 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import { useSession } from "next-auth/react";
 import AddNewCompanyForm from "./add-new-company-form";
 import { useCompaniesQuery } from "@/lib/tanstack";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { APP_PATH } from "@/config/path";
 import AppLogoLoader from "@/components/AppLogoLoader";
 import { CompanyWithUserCompanies } from "@/types/company";
+import { useRouter } from "next/navigation";
 
-export const ChooseCompanySection = () => {
+export default function ChooseCompanySection() {
 
   const { data: session, update } = useSession();
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const router = useRouter();
 
   const companies = useCompaniesQuery();
 
@@ -22,7 +24,6 @@ export const ChooseCompanySection = () => {
     if (!session) return;
     setIsRedirecting(true);
     const roleInCompany = company.userCompanies.find((userCompany) => userCompany.userId === session.user.id)?.role;
-    if (!roleInCompany) return;
     const newValue = {
       ...session,
       user: {
@@ -36,14 +37,21 @@ export const ChooseCompanySection = () => {
       }
     }
     await update(newValue);
-    window.location.replace(APP_PATH.protected.dashboard.root);
   }
 
+  useEffect(() => {
+    if (session?.user.selectedCompany) {
+      router.replace(APP_PATH.protected.dashboard.root);
+    }
+  }, [session?.user.selectedCompany]);
+
   return (
-    <Card className="p-4 flex flex-col gap-4">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">Elegi tu organización</CardTitle>
-      </CardHeader>
+    <Card className="w-full flex flex-col gap-4 border-none shadow-none p-6">
+      <CardTitle>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          Selecciona tu organización
+        </h1>
+      </CardTitle>
       <CardContent>
         <div className="flex flex-col gap-2">
           {
@@ -82,8 +90,13 @@ export const ChooseCompanySection = () => {
           isRedirecting && (<AppLogoLoader />)
         }
       </CardContent>
-      <CardFooter className="flex justify-center">
-        <AddNewCompanyForm disabled={companies.isLoading} />
+      <CardFooter className="flex flex-col items-center gap-2">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span className="px-2 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100 text-xs font-medium">
+            Próximamente
+          </span>
+        </div>
+        <AddNewCompanyForm disabled={true} />
       </CardFooter>
     </Card>
   );

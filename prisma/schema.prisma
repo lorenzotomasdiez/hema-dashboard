@@ -79,6 +79,7 @@ model Company {
   productions    Production[]
   stockMovements StockMovement[]
   costComponents CostComponent[]
+  invitations    Invitation[]
 }
 
 model UserCompany {
@@ -302,5 +303,27 @@ model ClientProduct {
   @@unique([clientId, productId])
   @@index([clientId])
   @@index([productId])
+}
+
+model Invitation {
+  id        String      @id @default(cuid())
+  email     String
+  companyId String
+  role      UserRole    @default(COMPANY_WORKER)
+  status    InviteStatus @default(PENDING)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  
+  company   Company     @relation(fields: [companyId], references: [id])
+
+  @@unique([email, companyId])
+  @@index([email])
+  @@index([companyId])
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  CANCELLED
 }
 

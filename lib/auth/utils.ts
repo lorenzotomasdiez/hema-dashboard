@@ -52,9 +52,11 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db) as Adapter,
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
     jwt: async ({ token, user, trigger, session }) => {
+      
       if (user) {
         const userData = await db.user.findUnique({
           where: {
@@ -62,21 +64,34 @@ export const authOptions: NextAuthOptions = {
           }
         });
         if (!userData) return token;
+        
         token.id = userData.id;
-
+        token.name = userData.name;
+        token.email = userData.email;
+        token.picture = userData.image;
         token.selectedCompany = token.selectedCompany || null;
       }
+      
       if (trigger === "update" && session?.user.selectedCompany) {
         token.selectedCompany = session.user.selectedCompany;
       }
+      
       return token;
     },
     session: async ({ session, token }) => {
-      session.user.id = token.id as string;
-
-      session.user.selectedCompany = token.selectedCompany as SelectedCompany | null;
-
-      return session;
+      
+      const updatedSession = {
+        ...session,
+        user: {
+          id: token.id as string,
+          name: token.name as string,
+          email: token.email as string,
+          image: token.picture as string,
+          selectedCompany: token.selectedCompany as SelectedCompany | null,
+        }
+      };
+      
+      return updatedSession;
     },
     redirect: () => APP_PATH.protected.dashboard.root
   }
@@ -84,8 +99,28 @@ export const authOptions: NextAuthOptions = {
 
 
 export const getUserAuth = async () => {
-  const session = await getServerSession(authOptions);
-  return { session } as AuthSession;
+  try {
+    const session = await getServerSession(authOptions);
+    if (session?.user) {
+      // Explicitly construct the session object with the correct shape
+      const authSession: AuthSession = {
+        session: {
+          user: {
+            id: session.user.id,
+            name: session.user.name,
+            email: session.user.email,
+            image: session.user.image,
+            selectedCompany: session.user.selectedCompany,
+          }
+        }
+      };
+      return authSession;
+    }
+    return { session: null };
+  } catch (error) {
+    console.error('getUserAuth - Error:', error);
+    return { session: null };
+  }
 };
 
 export const checkAuth = async () => {

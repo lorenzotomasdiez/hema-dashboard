@@ -17,7 +17,7 @@ export function CompanyInfo() {
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle className="text-black dark:text-white">Usuarios</CardTitle>
-          <CardDescription className="text-muted-foreground dark:text-muted-foreground">Maneja los usuarios de la organizacion</CardDescription>
+          <CardDescription className="text-muted-foreground dark:text-muted-foreground">Controla los usuarios de la organizacion</CardDescription>
         </div>
         <div className="flex justify-end items-center gap-3">
           {
