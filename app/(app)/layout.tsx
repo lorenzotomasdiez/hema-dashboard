@@ -6,7 +6,7 @@ import { Viewport } from "next";
 import { cookies } from "next/headers";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/app-sidebar";
-import Navbar from "../../components/navbar";
+import Navbar from "@/components/navbar";
 
 export const viewport: Viewport = {
   initialScale: 1,

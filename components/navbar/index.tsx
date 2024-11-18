@@ -1,7 +1,8 @@
 "use client";
-import { HorizontalLogoPymePro } from "./ui/logo";
-import { SidebarTrigger } from "./ui/sidebar";
-import { ModeToggle } from "./ui/ThemeToggle";
+
+import { HorizontalLogoPymePro } from "../ui/logo";
+import { SidebarTrigger } from "../ui/sidebar";
+import { ModeToggle } from "../ui/ThemeToggle";
 
 export default function Navbar() {
   return (
