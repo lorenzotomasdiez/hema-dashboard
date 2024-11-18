@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 export default function ChooseCompanySection() {
 
   const { data: session, update } = useSession();
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState<boolean>(false);
   const router = useRouter();
 
   const companies = useCompaniesQuery();
@@ -40,10 +40,14 @@ export default function ChooseCompanySection() {
   }
 
   useEffect(() => {
-    if (session?.user.selectedCompany) {
+    if (session?.user?.selectedCompany) {
       router.replace(APP_PATH.protected.dashboard.root);
     }
-  }, [session?.user.selectedCompany]);
+  }, [session?.user?.selectedCompany, router]);
+
+  if (!session) {
+    return <AppLogoLoader />;
+  }
 
   return (
     <Card className="w-full flex flex-col gap-4 border-none shadow-none p-6">
@@ -54,41 +58,41 @@ export default function ChooseCompanySection() {
       </CardTitle>
       <CardContent>
         <div className="flex flex-col gap-2">
-          {
-            companies.isLoading && <div className="flex justify-center items-center">
+          {companies.isLoading && (
+            <div className="flex justify-center items-center gap-2">
               <p>Buscando organizaciones...</p>
               <Loader2 className="animate-spin" />
             </div>
-          }
-          {
-            !companies.isLoading && (
-              companies.data && companies.data.length > 0 ? companies.data.map((company) => (
-                <div
-                  key={company.id}
-                  onClick={() => updateCompanyValue(company)}
-                  className="flex items-center gap-2 border rounded-md p-2 cursor-pointer"
-                >
-                  <Avatar>
-                    <AvatarImage
-                      src={company.image || ""}
-                    />
-                    <AvatarFallback>
-                      {company.name?.split(" ").map((name) => name.charAt(0)).join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <p>{company.name}</p>
-                </div>
-              )) : (
+          )}
+          {!companies.isLoading && companies.data && (
+            <>
+              {companies.data.length > 0 ? (
+                companies.data.map((company) => (
+                  <div
+                    key={company.id}
+                    onClick={() => updateCompanyValue(company)}
+                    className="flex items-center gap-2 border rounded-md p-2 cursor-pointer"
+                  >
+                    <Avatar>
+                      <AvatarImage
+                        src={company.image || ""}
+                      />
+                      <AvatarFallback>
+                        {company.name?.split(" ").map((name) => name.charAt(0)).join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <p>{company.name}</p>
+                  </div>
+                ))
+              ) : (
                 <div className="flex justify-center items-center">
                   <p>No se encontraron organizaciones</p>
                 </div>
-              )
-            )
-          }
+              )}
+            </>
+          )}
         </div>
-        {
-          isRedirecting && (<AppLogoLoader />)
-        }
+        {isRedirecting && <AppLogoLoader />}
       </CardContent>
       <CardFooter className="flex flex-col items-center gap-2">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -96,7 +100,7 @@ export default function ChooseCompanySection() {
             Próximamente
           </span>
         </div>
-        <AddNewCompanyForm disabled={true} />
+        <AddNewCompanyForm disabled={false} />
       </CardFooter>
     </Card>
   );

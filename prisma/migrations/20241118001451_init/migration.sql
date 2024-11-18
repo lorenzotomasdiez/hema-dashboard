@@ -5,10 +5,13 @@ CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'COMPANY_OWNER', 'COMPANY_ADMIN', 'COMP
 CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'SHIPPED', 'DELIVERED');
 
 -- CreateEnum
-CREATE TYPE "ExpenseCategory" AS ENUM ('RENT', 'SALARY', 'UTILITIES', 'MARKETING', 'OTHER');
+CREATE TYPE "ExpenseCategory" AS ENUM ('RENT', 'SALARY', 'UTILITIES', 'MARKETING', 'RAW_MATERIALS', 'MACHINERY', 'MAINTENANCE', 'PACKAGING', 'TRANSPORTATION', 'INSURANCE', 'TAXES', 'TRAINING', 'CLEANING', 'OFFICE_SUPPLIES', 'TECHNOLOGY', 'OTHER');
 
 -- CreateEnum
 CREATE TYPE "StockMovementType" AS ENUM ('PRODUCTION', 'SALE', 'RETURN', 'ADJUSTMENT');
+
+-- CreateEnum
+CREATE TYPE "InviteStatus" AS ENUM ('PENDING', 'ACCEPTED', 'CANCELLED');
 
 -- CreateTable
 CREATE TABLE "Account" (
@@ -55,6 +58,7 @@ CREATE TABLE "Company" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "image" TEXT,
+    "useStockSystem" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
@@ -109,6 +113,7 @@ CREATE TABLE "Order" (
     "clientId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "companyId" TEXT NOT NULL,
+    "total" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "Order_pkey" PRIMARY KEY ("id")
 );
@@ -135,6 +140,8 @@ CREATE TABLE "CostComponent" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "companyId" TEXT NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+    "disabledFrom" TIMESTAMP(3),
 
     CONSTRAINT "CostComponent_pkey" PRIMARY KEY ("id")
 );
@@ -155,6 +162,7 @@ CREATE TABLE "OrderProduct" (
     "orderId" INTEGER NOT NULL,
     "productId" INTEGER NOT NULL,
     "quantity" INTEGER NOT NULL,
+    "price" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "OrderProduct_pkey" PRIMARY KEY ("orderId","productId")
 );
@@ -162,11 +170,15 @@ CREATE TABLE "OrderProduct" (
 -- CreateTable
 CREATE TABLE "CompanyExpense" (
     "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
     "companyId" TEXT NOT NULL,
     "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "amount" DECIMAL(10,2) NOT NULL,
     "description" TEXT,
+    "isMonthly" BOOLEAN NOT NULL DEFAULT false,
     "category" "ExpenseCategory",
+    "deletedAt" TIMESTAMP(3),
+    "disabledFrom" TIMESTAMP(3),
 
     CONSTRAINT "CompanyExpense_pkey" PRIMARY KEY ("id")
 );
@@ -196,6 +208,32 @@ CREATE TABLE "StockMovement" (
     CONSTRAINT "StockMovement_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "ClientProduct" (
+    "id" SERIAL NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "productId" INTEGER NOT NULL,
+    "price" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "ClientProduct_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Invitation" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "companyId" TEXT NOT NULL,
+    "role" "UserRole" NOT NULL DEFAULT 'COMPANY_WORKER',
+    "status" "InviteStatus" NOT NULL DEFAULT 'PENDING',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Invitation_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Account_provider_providerAccountId_key" ON "Account"("provider", "providerAccountId");
 
@@ -216,9 +254,6 @@ CREATE UNIQUE INDEX "VerificationToken_identifier_token_key" ON "VerificationTok
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Product_companyId_slug_key" ON "Product"("companyId", "slug");
-
--- CreateIndex
-CREATE UNIQUE INDEX "CostComponent_name_key" ON "CostComponent"("name");
 
 -- CreateIndex
 CREATE INDEX "CostComponent_companyId_idx" ON "CostComponent"("companyId");
@@ -243,6 +278,24 @@ CREATE INDEX "StockMovement_productId_idx" ON "StockMovement"("productId");
 
 -- CreateIndex
 CREATE INDEX "StockMovement_companyId_idx" ON "StockMovement"("companyId");
+
+-- CreateIndex
+CREATE INDEX "ClientProduct_clientId_idx" ON "ClientProduct"("clientId");
+
+-- CreateIndex
+CREATE INDEX "ClientProduct_productId_idx" ON "ClientProduct"("productId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ClientProduct_clientId_productId_key" ON "ClientProduct"("clientId", "productId");
+
+-- CreateIndex
+CREATE INDEX "Invitation_email_idx" ON "Invitation"("email");
+
+-- CreateIndex
+CREATE INDEX "Invitation_companyId_idx" ON "Invitation"("companyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Invitation_email_companyId_key" ON "Invitation"("email", "companyId");
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -300,3 +353,12 @@ ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_productId_fkey" FOREIG
 
 -- AddForeignKey
 ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ClientProduct" ADD CONSTRAINT "ClientProduct_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ClientProduct" ADD CONSTRAINT "ClientProduct_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Invitation" ADD CONSTRAINT "Invitation_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

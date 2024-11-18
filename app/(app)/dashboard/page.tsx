@@ -1,6 +1,6 @@
 import { DashboardMain } from "@/components/sections";
 import DeliveryDashboard from "@/components/sections/dashboard/delivery-dashboard";
-import { authConfig, authOptions } from "@/lib/auth/utils";
+import { authOptions } from "@/lib/auth/utils";
 import { UserRole } from "@prisma/client";
 import { getServerSession } from "next-auth";
 
