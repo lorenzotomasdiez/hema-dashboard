@@ -100,7 +100,7 @@ export default function ChooseCompanySection() {
             Próximamente
           </span>
         </div>
-        <AddNewCompanyForm disabled={false} />
+        <AddNewCompanyForm disabled={true} />
       </CardFooter>
     </Card>
   );
