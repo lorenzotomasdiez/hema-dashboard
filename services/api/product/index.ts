@@ -1,4 +1,4 @@
-import { CreateProductType, ProductWithCostComponents } from "@/types";
+import { CreateProductType, ProductComplete } from "@/types";
 import { ProductRepository } from "@/repositories";
 
 export default class APIProductService {
@@ -6,7 +6,7 @@ export default class APIProductService {
     return ProductRepository.create(product, companyId);
   }
 
-  static async updateById(id: number, product: Partial<ProductWithCostComponents>, companyId: string) {
+  static async updateById(id: number, product: Partial<ProductComplete>, companyId: string) {
     return ProductRepository.updateById(id, product, companyId);
   }
 
@@ -28,5 +28,9 @@ export default class APIProductService {
 
   static async updateStock(id: number, stock: number, companyId: string) {
     return ProductRepository.updateStock(id, stock, companyId);
+  }
+
+  static async findCompleteBySlug(slug: string, companyId: string) {
+    return ProductRepository.findCompleteBySlug(slug, companyId);
   }
 }

@@ -1,6 +1,6 @@
 import { generateSlug } from "@/lib/api/routes";
 import { db } from "@/lib/db";
-import { CreateProductType, ProductWithCostComponents } from "@/types";
+import { CreateProductType, ProductComplete, ProductWithCostComponents } from "@/types";
 import { Prisma } from "@prisma/client";
 
 export async function findAllByCompanyId(companyId: string) {
@@ -36,8 +36,33 @@ export async function findBySlug(slug: string, companyId: string) {
   });
 }
 
+export async function findCompleteBySlug(slug: string, companyId: string) {
+  return db.product.findUnique({
+    where: { companyId_slug: { companyId, slug }, deletedAt: null },
+    include: {
+      costComponents: {
+        include: {
+          costComponent: {
+            select: {
+              name: true,
+              id: true,
+              cost: true
+            }
+          }
+        }
+      },
+      clientPrices: {
+        select: {
+          clientId: true,
+          price: true
+        }
+      }
+    }
+  });
+}
+
 export async function create(product: CreateProductType, companyId: string) {
-  const { name, description, price, slug, stock, costComponents } = product;
+  const { name, description, price, slug, stock, costComponents, clientPrices } = product;
   return db.product.create({
     data: {
       name,
@@ -50,13 +75,27 @@ export async function create(product: CreateProductType, companyId: string) {
         create: costComponents?.map(component => ({
           costComponentId: component.id
         }))
+      },
+      clientPrices: {
+        create: clientPrices?.map(({ clientId, price }) => ({
+          clientId,
+          price
+        }))
       }
+    },
+    include: {
+      costComponents: {
+        include: {
+          costComponent: true
+        }
+      },
+      clientPrices: true
     }
   });
 }
 
-export async function updateById(id: number, product: Partial<ProductWithCostComponents>, companyId: string) {
-  const { id: _, costComponents, stock, ...updatedData } = product;
+export async function updateById(id: number, product: Partial<ProductComplete>, companyId: string) {
+  const { id: _, costComponents, clientPrices, stock, ...updatedData } = product;
   return db.product.update({
     where: { id: product.id, companyId },
     data: {
@@ -68,10 +107,24 @@ export async function updateById(id: number, product: Partial<ProductWithCostCom
         create: costComponents?.map((cost) => ({
           costComponentId: cost.id
         })) || []
+      },
+      clientPrices: {
+        deleteMany: {
+          productId: id
+        },
+        create: clientPrices?.map(({ clientId, price }) => ({
+          clientId,
+          price
+        })) || []
       }
     },
     include: {
-      costComponents: true
+      costComponents: {
+        include: {
+          costComponent: true
+        }
+      },
+      clientPrices: true
     }
   });
 }
