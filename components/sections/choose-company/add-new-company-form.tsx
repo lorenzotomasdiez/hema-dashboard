@@ -46,7 +46,7 @@ export default function AddNewCompanyForm({ disabled }: { disabled: boolean }) {
   })
 
   const onSubmit = async (data: CreateCompanyDTO) => {
-    await companyMutation.mutateAsync(data)
+    // await companyMutation.mutateAsync(data)
   }
 
   return (
