@@ -5,6 +5,7 @@ export const orderProductSchema = z.object({
   orderId: z.number().int(),
   productId: z.number().int(),
   quantity: z.number().int(),
+  price: z.number().int(),
 })
 
 export interface CompleteOrderProduct extends z.infer<typeof orderProductSchema> {

@@ -1,15 +1,16 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { QUERY_KEYS } from "./queryKeys"
-import { GetOrdersParams, GetOrdersResponse, Order } from "@/types"
-import { getOrders } from "@/services/orders"
-import { OrderStatus } from "@prisma/client"
+import { toast } from "sonner"
 import { useEffect, useState } from "react"
+import { OrderStatus } from "@prisma/client"
+import { changeOrderStatus, createOrder, getOrders, updateOrder } from "@/services/orders"
+import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { CreateOrderDTO, GetOrdersParams, GetOrdersResponse, UpdateOrderDTO, UpdateOrderStatusProps } from "@/types"
+import { QUERY_KEYS } from "./queryKeys"
 
 interface Props {
   initialParams: GetOrdersParams
 }
 
-export const useOrders = ({initialParams}: Props) => {
+export const useOrders = ({ initialParams }: Props) => {
   const queryClient = useQueryClient();
   const [params, setParams] = useState<GetOrdersParams>(initialParams);
 
@@ -108,4 +109,92 @@ export const useOrders = ({initialParams}: Props) => {
     prefetchPrevPage,
     handleForToday
   };
+}
+
+export const UpdateOrderStatusMutation = (queryClient: QueryClient) => {
+  return useMutation({
+    mutationFn: ({ id, status }: UpdateOrderStatusProps) => changeOrderStatus(id, status),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.orders.root });
+    },
+    onSuccess: () => {
+      toast.success("Estado de la orden actualizado correctamente!")
+    },
+    onError: (err, _client, context) => {
+      toast.error("Error al actualizar el estado de la orden", {
+        description: err.message
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders.root });
+    }
+  })
+}
+
+
+export const AddOrderMutation = (queryClient: QueryClient) => {
+  return useMutation({
+  mutationKey: ["addOrder"],
+  mutationFn: (orderData: CreateOrderDTO) => createOrder(orderData),
+  onMutate: async (orderData: CreateOrderDTO) => {
+    await queryClient.cancelQueries({ queryKey: QUERY_KEYS.orders.root });
+    const previousOrders = queryClient.getQueryData(QUERY_KEYS.orders.root);
+    queryClient.setQueryData(
+      QUERY_KEYS.orders.root,
+      (old: GetOrdersResponse) => {
+        if (!old) return;
+        return {
+          ...old,
+          orders: [
+            {
+              ...orderData,
+              createdAt: new Date().toISOString(),
+              id: new Date().getTime(),
+            },
+            ...old.orders
+          ],
+          total: old.ordersCount + 1
+        }
+      }
+    );
+    return { previousOrders }
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders.root });
+    toast.success("Pedido creado correctamente!");
+  },
+  onError: (_err, _order, context) => {
+    queryClient.setQueryData(QUERY_KEYS.orders.root, context?.previousOrders)
+    toast.error("Error al crear el pedido");
+  },
+  onSettled: (_data, error) => {
+    if (error) {
+      console.log(error);
+    }
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.summary });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders.root });
+  }
+})
+}
+
+export const UpdateOrderMutation = (queryClient: QueryClient) => {
+  return useMutation({
+    mutationKey: ["updateOrder"],
+    mutationFn: (orderData: UpdateOrderDTO) => updateOrder(orderData.id, orderData),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.orders.root });
+    },
+    onSuccess: () => {
+      toast.success("Pedido actualizado correctamente!");
+    },
+    onError: (_err) => {
+      toast.error("Error al actualizar el pedido", {
+        description: _err.message
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders.root });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.summary });
+    }
+  })
 }

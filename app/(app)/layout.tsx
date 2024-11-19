@@ -1,10 +1,12 @@
 import { checkAuth } from "@/lib/auth/utils";
 import { Toaster } from "@/components/ui/sonner";
-import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar";
 import NextAuthProvider from "@/lib/auth/Provider";
 import TanstackProvider from "@/lib/tanstack-provider";
 import { Viewport } from "next";
+import { cookies } from "next/headers";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import AppSidebar from "@/components/app-sidebar";
+import Navbar from "@/components/navbar";
 
 export const viewport: Viewport = {
   initialScale: 1,
@@ -19,21 +21,20 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   await checkAuth();
-
+  const cookieStore = await cookies()
+  const defaultOpen = cookieStore.get("sidebar:state")?.value === "true"
   return (
-    <main>
-      <NextAuthProvider>
-        <TanstackProvider>
-          <div className="flex h-screen">
-            <Sidebar />
-            <main className="flex-1 overflow-y-auto">
-              <Navbar />
-              {children}
-            </main>
-          </div>
-        </TanstackProvider>
-      </NextAuthProvider>
-      <Toaster richColors />
-    </main>
+    <NextAuthProvider>
+      <TanstackProvider>
+        <SidebarProvider defaultOpen={defaultOpen}>
+          <AppSidebar />
+          <main className="flex-1 overflow-y-auto">
+            <Navbar />
+            {children}
+            <Toaster richColors />
+          </main>
+        </SidebarProvider >
+      </TanstackProvider>
+    </NextAuthProvider>
   )
 }

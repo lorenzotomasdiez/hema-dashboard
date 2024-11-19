@@ -56,7 +56,7 @@ export default function OrderDeleteConfirmation({ orderId, setOpen, queryKey }: 
 
   return (
     <Dialog open={!!orderId} onOpenChange={() => setOpen(null)}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] dark:bg-neutral-800">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Eliminar Pedido</DialogTitle>
           <DialogDescription className="text-muted-foreground mt-2">
@@ -82,7 +82,7 @@ export default function OrderDeleteConfirmation({ orderId, setOpen, queryKey }: 
           <Button
             variant="destructive"
             onClick={handleDelete}
-            disabled={inputValue !== "OK"}
+            disabled={inputValue.toLowerCase() !== "ok"}
           >
             Eliminar Pedido
           </Button>

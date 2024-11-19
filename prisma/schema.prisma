@@ -29,10 +29,10 @@ model Account {
   providerAccountId String
   refresh_token     String? @db.Text
   access_token      String? @db.Text
-  expires_at        Int?
   token_type        String?
   scope             String?
   id_token          String? @db.Text
+  expires_at        Int?
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -51,12 +51,57 @@ model Session {
 model User {
   id            String    @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String    @unique
   emailVerified DateTime?
   image         String?
+  deletedAt     DateTime?
+
   accounts      Account[]
   sessions      Session[]
-  Order         Order[]
+  orders        Order[]
+  userCompanies UserCompany[]
+}
+
+model Company {
+  id                String    @id @default(cuid())
+  name              String
+  image             String?
+  useStockSystem    Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  orders         Order[]
+  clients        Client[]
+  userCompanies  UserCompany[]
+  products       Product[]
+  CompanyExpense CompanyExpense[]
+  productions    Production[]
+  stockMovements StockMovement[]
+  costComponents CostComponent[]
+  invitations    Invitation[]
+}
+
+model UserCompany {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  companyId String
+  role      UserRole @default(COMPANY_WORKER)
+  isEnabled Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id])
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@unique([userId, companyId])
+}
+
+enum UserRole {
+  ADMIN
+  COMPANY_OWNER
+  COMPANY_ADMIN
+  COMPANY_WORKER
 }
 
 model VerificationToken {
@@ -66,45 +111,99 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
-
 model Client {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   name      String
   phone     String?
+  email     String?
+  city      String?
   address   String?
-  createdAt DateTime @default(now())
-  Order     Order[]
+  companyId String
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  orders       Order[]
+  company      Company        @relation(fields: [companyId], references: [id])
+  productPrices ClientProduct[]
 }
 
 model Order {
   id          Int         @id @default(autoincrement())
-  client      Client      @relation(fields: [clientId], references: [id])
-  user        User        @relation(fields: [userId], references: [id])
   status      OrderStatus @default(PENDING)
-  deliveredAt DateTime?   @default(now())
+  toDeliverAt DateTime?
   createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deliveredAt DateTime?
+  deletedAt   DateTime?
   clientId    String
   userId      String
-  products    OrderProduct[]
+  companyId   String
+  total       Int         @default(0)
+
+  client   Client         @relation(fields: [clientId], references: [id])
+  user     User           @relation(fields: [userId], references: [id])
+  company  Company        @relation(fields: [companyId], references: [id])
+  products OrderProduct[]
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
   description String?
-  stock       Int
-  slug        String   @unique
-  price       Int
-  orders      OrderProduct[]
+  stock       Int       @default(0)
+  slug        String
+  price       Int       // Este será el precio base
+  companyId   String
+  deletedAt   DateTime?
+
+  productions    Production[]
+  stockMovements StockMovement[]
+  orders         OrderProduct[]
+  company        Company                @relation(fields: [companyId], references: [id])
+  costComponents ProductCostComponent[]
+  clientPrices   ClientProduct[]        // Nueva relación
+
+  @@unique([companyId, slug])
+}
+
+model CostComponent {
+  id            Int       @id @default(autoincrement())
+  name          String    
+  cost          Decimal   @db.Decimal(10, 2)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  companyId     String
+  deletedAt     DateTime? 
+  disabledFrom  DateTime? 
+
+  company  Company                @relation(fields: [companyId], references: [id])
+  products ProductCostComponent[]
+
+  @@index([companyId])
+}
+
+model ProductCostComponent {
+  id              Int      @id @default(autoincrement())
+  productId       Int
+  costComponentId Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  product       Product       @relation(fields: [productId], references: [id])
+  costComponent CostComponent @relation(fields: [costComponentId], references: [id])
+
+  @@index([productId])
+  @@index([costComponentId])
 }
 
 model OrderProduct {
-  order     Order   @relation(fields: [orderId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
   orderId   Int
   productId Int
   quantity  Int
+  price     Int      @default(0)
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 
   @@id([orderId, productId])
 }
@@ -114,3 +213,117 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
 }
+
+model CompanyExpense {
+  id            Int              @id @default(autoincrement())
+  name          String
+  companyId     String
+  date          DateTime         @default(now())
+  amount        Decimal          @db.Decimal(10, 2)
+  description   String?
+  isMonthly     Boolean          @default(false)
+  category      ExpenseCategory?
+  deletedAt     DateTime?        
+  disabledFrom  DateTime?        
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+}
+
+enum ExpenseCategory {
+  RENT                
+  SALARY              
+  UTILITIES           
+  MARKETING           
+  RAW_MATERIALS       
+  MACHINERY           
+  MAINTENANCE         
+  PACKAGING           
+  TRANSPORTATION      
+  INSURANCE           
+  TAXES               
+  TRAINING            
+  CLEANING            
+  OFFICE_SUPPLIES     
+  TECHNOLOGY          
+  OTHER               
+}
+
+model Production {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  companyId String
+  quantity  Int
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([productId])
+  @@index([companyId])
+}
+
+model StockMovement {
+  id           Int               @id @default(autoincrement())
+  productId    Int
+  companyId    String
+  quantity     Int
+  movementType StockMovementType
+  date         DateTime          @default(now())
+  createdAt    DateTime          @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([productId])
+  @@index([companyId])
+}
+
+enum StockMovementType {
+  PRODUCTION
+  SALE
+  RETURN
+  ADJUSTMENT
+}
+
+model ClientProduct {
+  id        Int       @id @default(autoincrement())
+  clientId  String
+  productId Int
+  price     Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  client  Client  @relation(fields: [clientId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([clientId, productId])
+  @@index([clientId])
+  @@index([productId])
+}
+
+model Invitation {
+  id        String      @id @default(cuid())
+  email     String
+  companyId String
+  role      UserRole    @default(COMPANY_WORKER)
+  status    InviteStatus @default(PENDING)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  
+  company   Company     @relation(fields: [companyId], references: [id])
+
+  @@unique([email, companyId])
+  @@index([email])
+  @@index([companyId])
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  CANCELLED
+}
+

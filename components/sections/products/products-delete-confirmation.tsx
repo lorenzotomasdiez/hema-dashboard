@@ -41,7 +41,7 @@ export default function ProductsDeleteConfirmation({ productId, setOpen, queryKe
 
   return (
     <Dialog open={!!productId} onOpenChange={() => setOpen(null)}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] dark:bg-neutral-800">
         <DialogHeader>
           <DialogTitle>Eliminar Producto</DialogTitle>
           <DialogDescription>
@@ -64,7 +64,7 @@ export default function ProductsDeleteConfirmation({ productId, setOpen, queryKe
           <Button variant="outline" onClick={() => setOpen(null)}>
             Cancelar
           </Button>
-          <Button onClick={handleDelete} disabled={inputValue !== "OK"}>
+          <Button onClick={handleDelete} disabled={inputValue.toLowerCase() !== "ok"}>
             Eliminar
           </Button>
         </DialogFooter>

@@ -10,15 +10,10 @@ import { TableCell, TableRow } from "@/components/ui/table";
 interface Props {
   client: Client & { ordersTotal: number };
   handleOpenDetails: (id: string) => void;
-  handleOpenDeleteConfirmation: (id: string) => void;
 }
-export default function ClientsTableRow({ client, handleOpenDetails, handleOpenDeleteConfirmation }: Props) {
-  const handleClickOpenDelete = (event: React.MouseEvent<HTMLDivElement>) => {
-    event.stopPropagation();
-    handleOpenDeleteConfirmation(client.id);
-  }
+export default function ClientsTableRow({ client, handleOpenDetails }: Props) {
   return (
-    <TableRow className="hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleOpenDetails(client.id)}>
+    <TableRow className="hover:bg-muted/50 transition-colors cursor-pointer dark:hover:bg-neutral-900" onClick={() => handleOpenDetails(client.id)}>
       <TableCell className="font-bold">{client.name}</TableCell>
       <TableCell align="left">{client.phone}</TableCell>
       <TableCell align="left">{client.address}</TableCell>
@@ -35,7 +30,7 @@ export default function ClientsTableRow({ client, handleOpenDetails, handleOpenD
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => handleOpenDetails(client.id)}>Ver Detalles</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600" onClick={handleClickOpenDelete}>Eliminar</DropdownMenuItem>
+            <DropdownMenuItem className="text-red-600" disabled>Eliminar</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>

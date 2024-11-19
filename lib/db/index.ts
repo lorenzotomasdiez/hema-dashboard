@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { env } from "../env.mjs";
 
 declare global {
   // allow global `var` declarations
@@ -9,7 +10,7 @@ declare global {
 export const db =
   global.db ||
   new PrismaClient({
-    log: ["query"],
+    log: [env.PRISMA_LOG],
   });
 
 if (process.env.NODE_ENV !== "production") global.db = db;

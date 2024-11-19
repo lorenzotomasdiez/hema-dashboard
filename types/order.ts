@@ -1,7 +1,7 @@
-import { OrderStatus } from "@prisma/client"
+import { OrderStatus, Product } from "@prisma/client"
 import { z } from "zod";
 import { CompleteOrderProduct, orderSchema } from "@/prisma/zod";
-import { createOrderSchema } from "@/dto/order/create-order.dto";
+import { createOrderSchema, updateOrderSchema } from "@/dto/order/create-order.dto";
 
 export type GetOrdersParams = {
   page: number;
@@ -12,13 +12,48 @@ export type GetOrdersParams = {
 }
 
 export type Order = z.infer<typeof orderSchema>;
-export type CreateOrderType = z.infer<typeof createOrderSchema>;
+
+export type CreateOrderDTO = z.infer<typeof createOrderSchema>;
+
+export type UpdateOrderDTO = z.infer<typeof updateOrderSchema>;
 
 export interface OrderWithProducts extends Order {
   products: CompleteOrderProduct[];
+  client: {
+    name: string;
+    address: string;
+    city: string;
+    phone: string;
+  };
 };
 
 export type GetOrdersResponse = {
   orders: OrderWithProducts[];
   ordersCount: number;
+}
+
+export type OrderComplete = {
+  id: number;
+  status: OrderStatus;
+  toDeliverAt: Date | string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  deliveredAt: Date | string | null;
+  deletedAt: Date | string | null;
+  clientId: string;
+  userId: string;
+  companyId: string;
+  total: number;
+  products: {
+    orderId: number;
+    productId: number;
+    quantity: number;
+    price: number;
+    product: Product;
+  }[];
+}
+
+export interface UpdateOrderStatusProps {
+  id: number;
+  status: OrderStatus;
 }

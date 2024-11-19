@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 export default function Page() {
   const { setTheme } = useTheme();
   return (
-    <div>
+    <div className="p-4 max-w-screen-lg mx-auto text-center md:pt-10">
       <h1 className="text-2xl font-semibold">Settings</h1>
       <div className="space-y-4 my-4">
         <div>

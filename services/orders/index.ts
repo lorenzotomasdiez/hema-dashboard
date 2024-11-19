@@ -1,5 +1,7 @@
-import { CreateOrderType, GetOrdersParams, Order } from "@/types";
+import { CreateOrderDTO, GetOrdersParams, UpdateOrderDTO } from "@/types";
 import { API_ROUTES } from "@/lib/api/routes";
+import { OrderStatus } from "@prisma/client";
+import { responseHandler } from "../request";
 
 export const getOrders = async (params?: GetOrdersParams) => {
   const { page, per_page, status, forToday, keyword } = {
@@ -12,39 +14,49 @@ export const getOrders = async (params?: GetOrdersParams) => {
   const res = await fetch(
     API_ROUTES.orders.root + `?page=${page}` + `&per_page=${per_page}` + `&status=${status}` + `&forToday=${forToday.toString()}` + `&keyword=${keyword}`
   );
-  const data = await res.json();
-  return data;
+  return await responseHandler(res);
 }
 
-
-export const createOrder = async (dto: CreateOrderType) => {
+export const createOrder = async (dto: CreateOrderDTO) => {
   const res = await fetch(API_ROUTES.orders.root, {
     "method": "POST",
     body: JSON.stringify(dto)
   })
-  const data = await res.json();
-  return { success: res.ok, ...data };
+  return await responseHandler(res);
 }
 
-export const updateOrder = async (id: number, body: Partial<Order>) => {
+export const updateOrder = async (id: number, body: UpdateOrderDTO) => {
   const res = await fetch(API_ROUTES.orders.id(id), {
     "method": "PATCH",
     body: JSON.stringify(body)
   });
-  const data = await res.json();
-  return { success: res.ok, ...data };
+  return await responseHandler(res);
+}
+
+export const changeOrderStatus = async (id: number, status: OrderStatus) => {
+  const res = await fetch(API_ROUTES.orders.status(id), {
+    "method": "PATCH",
+    body: JSON.stringify({ status })
+  });
+  return await responseHandler(res);
 }
 
 export const getOrderById = async (id: number) => {
   const res = await fetch(API_ROUTES.orders.id(id));
-  const data = await res.json();
-  return { success: res.ok, ...data };
+  return await responseHandler(res);
 }
 
 export const deleteOrder = async (id: number) => {
   const res = await fetch(API_ROUTES.orders.id(id), {
     method: "DELETE",
   });
-  const data = await res.json();
-  return { success: res.ok, ...data };
+  return await responseHandler(res);
+}
+
+export const orderMarkAsDelivered = async (orderIds: number[]) => {
+  const res = await fetch(API_ROUTES.orders.markAsDelivered, {
+    method: "POST",
+    body: JSON.stringify({ orderIds })
+  });
+  return await responseHandler(res);
 }

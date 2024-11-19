@@ -1,29 +1,37 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { MoreHorizontal } from "lucide-react";
-
-import { Product } from "@/types";
+import { ProductWithCostComponents } from "@/types";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { moneyMask } from "@/lib/utils";
+import { APP_PATH } from "@/config/path";
+import { useQueryClient } from "@tanstack/react-query";
+import { prefetchProductBySlug } from "@/lib/tanstack/useProducts";
 
 interface Props {
-  product: Product;
-  handleOpenDetails: (id: number) => void;
+  product: ProductWithCostComponents;
   handleOpenDeleteConfirmation: (id: number) => void;
 }
-export default function ProductsTableRow({ product, handleOpenDetails, handleOpenDeleteConfirmation }: Props) {
-
+export default function ProductsTableRow({ product, handleOpenDeleteConfirmation }: Props) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const handleClickOpenDelete = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
     handleOpenDeleteConfirmation(product.id);
   }
+
+  const handlePrefetch = () => {
+    prefetchProductBySlug(product.slug, queryClient);
+  }
+
   return (
-    <TableRow className="hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleOpenDetails(product.id)}>
-      <TableCell className="font-bold">{product.name}</TableCell>
-      <TableCell align="center">{product.stock}</TableCell>
-      <TableCell align="center">{moneyMask(product.price)}</TableCell>
+    <TableRow className="transition-colors cursor-pointer dark:bg-neutral-900">
+      <TableCell className="font-bold dark:text-neutral-300">{product.name}</TableCell>
+      <TableCell align="center" className="dark:text-neutral-300">{product.stock}</TableCell>
+      <TableCell align="center" className="dark:text-neutral-300">{moneyMask(product.price)}</TableCell>
       <TableCell className="text-right">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -32,11 +40,20 @@ export default function ProductsTableRow({ product, handleOpenDetails, handleOpe
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="bg-white dark:bg-neutral-800" onMouseEnter={handlePrefetch}>
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => handleOpenDetails(product.id)}>Ver Detalles</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => router.push(APP_PATH.protected.products.update(product.slug))}
+            >
+              Ver Detalles
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600" onClick={handleClickOpenDelete}>Eliminar</DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-red-600 dark:text-red-400"
+              onClick={handleClickOpenDelete}
+            >
+              Eliminar
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>

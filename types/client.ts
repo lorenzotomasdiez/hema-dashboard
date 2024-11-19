@@ -3,4 +3,7 @@ import { clientSchema } from "@/prisma/zod";
 import { z } from "zod";
 
 export type Client = z.infer<typeof clientSchema>;
+
 export type CreateClientType = z.infer<typeof createClientSchema>;
+
+export type ClientWithOrdersTotal = Client & { ordersTotal: number };

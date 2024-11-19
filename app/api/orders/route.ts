@@ -1,91 +1,48 @@
 import { getUserAuth } from "@/lib/auth/utils";
-import { db } from "@/lib/db/index";
-import { OrderStatus } from "@prisma/client"
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createOrderSchema } from "@/dto/order/create-order.dto";
-import { CreateOrderType } from "@/types";
+import { CreateOrderDTO, GetOrdersParams } from "@/types";
+import { APIOrderService } from "@/services/api";
+import { formatZodError } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   const { session } = await getUserAuth();
   if (!session) return new Response("Error", { status: 400 });
-
+  if (!session.user.selectedCompany) return new Response("Error", { status: 400 });
   const searchParams = request.nextUrl.searchParams
 
   const page = Number(searchParams.get('page') || 0);
   const per_page = Number(searchParams.get('per_page') || 10);
-  const status = searchParams.get('status') || "ALL";
+  const status = searchParams.get('status') as GetOrdersParams["status"] || "ALL";
   const forToday = searchParams.get('forToday') === "true";
   const keyword = searchParams.get('keyword') || "";
   const timezone = searchParams.get('timezone') || "America/Argentina/Buenos_Aires";
 
-  const orders = await db.order.findMany({
-    skip: page * per_page,
-    take: per_page,
-    where: {
-      ...(status !== "ALL" && { status: OrderStatus[status as OrderStatus] }),
-      ...(forToday && {
-        deliveredAt: {
-          gte: new Date(new Date(new Date().toLocaleString("en-US", { timeZone: timezone })).setHours(0, 0, 0, 0)),
-          lte: new Date(new Date(new Date().toLocaleString("en-US", { timeZone: timezone })).setHours(23, 59, 59, 999))
-        }
-      }),
-      ...(keyword && { client: { name: { contains: keyword, mode: 'insensitive' } } }),
-    },
-    orderBy: [
-      {
-        createdAt: "desc"
-      }
-    ],
-    include: {
-      products: true,
-    },
-  });
+  const { orders, ordersCount } = await APIOrderService.getAllOrders(session.user.selectedCompany.id, { page, per_page, status, forToday, keyword }, timezone);
 
-  const ordersCount = await db.order.count({
-    where: {
-      ...(status !== "ALL" && { status: OrderStatus[status as OrderStatus] }),
-      ...(forToday && { deliveredAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)), lte: new Date(new Date().setHours(23, 59, 59, 999)) } }),
-      ...(keyword && { client: { name: { contains: keyword, mode: 'insensitive' } } }),
-    }
-  });
-
-  return new Response(JSON.stringify({ orders, ordersCount }));
+  return NextResponse.json({ orders, ordersCount });
 }
 
 export async function POST(request: Request) {
   const { session } = await getUserAuth();
-  if (!session) return new Response("Error", { status: 400 });
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session.user.selectedCompany) return NextResponse.json({ error: "No company selected" }, { status: 400 });
 
-  const body = (await request.json()) as CreateOrderType;
+  const body = (await request.json()) as CreateOrderDTO;
 
   const newOrderDTO = createOrderSchema.safeParse({
     ...body,
-    deliveredAt: body.deliveredAt ? new Date(body.deliveredAt) : undefined
+    toDeliverAt: body.toDeliverAt ? new Date(body.toDeliverAt) : undefined
   });
 
   if (!newOrderDTO.success) {
-    return new Response(JSON.stringify(newOrderDTO.error), { status: 422 });
+    return NextResponse.json(formatZodError(newOrderDTO.error), { status: 422 });
   }
 
-  const { status, products, clientId, deliveredAt } = newOrderDTO.data;
-
-  const order = await db.order.create({
-    data: {
-      clientId,
-      userId: session.user.id,
-      status,
-      deliveredAt,
-      products: {
-        create: products.map(product => ({
-          product: { connect: { id: product.productId } },
-          quantity: product.quantity
-        }))
-      }
-    },
-    include: {
-      products: true
-    }
-  });
-
-  return new Response(JSON.stringify(order), { status: 201 });
+  try {
+    const newOrder = await APIOrderService.createOrder(newOrderDTO.data, session.user.selectedCompany.id, session.user.id);
+    return NextResponse.json(newOrder, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Internal server error" }, { status: 500 });
+  }
 }
