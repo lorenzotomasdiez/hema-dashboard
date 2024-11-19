@@ -22,6 +22,14 @@ export const useProductCompleteBySlugQuery = (slug: string) => {
   });
 }
 
+export const prefetchProductCompleteBySlug = (slug: string, queryClient: QueryClient) => {
+  return queryClient.prefetchQuery({
+    queryKey: [QUERY_KEYS.products.completeBySlug, slug],
+    queryFn: () => getProductCompleteBySlug(slug),
+    staleTime: 1000 * 60
+  });
+}
+
 export const prefetchProductBySlug = (slug: string, queryClient: QueryClient) => {
   return queryClient.prefetchQuery({
     queryKey: [QUERY_KEYS.products.bySlug, slug],
