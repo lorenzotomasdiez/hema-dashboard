@@ -1,13 +1,22 @@
 import { useMutation, useQuery, QueryClient } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys";
-import { createProduct, getProductBySlug, getProducts, updateProduct } from "@/services/products";
-import { CreateProductType, ProductWithCostComponents, UpdatedProductWithCostComponents } from "@/types";
+import { createProduct, getProductBySlug, getProductCompleteBySlug, getProducts, updateProduct } from "@/services/products";
+import { CreateProductType, ProductComplete, ProductWithCostComponents, UpdatedProductWithCostComponents } from "@/types";
 import { toast } from "sonner";
 
 export const useProductBySlugQuery = (slug: string) => {
   return useQuery<ProductWithCostComponents>({
     queryKey: [QUERY_KEYS.products.bySlug, slug],
     queryFn: () => getProductBySlug(slug),
+    enabled: !!slug,
+    staleTime: 1000 * 60
+  });
+}
+
+export const useProductCompleteBySlugQuery = (slug: string) => {
+  return useQuery<ProductComplete>({
+    queryKey: [QUERY_KEYS.products.completeBySlug, slug],
+    queryFn: () => getProductCompleteBySlug(slug),
     enabled: !!slug,
     staleTime: 1000 * 60
   });
