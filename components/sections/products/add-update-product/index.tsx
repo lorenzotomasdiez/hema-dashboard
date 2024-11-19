@@ -1,6 +1,6 @@
 "use client";
 import { useQueryClient } from "@tanstack/react-query";
-import { AddProductMutation, UpdateProductMutation, useProductBySlugQuery } from "@/lib/tanstack/useProducts";
+import { AddProductMutation, UpdateProductMutation, useProductBySlugQuery, useProductCompleteBySlugQuery } from "@/lib/tanstack/useProducts";
 import AddUpdateProductForm from "./form";
 import Loading from "@/app/loading";
 
@@ -14,7 +14,7 @@ export default function AddUpdateProduct({
 
   const queryClient = useQueryClient();
 
-  const { data: product, isLoading } = useProductBySlugQuery(slug || "");
+  const { data: product, isLoading } = useProductCompleteBySlugQuery(slug || "");
 
   const addProductMutation = AddProductMutation(queryClient);
 

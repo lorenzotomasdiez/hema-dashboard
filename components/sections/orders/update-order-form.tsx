@@ -12,8 +12,9 @@ import { RHFDatePicker } from "@/components/rhf";
 import { UpdateOrderDTO } from "@/types";
 import { useRouter } from "next/navigation";
 import { APP_PATH } from "@/config/path";
-import { Separator } from "@radix-ui/react-select";
+import { Separator } from "@/components/ui/separator";
 import { OrderComplete } from "@/types";
+import { useCallback } from "react";
 
 export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
   const queryClient = useQueryClient();
@@ -45,11 +46,11 @@ export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
     router.push(APP_PATH.protected.orders.root);
   }
 
-  const handleAddProduct = (productId: number) => {
+  const handleAddProduct = useCallback((productId: number) => {
     const products = watch('products')
     if (products.find(p => p.productId === productId)) return;
     setValue('products', [...products, { productId, quantity: 1 }], { shouldDirty: true })
-  }
+  }, [watch, setValue]);
 
   const handleRemoveProduct = (productId: number) => {
     const products = watch('products')
@@ -62,6 +63,8 @@ export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
       p.productId === productId ? { ...p, quantity: Math.max(1, p.quantity + change) } : p
     ), { shouldDirty: true })
   }
+
+  const detectIfProductHasSpecialPrice = order.products.some(p => p.product.price !== p.price);
 
   return (
     <Form {...form}>
@@ -206,10 +209,38 @@ export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
           )}
         </div>
         <Separator className="my-4" />
+
+        {detectIfProductHasSpecialPrice && (
+          <>
+            <div className="rounded-lg bg-muted/50 p-4">
+              <p className="text-lg font-semibold text-black dark:text-white mb-3">
+                Productos con precios especiales aplicados
+              </p>
+              <div className="space-y-3">
+                {order.products
+                  .filter(p => p.product.price !== p.price)
+                  .map(p => (
+                    <div 
+                      key={p.productId} 
+                      className="flex flex-col space-y-1 p-3 rounded-md bg-background border border-border/50"
+                    >
+                      <p className="font-medium text-foreground">{p.product.name}</p>
+                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                        <p>Precio original: ${p.product.price}</p>
+                        <span>→</span>
+                        <p className="font-medium text-primary">Precio especial: ${p.price}</p>
+                      </div>
+                    </div>
+                ))}
+              </div>
+            </div>
+            <Separator className="my-4" />
+          </>
+        )}
         <div>
-          <Button 
-            type="submit" 
-            className="w-full dark:hover:bg-primary/90" 
+          <Button
+            type="submit"
+            className="w-full dark:hover:bg-primary/90"
             disabled={isSubmitting || !isDirty}
           >
             Actualizar Pedido

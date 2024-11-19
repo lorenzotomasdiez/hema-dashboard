@@ -1,6 +1,6 @@
 import { getUserAuth } from "@/lib/auth/utils";
 import APIProductService from "@/services/api/product";
-import { ProductWithCostComponents } from "@/types/product";
+import { ProductComplete } from "@/types/product";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
@@ -13,7 +13,7 @@ export async function PATCH(
 
   try {
     const id = Number(params.id);
-    const body = (await request.json()) as Partial<ProductWithCostComponents>;
+    const body = (await request.json()) as Partial<ProductComplete>;
     const product = await APIProductService.updateById(id, body, session.user.selectedCompany.id);
     return NextResponse.json(product, { status: 200 });
   } catch (error) {
