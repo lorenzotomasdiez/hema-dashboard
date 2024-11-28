@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,8 @@ export default function DeliveryList() {
       per_page: 8,
       status: "ALL",
       forToday: true,
-      keyword: ""
+      keyword: "",
+      isConfirmed: true
     }
   })
 

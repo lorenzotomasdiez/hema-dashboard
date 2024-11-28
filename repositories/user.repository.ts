@@ -12,4 +12,13 @@ export default class UserRepository {
       },
     });
   }
+
+  static async getUser(userId: string) {
+    return await db.user.findUnique({
+      where: { id: userId },
+      include: {
+        userCompanies: true
+      }
+    });
+  }
 }

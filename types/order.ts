@@ -9,6 +9,7 @@ export type GetOrdersParams = {
   status: OrderStatus | "ALL";
   keyword?: string;
   forToday?: boolean;
+  isConfirmed?: boolean;
 }
 
 export type Order = z.infer<typeof orderSchema>;
@@ -51,6 +52,7 @@ export type OrderComplete = {
     price: number;
     product: Product;
   }[];
+  isConfirmed: boolean;
 }
 
 export interface UpdateOrderStatusProps {

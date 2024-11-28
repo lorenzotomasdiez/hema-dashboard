@@ -4,15 +4,16 @@ import { OrderStatus } from "@prisma/client";
 import { responseHandler } from "../request";
 
 export const getOrders = async (params?: GetOrdersParams) => {
-  const { page, per_page, status, forToday, keyword } = {
+  const { page, per_page, status, forToday, keyword, isConfirmed } = {
     page: params?.page || 0,
     per_page: params?.per_page || 10,
     status: params?.status || "ALL",
     forToday: params?.forToday || false,
-    keyword: params?.keyword || ""
+    keyword: params?.keyword || "",
+    isConfirmed: params?.isConfirmed || undefined
   };
   const res = await fetch(
-    API_ROUTES.orders.root + `?page=${page}` + `&per_page=${per_page}` + `&status=${status}` + `&forToday=${forToday.toString()}` + `&keyword=${keyword}`
+    API_ROUTES.orders.root + `?page=${page}` + `&per_page=${per_page}` + `&status=${status}` + `&forToday=${forToday.toString()}` + `&keyword=${keyword}` + (isConfirmed !== undefined ? `&isConfirmed=${isConfirmed.toString()}` : "")
   );
   return await responseHandler(res);
 }

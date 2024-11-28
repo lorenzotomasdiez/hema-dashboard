@@ -15,6 +15,8 @@ import { APP_PATH } from "@/config/path";
 import { Separator } from "@/components/ui/separator";
 import { OrderComplete } from "@/types";
 import { useCallback } from "react";
+import { RHFSwitch } from "@/components/rhf/rhf-switch";
+import { Label } from "@/components/ui/label";
 
 export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
   const queryClient = useQueryClient();
@@ -35,7 +37,8 @@ export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
       products: order.products?.map(p => ({
         productId: p.productId,
         quantity: p.quantity
-      }))
+      })),
+      isConfirmed: order.isConfirmed
     }
   })
 
@@ -208,6 +211,14 @@ export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
             </Card>
           )}
         </div>
+
+        <div className="grid grid-cols-2 my-4">
+          <div className="flex items-center gap-4">
+            <Label htmlFor="isConfirmed" className="text-sm font-medium text-gray-700 dark:text-gray-200">Pedido Confirmado</Label>
+            <RHFSwitch name="isConfirmed" />
+          </div>
+        </div>
+        
         <Separator className="my-4" />
 
         {detectIfProductHasSpecialPrice && (

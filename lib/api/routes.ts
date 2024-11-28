@@ -1,3 +1,5 @@
+import { GetClientsParams } from "@/types";
+
 export const API_ROUTES = {
   companies: {
     root: "/api/companies",
@@ -16,7 +18,9 @@ export const API_ROUTES = {
   clients: {
     root: "/api/clients",
     full: "/api/clients/full",
-    id: (id: string) => `/api/clients/${id}`
+    id: (id: string) => `/api/clients/${id}`,
+    delete: (id: string) => `/api/clients/${id}`,
+    paginated: (params: GetClientsParams) => `/api/clients/paginated?${Object.entries(params).map(([key, value]) => `${key}=${value}`).join("&")}`
   },
   products: {
     root: "/api/products",

@@ -5,6 +5,7 @@ import { CompleteClient, relatedClientSchema, CompleteUser, relatedUserSchema, C
 export const orderSchema = z.object({
   id: z.number().int(),
   status: z.nativeEnum(OrderStatus),
+  isConfirmed: z.boolean(),
   toDeliverAt: z.date().nullish(),
   createdAt: z.date(),
   updatedAt: z.date(),
