@@ -20,12 +20,11 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { Client } from "@/types/client";
 import { getClients } from "@/services/clients";
-import { OrderStatus, Product } from "@prisma/client"
+import { OrderStatus } from "@prisma/client"
 import TableRowSkeleton from "./order-table-row-skeleton";
 import OrderTableRow from "./order-table-row";
 import { useOrders } from "@/lib/tanstack";
 import OrderDeleteConfirmation from "./order-delete-confirmation";
-import { getProducts } from "@/services/products";
 import { Input } from "@/components/ui/input";
 import { debounce } from "lodash";
 import { cn } from "@/lib/utils";

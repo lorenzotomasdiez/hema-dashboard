@@ -1,4 +1,4 @@
-import { GetOrdersParams } from "@/types";
+import { GetClientsParams, GetOrdersParams } from "@/types";
 
 export const QUERY_KEYS = {
     dashboard: {
@@ -7,6 +7,7 @@ export const QUERY_KEYS = {
     clients: {
         root: ["clients"] as const,
         full: ["clients", "full"] as const,
+        paginated: (state: GetClientsParams = { page: 0, per_page: 10, keyword: "" }) => ["clients", { state }] as const,
     },
     orders: {
         root: ["orders"] as const,

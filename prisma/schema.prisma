@@ -130,6 +130,7 @@ model Client {
 model Order {
   id          Int         @id @default(autoincrement())
   status      OrderStatus @default(PENDING)
+  isConfirmed Boolean     @default(false)
   toDeliverAt DateTime?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt

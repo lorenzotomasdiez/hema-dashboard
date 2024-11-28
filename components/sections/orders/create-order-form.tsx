@@ -13,6 +13,8 @@ import { CreateOrderDTO } from "@/types";
 import { useRouter } from "next/navigation";
 import { APP_PATH } from "@/config/path";
 import { Separator } from "@radix-ui/react-select";
+import { RHFSwitch } from "@/components/rhf/rhf-switch";
+import { Label } from "@/components/ui/label";
 
 export default function CreateOrderForm() {
   const queryClient = useQueryClient();
@@ -31,7 +33,8 @@ export default function CreateOrderForm() {
       clientId: undefined,
       toDeliverAt: new Date(),
       status: "PENDING",
-      products: []
+      products: [],
+      isConfirmed: false,
     }
   })
 
@@ -199,6 +202,14 @@ export default function CreateOrderForm() {
               </CardContent>
             </Card>
           )}
+        </div>
+        <div className="flex items-center gap-2">
+        </div>
+        <div className="grid grid-cols-2 my-4">
+          <div className="flex items-center gap-4">
+            <Label htmlFor="isConfirmed" className="text-sm font-medium text-gray-700 dark:text-gray-200">Pedido Confirmado</Label>
+            <RHFSwitch name="isConfirmed" />
+          </div>
         </div>
         <Separator className="my-4" />
         <div>

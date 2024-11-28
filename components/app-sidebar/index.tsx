@@ -123,7 +123,7 @@ export const defaultLinks: SidebarLink[] = [
 export const additionalLinks: AdditionalLinks[] = [];
 
 
-const AppSidebar = async () => {
+const AppSidebar = () => {
   const { data: session } = useSession();
   const pathname = usePathname();
   const userRole = session?.user?.selectedCompany?.role as UserRole;

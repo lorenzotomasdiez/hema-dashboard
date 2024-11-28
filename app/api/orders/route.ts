@@ -17,8 +17,9 @@ export async function GET(request: NextRequest) {
   const forToday = searchParams.get('forToday') === "true";
   const keyword = searchParams.get('keyword') || "";
   const timezone = searchParams.get('timezone') || "America/Argentina/Buenos_Aires";
+  const isConfirmed = searchParams.get('isConfirmed') === "true" || searchParams.get('isConfirmed') === "false" || undefined;
 
-  const { orders, ordersCount } = await APIOrderService.getAllOrders(session.user.selectedCompany.id, { page, per_page, status, forToday, keyword }, timezone);
+  const { orders, ordersCount } = await APIOrderService.getAllOrders(session.user.selectedCompany.id, { page, per_page, status, forToday, keyword, isConfirmed }, timezone);
 
   return NextResponse.json({ orders, ordersCount });
 }
