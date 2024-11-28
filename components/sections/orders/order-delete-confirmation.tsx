@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { CompleteOrderProduct } from "@/prisma/zod";
 import { deleteOrder } from "@/services/orders";
-import { GetOrdersResponse, Order } from "@/types";
+import { GetOrdersResponse} from "@/types";
 import { QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";

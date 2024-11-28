@@ -2,7 +2,6 @@ import { APP_PATH } from "@/config/path";
 import { getUserAuth } from "@/lib/auth/utils";
 import { UserRole } from "@prisma/client";
 import { redirect } from "next/navigation";
-import { NextResponse } from "next/server";
 
 export const withRoleAccess = async (
   rolesAllowed: UserRole[] = [

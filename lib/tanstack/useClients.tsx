@@ -1,9 +1,10 @@
-import { ClientWithOrdersTotal, CreateClientType } from "@/types"
+import { ClientsPaginatedResponse, ClientWithOrdersTotal, CreateClientType, GetClientsParams } from "@/types"
 import { QueryClient, QueryKey, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys"
-import { createClient, getClientsFull, updateClient } from "@/services/clients"
+import { createClient, getClientsFull, getClientsPaginated, updateClient } from "@/services/clients"
 import { toast } from "sonner"
 import { Client } from "@prisma/client"
+import { useState } from "react"
 
 export const useClientsQuery = () => {
   return useQuery<ClientWithOrdersTotal[]>({
@@ -11,6 +12,80 @@ export const useClientsQuery = () => {
     queryFn: getClientsFull,
     staleTime: 1000 * 60
   })
+}
+
+export const useClientsPaginatedQuery = (initialParams: GetClientsParams) => {
+  const queryClient = useQueryClient();
+  const [params, setParams] = useState<GetClientsParams>(initialParams);
+
+  const clientsQuery = useQuery<ClientsPaginatedResponse>({
+    queryKey: QUERY_KEYS.clients.paginated(params),
+    queryFn: () => getClientsPaginated(params),
+    staleTime: 1000 * 60
+  })
+
+  const prefetchNextPage = () => {
+    const hasNextPage = clientsQuery?.data?.clients.length ?? 0 < params.per_page;
+    if (!hasNextPage) return;
+    const nextPageParams = {
+      ...params,
+      page: params.page + 1
+    }
+    queryClient.prefetchQuery({
+      queryKey: QUERY_KEYS.clients.paginated(nextPageParams),
+      queryFn: () => getClientsPaginated(nextPageParams),
+      staleTime: 1000 * 60
+    })
+  }
+
+  const prefetchPrevPage = () => {
+    const hasPrevPage = params.page > 0;
+    if (!hasPrevPage) return;
+    const prevPageParams = {
+      ...params,
+      page: params.page - 1
+    }
+    queryClient.prefetchQuery({
+      queryKey: QUERY_KEYS.clients.paginated(prevPageParams),
+      queryFn: () => getClientsPaginated(prevPageParams),
+      staleTime: 1000 * 60
+    })
+  }
+
+  const handlePrevPage = () => {
+    const newPage = params.page - 1 <= 0 ? 0 : params.page - 1;
+    setParams(prev => ({
+      ...prev,
+      page: newPage
+    }))
+  }
+
+  const handleNextPage = () => {
+    const newPage = params.page + 1;
+    setParams(prev => ({
+      ...prev,
+      page: newPage
+    }))
+  }
+
+  const handleKeyword = (keyword: string) => {
+    setParams(prev => ({
+      ...prev,
+      keyword
+    }))
+  }
+
+  return {
+    clientsQuery,
+    handlePrevPage,
+    handleNextPage,
+    page: params.page,
+    per_page: params.per_page,
+    keyword: params.keyword,
+    prefetchNextPage,
+    prefetchPrevPage,
+    handleKeyword
+  }
 }
 
 export const AddClientMutation = (queryKey: QueryKey, queryClient: QueryClient) => {

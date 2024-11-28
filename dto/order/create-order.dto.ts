@@ -13,6 +13,7 @@ export const createOrderSchema = z.object({
   toDeliverAt: z.date().optional(),
   products: z.array(createOrderProductSchema),
   deliveredAt: z.date().optional(),
+  isConfirmed: z.boolean().optional(),
 })
 
 export const updateOrderSchema = z.object({

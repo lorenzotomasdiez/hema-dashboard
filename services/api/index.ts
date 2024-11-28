@@ -5,7 +5,7 @@ import APIOrderService from "./order";
 import APIProductService from "./product";
 import APIInvitationService from "./invitation";
 import APIUserService from "./user";
-
+import APIClientService from "./client";
 export {
   APICompanyService,
   APIOrderService,
@@ -13,5 +13,6 @@ export {
   APIExpenseService,
   APIProductService,
   APIInvitationService,
-  APIUserService
+  APIUserService,
+  APIClientService
 };
