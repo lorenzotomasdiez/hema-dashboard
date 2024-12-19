@@ -10,13 +10,6 @@ import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "
 import { signOut, useSession } from "next-auth/react";
 import { Skeleton } from "../ui/skeleton";
 
-{/* <div className="flex flex-col gap-2">
-<UserDetails session={session} />
-<ChooseCompanySelection />
-<SignOut />
-</div> */}
-
-
 export default function AppSidebarFooter() {
   const { data: session } = useSession();
   return (

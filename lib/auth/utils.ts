@@ -94,6 +94,10 @@ export const authOptions: NextAuthOptions = {
       return updatedSession;
     },
     redirect: () => APP_PATH.protected.dashboard.root
+  },
+  pages:{
+    signIn: APP_PATH.public.signin,
+    signOut: APP_PATH.public.signout,
   }
 };
 

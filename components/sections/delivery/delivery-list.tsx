@@ -52,7 +52,7 @@ export default function DeliveryList() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
-        <CardTitle className="text-2xl font-bold">Pedidos</CardTitle>
+        <CardTitle className="text-2xl font-bold">Pedidos Confirmados</CardTitle>
         <div className="flex items-center justify-end gap-3">
           {ordersQuery.isFetching && <Loader2 className="animate-spin" />}
           {
