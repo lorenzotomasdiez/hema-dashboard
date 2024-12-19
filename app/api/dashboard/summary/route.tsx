@@ -61,12 +61,12 @@ async function getMonthlyData(startDate: Date, endDate: Date, selectedCompanyId:
       FROM "Order" o
       JOIN "OrderProduct" op ON o.id = op."orderId"
       JOIN "Product" p ON op."productId" = p.id
-      WHERE o."createdAt" >= ${startDate} AND o."createdAt" < ${endDate}
+      WHERE o."deliveredAt" >= ${startDate} AND o."deliveredAt" < ${endDate}
       AND o."companyId" = ${selectedCompanyId}
     `,
     db.order.count({
       where: {
-        createdAt: {
+        deliveredAt: {
           gte: startDate,
           lt: endDate,
         },
@@ -76,7 +76,7 @@ async function getMonthlyData(startDate: Date, endDate: Date, selectedCompanyId:
     db.order.groupBy({
       by: ['clientId'],
       where: {
-        createdAt: {
+        deliveredAt: {
           gte: startDate,
           lt: endDate,
         },
@@ -118,7 +118,7 @@ async function getTopProducts(startDate: Date, endDate: Date, companyId: string)
     by: ['productId'],
     where: {
       order: {
-        createdAt: {
+        deliveredAt: {
           gte: startDate,
           lt: endDate,
         },
@@ -147,5 +147,3 @@ async function getTopProducts(startDate: Date, endDate: Date, companyId: string)
     sales: product._sum.quantity || 0,
   }));
 }
-
-
