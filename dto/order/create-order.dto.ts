@@ -8,10 +8,10 @@ export const createOrderProductSchema = z.object({
 
 
 export const createOrderSchema = z.object({
-  clientId: z.string().cuid(),
+  clientId: z.string({ message: "El cliente es requerido" }).cuid({ message: "El cliente es requerido" }),
   status: z.nativeEnum(OrderStatus).optional(),
   toDeliverAt: z.date().optional(),
-  products: z.array(createOrderProductSchema),
+  products: z.array(createOrderProductSchema).min(1, { message: "Debe haber al menos un producto" }),
   deliveredAt: z.date().optional(),
   isConfirmed: z.boolean().optional(),
 })
