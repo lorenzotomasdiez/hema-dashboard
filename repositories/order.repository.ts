@@ -134,6 +134,7 @@ export async function create(createOrderDto: CreateOrderDTO, companyId: string, 
           create: orderProductsData
         },
         ...(createOrderDto.isConfirmed && { isConfirmed: createOrderDto.isConfirmed }),
+        ...(createOrderDto.status === OrderStatus.DELIVERED && { deliveredAt: new Date().toISOString() }),
       },
       include: {
         products: {
@@ -204,6 +205,7 @@ export async function update(id: number, updateOrderDto: UpdateOrderDTO, company
           }
         }),
         ...(updateOrderDto.isConfirmed && { isConfirmed: updateOrderDto.isConfirmed }),
+        ...(updateOrderDto.status === OrderStatus.DELIVERED ? { deliveredAt: new Date().toISOString() } : { deliveredAt: null }),
       },
       include: {
         products: {
@@ -220,6 +222,6 @@ export async function update(id: number, updateOrderDto: UpdateOrderDTO, company
 export async function markAsDelivered(orderIds: number[]) {
   return db.order.updateMany({
     where: { id: { in: orderIds } },
-    data: { status: OrderStatus.DELIVERED }
+    data: { status: OrderStatus.DELIVERED, deliveredAt: new Date().toISOString() }
   });
 }
