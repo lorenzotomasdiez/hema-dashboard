@@ -1,4 +1,5 @@
 "use client";
+import { forwardRef } from "react";
 import { Controller, useFormContext } from "react-hook-form"
 import {
   Popover,
@@ -12,7 +13,14 @@ import { Calendar } from "../ui/calendar"
 import { cn } from "@/lib/utils"
 import { es } from "date-fns/locale"
 
-export const RHFDatePicker = ({ name, className, disabled = false }: { name: string, className?: string, disabled?: boolean }) => {
+export const RHFDatePicker = forwardRef<
+  HTMLButtonElement,
+  {
+    name: string;
+    className?: string;
+    disabled?: boolean;
+  }
+>(({ name, className, disabled = false }, ref) => {
   const { control } = useFormContext();
   return (
     <Controller
@@ -22,6 +30,7 @@ export const RHFDatePicker = ({ name, className, disabled = false }: { name: str
         <Popover>
           <PopoverTrigger asChild>
             <Button
+              ref={ref}
               variant={"outline"}
               className={cn(
                 "w-full pl-3 text-left font-normal dark:bg-neutral-700 dark:text-white",
@@ -51,4 +60,6 @@ export const RHFDatePicker = ({ name, className, disabled = false }: { name: str
       )}
     />
   )
-}
+});
+
+RHFDatePicker.displayName = "RHFDatePicker";
