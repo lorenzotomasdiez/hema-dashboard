@@ -4,17 +4,19 @@ import { useForm } from "react-hook-form";
 import { Plus, Minus } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AddOrderMutation, useClientsQuery, useProductsQuery } from "@/lib/tanstack";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from '@/components/ui/card'
-import { RHFDatePicker } from "@/components/rhf";
+import { RHFDatePicker, RHFCombobox } from "@/components/rhf";
 import { CreateOrderDTO } from "@/types";
 import { useRouter } from "next/navigation";
 import { APP_PATH } from "@/config/path";
 import { Separator } from "@radix-ui/react-select";
 import { RHFSwitch } from "@/components/rhf/rhf-switch";
 import { Label } from "@/components/ui/label";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createOrderSchema } from "@/dto/order/create-order.dto";
 
 export default function CreateOrderForm() {
   const queryClient = useQueryClient();
@@ -29,6 +31,7 @@ export default function CreateOrderForm() {
 
 
   const form = useForm<CreateOrderDTO>({
+    resolver: zodResolver(createOrderSchema),
     defaultValues: {
       clientId: undefined,
       toDeliverAt: new Date(),
@@ -38,7 +41,7 @@ export default function CreateOrderForm() {
     }
   })
 
-  const { handleSubmit, watch, setValue, formState: { isSubmitting, isDirty } } = form;
+  const { handleSubmit, watch, setValue, formState: { isSubmitting, isDirty, errors } } = form;
 
   const onSubmit = async (data: CreateOrderDTO) => {
     addOrderMutation.mutate(data);
@@ -48,47 +51,31 @@ export default function CreateOrderForm() {
   const handleAddProduct = (productId: number) => {
     const products = watch('products')
     if (products.find(p => p.productId === productId)) return;
-    setValue('products', [...products, { productId, quantity: 1 }])
+    setValue('products', [...products, { productId, quantity: 1 }], { shouldValidate: true })
   }
 
   const handleRemoveProduct = (productId: number) => {
     const products = watch('products')
-    setValue('products', products.filter(p => p.productId !== productId))
+    setValue('products', products.filter(p => p.productId !== productId), { shouldValidate: true })
   }
 
   const handleQuantityChange = (productId: number, change: number) => {
     const products = watch('products')
     setValue('products', products.map(p =>
       p.productId === productId ? { ...p, quantity: Math.max(1, p.quantity + change) } : p
-    ))
+    ), { shouldValidate: true })
   }
 
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
+          <RHFCombobox
+            label="Cliente"
             name="clientId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cliente</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a client" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {clients?.map((client) => (
-                      <SelectItem key={client.id} value={client.id}>
-                        {client.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
+            placeholder="Buscar cliente"
+            options={clients?.map(client => ({ value: client.id, label: client.name })) || []}
+            emptyMessage="No existe cliente con ese nombre"
           />
           <div>
             {watch('clientId') && (
@@ -146,7 +133,7 @@ export default function CreateOrderForm() {
             )}
           />
 
-          <div>
+          <div className="flex flex-col gap-2">
             <FormLabel>Productos</FormLabel>
             <Select onValueChange={(value) => handleAddProduct(Number(value))}>
               <FormControl>
@@ -162,6 +149,7 @@ export default function CreateOrderForm() {
                 ))}
               </SelectContent>
             </Select>
+            {errors.products && <FormMessage>{errors.products.message}</FormMessage>}
           </div>
 
           {watch('products').length > 0 && (
