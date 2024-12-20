@@ -20,4 +20,9 @@ export default class APIExpenseService {
     const disabledExpense = await CompanyExpenseRepository.disableCompanyExpense(expenseId);
     return disabledExpense;
   }
+
+  static async findAllByCompanyIdAndDate(companyId: string, startDate: Date, endDate: Date) {
+    const expenses = await CompanyExpenseRepository.findCompanyExpensesByCompanyIdAndDate(companyId, startDate, endDate);
+    return expenses;
+  }
 }

@@ -16,8 +16,8 @@ export interface DashboardSummaryData {
     shipped: number;
     delivered: number;
   };
-  topProducts: {
-    name: string;
-    sales: number;
-  }[];
+  totalEarnings: {
+    currentMonth: number;
+    previousMonth: number;
+  };
 }

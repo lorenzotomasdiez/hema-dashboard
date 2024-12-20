@@ -45,3 +45,17 @@ export async function disableCompanyExpense(expenseId: number) {
   });
   return disabledExpense;
 }
+
+export async function findCompanyExpensesByCompanyIdAndDate(companyId: string, startDate: Date, endDate: Date) {
+  const expenses = await db.companyExpense.findMany({
+    where: {
+      companyId,
+      deletedAt: null,
+      OR: [
+        { disabledFrom: null, isMonthly: true },
+        { date: { gte: startDate, lte: endDate } }
+      ]
+    },
+  });
+  return expenses;
+}
