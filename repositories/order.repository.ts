@@ -45,6 +45,30 @@ export async function findAllByCompanyIdPaginated(companyId: string, params: Get
   });
 }
 
+export async function getOrdersFromDate(startDate: Date, endDate: Date, companyId: string) {
+  return db.order.findMany({
+    where: {
+      companyId,
+      deliveredAt: { gte: startDate, lt: endDate }
+    },
+    include: {
+      products: {
+        include: {
+          product: {
+            include: {
+              costComponents: {
+                include: {
+                  costComponent: true
+                }
+              }
+            }
+          }
+        }
+      },
+    }
+  });
+}
+
 export async function findById(id: number, companyId: string): Promise<OrderComplete | null> {
   return db.order.findUnique({
     where: { id, companyId },
@@ -126,8 +150,8 @@ export async function create(createOrderDto: CreateOrderDTO, companyId: string, 
         companyId,
         toDeliverAt: createOrderDto.toDeliverAt ? new Date(createOrderDto.toDeliverAt).toISOString() : new Date().toISOString(),
         status: createOrderDto.status ?? OrderStatus.PENDING,
-        ...(createOrderDto.deliveredAt && { 
-          deliveredAt: new Date(createOrderDto.deliveredAt).toISOString() 
+        ...(createOrderDto.deliveredAt && {
+          deliveredAt: new Date(createOrderDto.deliveredAt).toISOString()
         }),
         total: orderTotal,
         products: {
@@ -190,12 +214,12 @@ export async function update(id: number, updateOrderDto: UpdateOrderDTO, company
       where: { id, companyId },
       data: {
         ...(updateOrderDto.clientId && { clientId: updateOrderDto.clientId }),
-        ...(updateOrderDto.toDeliverAt && { 
-          toDeliverAt: new Date(updateOrderDto.toDeliverAt).toISOString() 
+        ...(updateOrderDto.toDeliverAt && {
+          toDeliverAt: new Date(updateOrderDto.toDeliverAt).toISOString()
         }),
         ...(updateOrderDto.status && { status: updateOrderDto.status }),
-        ...(updateOrderDto.deliveredAt && { 
-          deliveredAt: new Date(updateOrderDto.deliveredAt).toISOString() 
+        ...(updateOrderDto.deliveredAt && {
+          deliveredAt: new Date(updateOrderDto.deliveredAt).toISOString()
         }),
         ...(orderTotal > 0 && { total: orderTotal }),
         ...(orderProductsData && {
@@ -225,3 +249,53 @@ export async function markAsDelivered(orderIds: number[]) {
     data: { status: OrderStatus.DELIVERED, deliveredAt: new Date().toISOString() }
   });
 }
+
+export async function getMonthlyTotalIncome(startDate: Date, endDate: Date, companyId: string) {
+  const result = await db.$queryRaw<[{ total: bigint | null }]>`
+    SELECT SUM(p.price * op.quantity) as total
+    FROM "Order" o
+    JOIN "OrderProduct" op ON o.id = op."orderId"
+    JOIN "Product" p ON op."productId" = p.id
+    WHERE o."deliveredAt" >= ${startDate} AND o."deliveredAt" < ${endDate}
+    AND o."companyId" = ${companyId}
+  `;
+  return result[0]?.total ? Number(result[0].total) : 0;
+}
+
+export async function getMonthlyCount(startDate: Date, endDate: Date, companyId: string) {
+  return db.order.count({
+    where: {
+      deliveredAt: {
+        gte: startDate,
+        lt: endDate
+      },
+      companyId
+    }
+  })
+}
+
+export async function getMonthlyActiveClients(startDate: Date, endDate: Date, companyId: string) {
+  return db.order.groupBy({
+    by: ['clientId'],
+    where: {
+      deliveredAt: {
+        gte: startDate,
+        lt: endDate
+      },
+      companyId
+    }
+  })
+}
+
+export async function getOrderStatuses(companyId: string) {
+  return db.order.groupBy({
+    by: ['status'],
+    _count: {
+      status: true,
+    },
+    where: {
+      companyId,
+    },
+  });
+}
+
