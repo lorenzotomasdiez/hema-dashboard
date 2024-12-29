@@ -273,7 +273,7 @@ model StockMovement {
   companyId    String
   userId       String
   quantity     Int
-  finalStock   Int?
+  finalStock   Int
   movementType StockMovementType
   description  String?
   createdAt    DateTime          @default(now())
