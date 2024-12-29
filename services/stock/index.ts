@@ -6,10 +6,10 @@ export async function getStockProduct(productId:number){
   return await responseHandler(res);
 }
 
-export async function adjustStockProduct(productId:number, stock:number){
+export async function adjustStockProduct(productId:number, stock:number, description:string){
   const res = await fetch(API_ROUTES.stock.adjust(productId), {
     method: "POST",
-    body: JSON.stringify({stock})
+    body: JSON.stringify({stock, description})
   });
   return await responseHandler(res);
 }

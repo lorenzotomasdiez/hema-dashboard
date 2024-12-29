@@ -1,19 +1,27 @@
 import { db } from "@/lib/db";
-import { StockMovementType } from "@prisma/client";
+import { CreateStockMovementProps } from "@/types/stock";
 
 export async function findProductAndStock(productId: number, companyId: string) {
   const product = await db.product.findUnique({
     where: { id: productId, companyId },
     include: {
-      stockMovements: true
+      stockMovements: {
+        include: {
+          user: {
+            select: {
+              name: true
+            }
+          }
+        }
+      }
     }
   });
   return product;
 }
 
-export async function createStockMovement(productId: number, companyId: string, movementValue: number, movementType: StockMovementType) {
+export async function createStockMovement(props: CreateStockMovementProps) {
   return db.stockMovement.create({
-    data: {productId, companyId, quantity: movementValue, movementType}
+    data: {productId: props.productId, companyId: props.companyId, quantity: props.movementValue, movementType: props.movementType, description: props.description, userId: props.userId}
   })
 }
 

@@ -271,15 +271,16 @@ model StockMovement {
   id           Int               @id @default(autoincrement())
   productId    Int
   companyId    String
-  userId       String?
+  userId       String
   quantity     Int
+  finalStock   Int?
   movementType StockMovementType
   description  String?
   createdAt    DateTime          @default(now())
 
   product Product @relation(fields: [productId], references: [id])
   company Company @relation(fields: [companyId], references: [id])
-  user    User?   @relation(fields: [userId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
 
   @@index([productId])
   @@index([companyId])

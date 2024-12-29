@@ -22,6 +22,7 @@ export const useStockProduct = ({
 interface AdjustStockProps {
   productId: number;
   stock: number;
+  description: string;
 }
 
 interface AdjustStockMutationProps {
@@ -30,13 +31,11 @@ interface AdjustStockMutationProps {
 
 export const AdjustStockMutation = ({queryClient}: AdjustStockMutationProps) => {
   return useMutation({
-    mutationFn: (props: AdjustStockProps) => adjustStockProduct(props.productId, props.stock),
+    mutationFn: (props: AdjustStockProps) => adjustStockProduct(props.productId, props.stock, props.description),
     mutationKey: ["adjustStock"],
-    onMutate: async (props: AdjustStockProps) => {
-      queryClient.invalidateQueries({queryKey: QUERY_KEYS.stock.product(props.productId)})
-    },
-    onSuccess: () => {
+    onSuccess: (_data, _variables, context) => {
       toast.success("Stock actualizado correctamente!")
+      queryClient.invalidateQueries({queryKey: QUERY_KEYS.stock.product(_variables.productId)})
     },
     onError: (err, _props, context) => {
       toast.error("Error al actualizar el stock", {
