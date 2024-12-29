@@ -6,8 +6,9 @@ export const stockMovementSchema = z.object({
   id: z.number().int(),
   productId: z.number().int(),
   companyId: z.string(),
-  userId: z.string().nullish(),
+  userId: z.string(),
   quantity: z.number().int(),
+  finalStock: z.number().int().nullish(),
   movementType: z.nativeEnum(StockMovementType),
   description: z.string().nullish(),
   createdAt: z.date(),
@@ -16,7 +17,7 @@ export const stockMovementSchema = z.object({
 export interface CompleteStockMovement extends z.infer<typeof stockMovementSchema> {
   product: CompleteProduct
   company: CompleteCompany
-  user?: CompleteUser | null
+  user: CompleteUser
 }
 
 /**
@@ -27,5 +28,5 @@ export interface CompleteStockMovement extends z.infer<typeof stockMovementSchem
 export const relatedStockMovementSchema: z.ZodSchema<CompleteStockMovement> = z.lazy(() => stockMovementSchema.extend({
   product: relatedProductSchema,
   company: relatedCompanySchema,
-  user: relatedUserSchema.nullish(),
+  user: relatedUserSchema,
 }))
