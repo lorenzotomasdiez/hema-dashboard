@@ -23,5 +23,9 @@ export const QUERY_KEYS = {
     },
     expenses: {
         root: ["expenses"] as const,
+    },
+    stock: {
+        root: ["stock"] as const,
+        product: (productId: number) => ["stock", productId] as const,
     }
 } as const;
