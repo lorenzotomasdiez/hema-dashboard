@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { APP_PATH } from "@/config/path";
 import CustomPricesSection from "./custom-prices";
 import ProductCostsSection from "./product-costs";
+import Link from "next/link";
 
 interface AddUpdateProductFormProps {
   product?: ProductComplete;
@@ -98,18 +99,22 @@ export default function AddUpdateProductForm({
               className="col-span-3"
             />
           </div>
-          
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="stock" className="text-right text-black dark:text-white">
-              Stock
-            </Label>
-            <RHFInput
-              name="stock"
-              type="number"
-              className="col-span-3"
-              disabled={!!product}
-            />
-          </div>
+
+          {
+            !product && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="stock" className="text-right text-black dark:text-white">
+                  Stock
+                </Label>
+                <RHFInput
+                  name="stock"
+                  type="number"
+                  className="col-span-3"
+                  disabled={!!product}
+                />
+              </div>
+            )
+          }
 
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="price" className="text-right text-black dark:text-white">
@@ -130,13 +135,26 @@ export default function AddUpdateProductForm({
               className="col-span-3"
             />
           </div>
+
+          {
+            product && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Link href={APP_PATH.protected.stock.details(product?.id || 0)} className="col-span-2 col-start-2">
+                  <Button variant="outline" className="w-full">
+                    Mas detalles de stock
+                  </Button>
+                </Link>
+              </div>
+            )
+          }
+
         </div>
         <div className="border-t border-gray-300 my-4" />
 
         <ProductCostsSection />
 
-
         <CustomPricesSection />
+
 
         <div className="grid grid-cols-1 mt-10">
           <Button
