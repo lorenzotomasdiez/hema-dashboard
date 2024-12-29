@@ -12,16 +12,27 @@ export async function findProductAndStock(productId: number, companyId: string) 
               name: true
             }
           }
+        },
+        orderBy: {
+          createdAt: "desc"
         }
       }
-    }
+    },
   });
   return product;
 }
 
 export async function createStockMovement(props: CreateStockMovementProps) {
   return db.stockMovement.create({
-    data: {productId: props.productId, companyId: props.companyId, quantity: props.movementValue, movementType: props.movementType, description: props.description, userId: props.userId}
+    data: {
+      productId: props.productId,
+      companyId: props.companyId,
+      quantity: props.movementValue,
+      movementType: props.movementType,
+      description: props.description,
+      userId: props.userId,
+      finalStock: props.finalStock
+    }
   })
 }
 
