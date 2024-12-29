@@ -1,20 +1,22 @@
 import * as z from "zod"
 import { StockMovementType } from "@prisma/client"
-import { CompleteProduct, relatedProductSchema, CompleteCompany, relatedCompanySchema } from "./index"
+import { CompleteProduct, relatedProductSchema, CompleteCompany, relatedCompanySchema, CompleteUser, relatedUserSchema } from "./index"
 
 export const stockMovementSchema = z.object({
   id: z.number().int(),
   productId: z.number().int(),
   companyId: z.string(),
+  userId: z.string().nullish(),
   quantity: z.number().int(),
   movementType: z.nativeEnum(StockMovementType),
-  date: z.date(),
+  description: z.string().nullish(),
   createdAt: z.date(),
 })
 
 export interface CompleteStockMovement extends z.infer<typeof stockMovementSchema> {
   product: CompleteProduct
   company: CompleteCompany
+  user?: CompleteUser | null
 }
 
 /**
@@ -25,4 +27,5 @@ export interface CompleteStockMovement extends z.infer<typeof stockMovementSchem
 export const relatedStockMovementSchema: z.ZodSchema<CompleteStockMovement> = z.lazy(() => stockMovementSchema.extend({
   product: relatedProductSchema,
   company: relatedCompanySchema,
+  user: relatedUserSchema.nullish(),
 }))
