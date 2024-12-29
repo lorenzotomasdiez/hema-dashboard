@@ -60,6 +60,7 @@ model User {
   sessions      Session[]
   orders        Order[]
   userCompanies UserCompany[]
+  stockMovements StockMovement[]
 }
 
 model Company {
@@ -270,16 +271,19 @@ model StockMovement {
   id           Int               @id @default(autoincrement())
   productId    Int
   companyId    String
+  userId       String?
   quantity     Int
   movementType StockMovementType
-  date         DateTime          @default(now())
+  description  String?
   createdAt    DateTime          @default(now())
 
   product Product @relation(fields: [productId], references: [id])
   company Company @relation(fields: [companyId], references: [id])
+  user    User?   @relation(fields: [userId], references: [id])
 
   @@index([productId])
   @@index([companyId])
+  @@index([userId])
 }
 
 enum StockMovementType {
