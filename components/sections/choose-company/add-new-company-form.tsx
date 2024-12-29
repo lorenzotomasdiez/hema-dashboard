@@ -34,7 +34,7 @@ export default function AddNewCompanyForm({ disabled }: { disabled: boolean }) {
 
   const { handleSubmit, formState: { isSubmitting } } = form
 
-  const companyMutation = CompanyAddMutation({
+  const companyAddMutation = CompanyAddMutation({
     queryClient: queryClient,
     onSuccess: () => {
       form.reset()
@@ -46,7 +46,7 @@ export default function AddNewCompanyForm({ disabled }: { disabled: boolean }) {
   })
 
   const onSubmit = async (data: CreateCompanyDTO) => {
-    // await companyMutation.mutateAsync(data)
+    // await companyAddMutation.mutateAsync(data)
   }
 
   return (

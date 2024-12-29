@@ -37,6 +37,11 @@ export const API_ROUTES = {
     root: "/api/invitations",
     inviteUser: "/api/invitations/invite-user",
     acceptInvitation: (invitationId: string) => `/api/invitations/accept/${invitationId}` 
+  },
+  stock: {
+    root: "/api/stock",
+    product: (productId: number) => `/api/stock/${productId}`,
+    adjust: (productId: number) => `/api/stock/${productId}/adjust`
   }
 }
 
