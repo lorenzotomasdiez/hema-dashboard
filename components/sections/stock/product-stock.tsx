@@ -43,7 +43,8 @@ export default function ProductStockSection({ productId }: Props) {
                   <TableRow>
                     <TableHead>Fecha</TableHead>
                     <TableHead>Tipo de Movimiento</TableHead>
-                    <TableHead>Cantidad</TableHead>
+                    <TableHead>Ajuste</TableHead>
+                    <TableHead>Stock Actualizado</TableHead>
                     <TableHead>Usuario</TableHead>
                     <TableHead>Descripción</TableHead>
                   </TableRow>
@@ -56,8 +57,9 @@ export default function ProductStockSection({ productId }: Props) {
                       <TableCell
                         className={movement.quantity > 0 ? "text-green-600" : "text-red-600"}
                       >
-                        {movement.quantity}
+                        {movement.quantity > 0 ? `+${movement.quantity}` : movement.quantity}
                       </TableCell>
+                      <TableCell>{movement.finalStock ?? "-"}</TableCell>
                       <TableCell>{movement.user?.name ?? "-"}</TableCell>
                       <TableCell>{movement.description ?? "-"}</TableCell>
                     </TableRow>
