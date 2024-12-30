@@ -5,6 +5,7 @@ export const API_ROUTES = {
     root: "/api/companies",
     create: "/api/companies/create",
     info: "/api/companies/info",
+    config: "/api/companies/config"
   },
   expenses:{
     root: "/api/expenses"

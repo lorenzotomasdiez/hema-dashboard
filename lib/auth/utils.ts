@@ -13,6 +13,7 @@ export type SelectedCompany = {
   name: string;
   image: string;
   role: UserRole;
+  useStockSystem: boolean;
 }
 declare module "next-auth" {
   interface Session {
