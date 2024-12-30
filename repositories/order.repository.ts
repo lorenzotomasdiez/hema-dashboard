@@ -109,20 +109,6 @@ export async function ordersCountByCompanyId(companyId: string, params: GetOrder
   });
 }
 
-export async function changeStatus(id: number, status: OrderStatus) {
-  return db.order.update({
-    where: { id },
-    data: { status: OrderStatus[status as OrderStatus] },
-    include: {
-      products: {
-        include: {
-          product: true
-        }
-      },
-    }
-  });
-}
-
 export async function create(createOrderDto: CreateOrderDTO, companyId: string, userId: string) {
   return db.$transaction(async (tx) => {
     const productsExist = await tx.product.findMany({

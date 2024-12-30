@@ -1,7 +1,7 @@
 import { toast } from "sonner"
 import { useEffect, useState } from "react"
 import { OrderStatus } from "@prisma/client"
-import { changeOrderStatus, createOrder, getOrders, updateOrder } from "@/services/orders"
+import { createOrder, getOrders, updateOrder } from "@/services/orders"
 import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { CreateOrderDTO, GetOrdersParams, GetOrdersResponse, UpdateOrderDTO, UpdateOrderStatusProps } from "@/types"
 import { QUERY_KEYS } from "./queryKeys"
@@ -109,26 +109,6 @@ export const useOrders = ({ initialParams }: Props) => {
     prefetchPrevPage,
     handleForToday
   };
-}
-
-export const UpdateOrderStatusMutation = (queryClient: QueryClient) => {
-  return useMutation({
-    mutationFn: ({ id, status }: UpdateOrderStatusProps) => changeOrderStatus(id, status),
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.orders.root });
-    },
-    onSuccess: () => {
-      toast.success("Estado de la orden actualizado correctamente!")
-    },
-    onError: (err, _client, context) => {
-      toast.error("Error al actualizar el estado de la orden", {
-        description: err.message
-      });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders.root });
-    }
-  })
 }
 
 

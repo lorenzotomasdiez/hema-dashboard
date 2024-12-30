@@ -22,6 +22,27 @@ export async function findProductAndStock(productId: number, companyId: string) 
   return product;
 }
 
+export async function findAllProductAndStockByIds(productIds: number[], companyId: string) {
+  const products = await db.product.findMany({
+    where: { id: { in: productIds }, companyId },
+    include: {
+      stockMovements: {
+        include: {
+          user: {
+            select: {
+              name: true
+            }
+          }
+        },
+        orderBy: {
+          createdAt: "desc"
+        }
+      }
+    }
+  });
+  return products;
+}
+
 export async function createStockMovement(props: CreateStockMovementProps) {
   return db.stockMovement.create({
     data: {
