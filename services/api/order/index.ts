@@ -1,6 +1,6 @@
 import { OrderRepository } from "@/repositories";
 import { CreateOrderDTO, GetOrdersParams, OrderComplete, UpdateOrderDTO } from "@/types";
-import { OrderStatus } from "@prisma/client";
+import { StockRepository } from "@/repositories";
 
 export default class APIOrderService {
   static async getAllOrders(companyId: string, params: GetOrdersParams, timezone: string) {
@@ -9,19 +9,36 @@ export default class APIOrderService {
     return { orders, ordersCount };
   }
 
-  static async changeStatus(id: number, status: OrderStatus) {
-    const order = await OrderRepository.changeStatus(id, status);
-    if (order.status === OrderStatus.SHIPPED || order.status === OrderStatus.DELIVERED) {
-      // TO DO: Update stock remove quantity from stock
-    } else {
-      // TO DO: Update stock add quantity to stock
-    }
-    return order;
-  }
-
   static async createOrder(createOrderDto: CreateOrderDTO, companyId: string, userId: string) {
     const newOrder = await OrderRepository.create(createOrderDto, companyId, userId);
-    // TO DO: Depending on the status, update the stock
+
+    const shouldDecreaseStock = newOrder.status === 'SHIPPED' || newOrder.status === 'DELIVERED';
+
+    if (shouldDecreaseStock) {
+      const productsStock = await StockRepository.findAllProductAndStockByIds(
+        newOrder.products.map(p => p.productId),
+        companyId
+      );
+
+      for (const item of newOrder.products) {
+        const product = productsStock.find(p => p.id === item.productId);
+        if (product) {
+          const newStockValue = product.stock - item.quantity;
+          await StockRepository.updateStockProduct(item.productId, companyId, newStockValue);
+          
+          await StockRepository.createStockMovement({
+            productId: item.productId,
+            companyId: companyId,
+            movementValue: -item.quantity,
+            movementType: 'PURCHASE',
+            description: `Venta - Orden #${newOrder.id}`,
+            userId: userId,
+            finalStock: newStockValue
+          });
+        }
+      }
+    }
+
     return newOrder;
   }
 
@@ -30,14 +47,102 @@ export default class APIOrderService {
     return order;
   }
 
+  static async getOrdersByIds(orderIds: number[], companyId: string) {
+    const orders = await OrderRepository.findByIds(orderIds, companyId);
+    return orders;
+  }
+
   static async updateOrder(id: number, updateOrderDto: UpdateOrderDTO, companyId: string) {
+    const currentOrder = await OrderRepository.findById(id, companyId);
     const order = await OrderRepository.update(id, updateOrderDto, companyId);
-    // TO DO: Handle status and stock update
+
+    const shouldUpdateStock = currentOrder && order && updateOrderDto.status && currentOrder.status !== updateOrderDto.status;
+
+    if (shouldUpdateStock) {
+      const shouldDecreaseStock = currentOrder.status === 'PENDING' && 
+         (updateOrderDto.status === 'SHIPPED' || updateOrderDto.status === 'DELIVERED');
+
+      const shouldIncreaseStock = (currentOrder.status === 'SHIPPED' || currentOrder.status === 'DELIVERED') && 
+         updateOrderDto.status === 'PENDING';
+
+      if (shouldDecreaseStock) {
+        const productsStock = await StockRepository.findAllProductAndStockByIds(currentOrder.products.map(p => p.productId), companyId);
+        for (const item of currentOrder.products) {
+          const product = productsStock.find(p => p.id === item.productId);
+          if (product) {
+            const newStockValue = product.stock - item.quantity;
+            await StockRepository.updateStockProduct(item.productId, companyId, newStockValue);
+            
+            await StockRepository.createStockMovement({
+              productId: item.productId,
+              companyId: companyId,
+              movementValue: -item.quantity,
+              movementType: 'PURCHASE',
+              description: `Venta - Orden #${order.id}`,
+              userId: order.userId,
+              finalStock: newStockValue
+            });
+          }
+        }
+      }
+      
+      if (shouldIncreaseStock) {
+        const productsStock = await StockRepository.findAllProductAndStockByIds(currentOrder.products.map(p => p.productId), companyId);
+        for (const item of currentOrder.products) {
+          const product = productsStock.find(p => p.id === item.productId);
+          if (product) {
+            const newStockValue = product.stock + item.quantity;
+            await StockRepository.updateStockProduct(item.productId, companyId, newStockValue);
+            
+            await StockRepository.createStockMovement({
+              productId: item.productId,
+              companyId: companyId,
+              movementValue: item.quantity,
+              movementType: 'RETURN',
+              description: `Devolución - Orden #${order.id}`,
+              userId: order.userId,
+              finalStock: newStockValue
+            });
+          }
+        }
+      }
+    }
     return order;
   }
 
-  static async markAsDelivered(orderIds: number[]) {
+  static async markAsDelivered(orderIds: number[], companyId: string) {
+    const currentOrders = await OrderRepository.findByIds(orderIds, companyId);
     const orders = await OrderRepository.markAsDelivered(orderIds);
+
+    const pendingOrders = currentOrders.filter(order => order.status === 'PENDING');
+    const productIds = pendingOrders.flatMap(order => 
+      order.products.map(product => product.productId)
+    );
+
+    if (productIds.length > 0) {
+      const productsStock = await StockRepository.findAllProductAndStockByIds(productIds, companyId);
+
+      for (const order of pendingOrders) {
+        for (const item of order.products) {
+          const product = productsStock.find(p => p.id === item.productId);
+          if (product) {
+            const newStockValue = product.stock - item.quantity;
+            await StockRepository.updateStockProduct(item.productId, companyId, newStockValue);
+            
+            await StockRepository.createStockMovement({
+              productId: item.productId,
+              companyId: companyId,
+              movementValue: -item.quantity,
+              movementType: 'PURCHASE',
+              description: `Venta - Orden #${order.id} (Marcada como entregada)`,
+              userId: order.userId,
+              finalStock: newStockValue
+            });
+          }
+        }
+      }
+    }
+
     return orders;
   }
 

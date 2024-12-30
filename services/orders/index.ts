@@ -34,14 +34,6 @@ export const updateOrder = async (id: number, body: UpdateOrderDTO) => {
   return await responseHandler(res);
 }
 
-export const changeOrderStatus = async (id: number, status: OrderStatus) => {
-  const res = await fetch(API_ROUTES.orders.status(id), {
-    "method": "PATCH",
-    body: JSON.stringify({ status })
-  });
-  return await responseHandler(res);
-}
-
 export const getOrderById = async (id: number) => {
   const res = await fetch(API_ROUTES.orders.id(id));
   return await responseHandler(res);

@@ -4,31 +4,31 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ProductWithStock } from "@/types/stock";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { AdjustStockMutation } from "@/lib/tanstack/useStock";
+import { AddStockMutation } from "@/lib/tanstack/useStock";
 import { useQueryClient } from "@tanstack/react-query";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { CreateAdjustStockMovement, createAdjustStockMovementSchema } from "@/dto/stock/create-stock-movement";
+import { createAddStockMovementSchema, CreateAddStockMovement } from "@/dto/stock/create-stock-movement";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RHFInput } from "@/components/rhf/rhf-input";
 import { Label } from "@/components/ui/label";
 import { RHFInputNumber } from "@/components/rhf";
 
-interface AdjustStockProps {
+interface ProductionStockProps {
   product: ProductWithStock;
 }
 
-export default function AdjustStock({ product }: AdjustStockProps) {
+export default function ProductionStock({ product }: ProductionStockProps) {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
 
-  const adjustStockMutation = AdjustStockMutation({ queryClient });
+  const addStockMutation = AddStockMutation({ queryClient });
 
-  const form = useForm<CreateAdjustStockMovement>({
-    resolver: zodResolver(createAdjustStockMovementSchema),
+  const form = useForm<CreateAddStockMovement>({
+    resolver: zodResolver(createAddStockMovementSchema),
     defaultValues: {
       description: "",
-      stock: product.stock,
+      stock: 0,
       confirmationText: undefined,
     }
   });
@@ -37,10 +37,8 @@ export default function AdjustStock({ product }: AdjustStockProps) {
 
   const confirmationText = watch("confirmationText");
 
-  const newStock = watch("stock");
-
-  const onSubmit = (data: CreateAdjustStockMovement) => {
-    adjustStockMutation.mutate({productId: product.id, stock: data.stock, description: data.description})
+  const onSubmit = (data: CreateAddStockMovement) => {
+    addStockMutation.mutate({productId: product.id, stock: data.stock, description: data.description})
     setIsOpen(false);
   }
 
@@ -54,17 +52,17 @@ export default function AdjustStock({ product }: AdjustStockProps) {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full max-w-xs">
-          Ajustar Stock
+          Ingresar Producción
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            Ajustar Stock de <span className="font-bold text-green-500">{product.name}</span>
+            Ingresar Producción de <span className="font-bold text-green-500">{product.name}</span>
           </DialogTitle>
         </DialogHeader>
         <p className="text-sm text-gray-500">
-          El ajuste se realizará en base al stock existente.
+          Ingrese la cantidad de productos producidos.
         </p>
         <Form {...form}>
           <form
@@ -72,10 +70,10 @@ export default function AdjustStock({ product }: AdjustStockProps) {
             onSubmit={form.handleSubmit(onSubmit)}
           >
             <div className="col-span-2 flex flex-row items-center gap-2">
-              <Label className="whitespace-nowrap">Stock actual</Label>
+              <Label className="whitespace-nowrap">Cantidad producida</Label>
               <RHFInputNumber
                 name="stock"
-                placeholder="Stock corregido"
+                placeholder="Cantidad producida"
               />
             </div>
 
@@ -91,9 +89,9 @@ export default function AdjustStock({ product }: AdjustStockProps) {
             <div className="col-span-2 flex flex-row items-center gap-2">
               <RHFInput
                 name="confirmationText"
-                placeholder="Ingresar 'AJUSTAR' para ajustar el stock"
+                placeholder="Ingresar 'INGRESAR' para ingresar la producción"
               />
-              <Button className="col-span-2" type="submit" disabled={!isDirty || confirmationText !== "AJUSTAR" || newStock === product.stock}>
+              <Button className="col-span-2" type="submit" disabled={!isDirty || confirmationText !== "INGRESAR"}>
                 Confirmar
               </Button>
             </div>

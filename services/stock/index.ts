@@ -13,3 +13,11 @@ export async function adjustStockProduct(productId:number, stock:number, descrip
   });
   return await responseHandler(res);
 }
+
+export async function addStockProduct(productId:number, stock:number, description:string){
+  const res = await fetch(API_ROUTES.stock.add(productId), {
+    method: "POST",
+    body: JSON.stringify({stock, description})
+  });
+  return await responseHandler(res);
+}
