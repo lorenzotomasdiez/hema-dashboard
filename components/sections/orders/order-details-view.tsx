@@ -4,7 +4,7 @@ import { OrderStatus } from "@prisma/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Badge, BadgeAlert, BoxIcon, CalendarIcon, CheckCircle, ClockIcon, MapPinIcon, PhoneIcon, Ship, UserIcon } from 'lucide-react';
+import { BoxIcon, CalendarIcon, CheckCircle, ClockIcon, MapPinIcon, PhoneIcon, Ship, UserIcon } from 'lucide-react';
 import { useClientsQuery } from "@/lib/tanstack";
 import { moneyMask } from "@/lib/utils";
 import { OrderComplete } from "@/types";
