@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useOrders } from "@/lib/tanstack";
-import { CalendarIcon, Check, Loader2, MessageSquare, Search, Table } from "lucide-react";
+import { CalendarIcon, Check, Cross, Loader2, MessageSquare, Search, Table, Trash, XCircleIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OrderStatus } from "@prisma/client";
 import DeliveryItem from "./delivery-item";
@@ -56,29 +56,49 @@ export default function DeliveryList() {
         <CardTitle className="text-2xl font-bold">Pedidos Confirmados</CardTitle>
         <div className="flex items-center justify-end gap-3">
           {ordersQuery.isFetching && <Loader2 className="animate-spin" />}
-          {
-            selectedOrders.length > 0 && (
-              <DeliveryMarkAsDelivered orderIds={selectedOrders}>
-                <Button variant="outline" size="sm">
-                  <Check className="mr-2 h-4 w-4" />
-                  {selectedOrders.length} Pedido/s marcados como entregados
-                </Button>
-              </DeliveryMarkAsDelivered>
-            )
-          }
-          {
-            selectedOrders.length > 0 && (
-              <GenerateMessageList orderIds={selectedOrders} orders={ordersQuery.data?.orders}>
-                <Button variant="outline" size="sm">
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  Generar mensaje de WhatsApp
-                </Button>
-              </GenerateMessageList>
-            )
-          }
         </div>
       </CardHeader>
       <CardContent>
+        <div className="mb-5 flex flex-col gap-2 md:flex-row md:justify-between md:items-center">
+          {
+            selectedOrders.length === 0 && (
+              <Button variant="outline" size="sm" onClick={() => {
+                const allOrders = ordersQuery.data?.orders.map((order) => order.id);
+                setSelectedOrders(allOrders || []);
+              }}>
+                <Check className="mr-2 h-4 w-4" />
+                Seleccionar todos los pedidos
+              </Button>
+            )
+          }
+          {
+            selectedOrders.length > 0 && (
+              <>
+
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setSelectedOrders([])}
+                >
+                  <XCircleIcon className="mr-2 h-4 w-4" />
+                  Desmarcar {selectedOrders.length} {selectedOrders.length === 1 ? 'pedido' : 'pedidos'} seleccionados
+                </Button>
+                <GenerateMessageList orderIds={selectedOrders} orders={ordersQuery.data?.orders}>
+                  <Button variant="outline" size="sm">
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    Generar mensaje de WhatsApp
+                  </Button>
+                </GenerateMessageList>
+                <DeliveryMarkAsDelivered orderIds={selectedOrders}>
+                  <Button variant="outline" size="sm">
+                    <Check className="mr-2 h-4 w-4" />
+                    {selectedOrders.length} Pedido/s marcados como entregados
+                  </Button>
+                </DeliveryMarkAsDelivered>
+              </>
+            )
+          }
+        </div>
         <div className="flex flex-col gap-2 items-start justify-center mb-6 md:flex-row md:justify-between md:items-center">
           <div className="relative w-full md:w-72">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
