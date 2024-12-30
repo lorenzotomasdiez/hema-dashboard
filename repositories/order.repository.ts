@@ -45,6 +45,19 @@ export async function findAllByCompanyIdPaginated(companyId: string, params: Get
   });
 }
 
+export async function findByIds(orderIds: number[], companyId: string) {
+  return db.order.findMany({
+    where: { id: { in: orderIds }, companyId },
+    include: {
+      products: {
+        include: {
+          product: true
+        }
+      },      
+    },
+  });
+}
+
 export async function getOrdersFromDate(startDate: Date, endDate: Date, companyId: string) {
   return db.order.findMany({
     where: {
@@ -92,20 +105,6 @@ export async function ordersCountByCompanyId(companyId: string, params: GetOrder
       ...(isConfirmed !== undefined && { isConfirmed: isConfirmed }),
       companyId,
       deletedAt: null,
-    }
-  });
-}
-
-export async function changeStatus(id: number, status: OrderStatus) {
-  return db.order.update({
-    where: { id },
-    data: { status: OrderStatus[status as OrderStatus] },
-    include: {
-      products: {
-        include: {
-          product: true
-        }
-      },
     }
   });
 }

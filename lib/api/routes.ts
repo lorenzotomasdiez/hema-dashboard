@@ -12,7 +12,6 @@ export const API_ROUTES = {
   orders: {
     root: "/api/orders",
     id: (id: number) => `/api/orders/${id}`,
-    status: (id: number) => `/api/orders/status/${id}`,
     markAsDelivered: "/api/orders/mark-as-delivered"
   },
   clients: {
@@ -41,7 +40,8 @@ export const API_ROUTES = {
   stock: {
     root: "/api/stock",
     product: (productId: number) => `/api/stock/${productId}`,
-    adjust: (productId: number) => `/api/stock/${productId}/adjust`
+    adjust: (productId: number) => `/api/stock/${productId}/adjust`,
+    add: (productId: number) => `/api/stock/${productId}/add`
   }
 }
 
