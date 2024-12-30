@@ -6,12 +6,13 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useOrders } from "@/lib/tanstack";
-import { CalendarIcon, Check, Loader2, Search, Table } from "lucide-react";
+import { CalendarIcon, Check, Loader2, MessageSquare, Search, Table } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OrderStatus } from "@prisma/client";
 import DeliveryItem from "./delivery-item";
 import Image from "next/image";
 import DeliveryMarkAsDelivered from "./mark-as-delivered";
+import GenerateMessageList from "./generate-message";
 
 export default function DeliveryList() {
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
@@ -33,7 +34,7 @@ export default function DeliveryList() {
   } = useOrders({
     initialParams: {
       page: 0,
-      per_page: 8,
+      per_page: 20,
       status: "ALL",
       forToday: true,
       keyword: "",
@@ -63,6 +64,16 @@ export default function DeliveryList() {
                   {selectedOrders.length} Pedido/s marcados como entregados
                 </Button>
               </DeliveryMarkAsDelivered>
+            )
+          }
+          {
+            selectedOrders.length > 0 && (
+              <GenerateMessageList orderIds={selectedOrders} orders={ordersQuery.data?.orders}>
+                <Button variant="outline" size="sm">
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  Generar mensaje de WhatsApp
+                </Button>
+              </GenerateMessageList>
             )
           }
         </div>
