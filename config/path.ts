@@ -16,6 +16,7 @@ export const APP_PATH = {
       root: "/orders",
       add: "/orders/create",
       details: (id: number) => `/orders/${id}`,
+      confirmed: "/orders/confirmed"
     },
     organization: "/organization",
     products: {
@@ -27,7 +28,6 @@ export const APP_PATH = {
       root: "/costs"
     },
     settings: "/settings",
-    delivery: "/delivery",
     stock: {
       root: "/stock",
       details: (id: number) => `/stock/${id}`
