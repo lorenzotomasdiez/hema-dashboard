@@ -17,6 +17,7 @@ import { RHFSwitch } from "@/components/rhf/rhf-switch";
 import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createOrderSchema } from "@/dto/order/create-order.dto";
+import { Input } from "@/components/ui/input";
 
 export default function CreateOrderForm() {
   const queryClient = useQueryClient();
@@ -63,6 +64,13 @@ export default function CreateOrderForm() {
     const products = watch('products')
     setValue('products', products.map(p =>
       p.productId === productId ? { ...p, quantity: Math.max(1, p.quantity + change) } : p
+    ), { shouldValidate: true })
+  }
+
+  const handleInputQuantity = (productId: number, quantity: number) => {
+    const products = watch('products')
+    setValue('products', products.map(p =>
+      p.productId === productId ? { ...p, quantity } : p
     ), { shouldValidate: true })
   }
 
@@ -167,7 +175,12 @@ export default function CreateOrderForm() {
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
-                      <span className="text-sm">{p.quantity}</span>
+                      <Input
+                        type="number"
+                        value={p.quantity}
+                        onChange={(e) => handleInputQuantity(p.productId, Number(e.target.value))}
+                        className="w-16 no-spinner"
+                      />
                       <Button
                         variant="outline"
                         size="icon"
