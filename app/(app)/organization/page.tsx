@@ -39,7 +39,9 @@ export default async function OrganizationPage() {
         </CardContent>
       </Card>
       <CompanyInfo />
-      <CompanySettings />
+      <CompanySettings companyConfig={{
+        useStockSystem: company.useStockSystem
+      }} />
     </div>
   )
 }

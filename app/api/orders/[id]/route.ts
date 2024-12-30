@@ -53,7 +53,12 @@ export async function PATCH(
   try {
     const id = Number(params.id);
     const body = (await request.json()) as UpdateOrderDTO;
-    const order = await APIOrderService.updateOrder(id, body, session.user.selectedCompany.id);
+    const order = await APIOrderService.updateOrder({
+      id,
+      updateOrderDto: body,
+      companyId: session.user.selectedCompany.id,
+      isStockSystemEnabled: session.user.selectedCompany.useStockSystem
+    });
     return NextResponse.json(order, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Internal server error" }, { status: 500 });

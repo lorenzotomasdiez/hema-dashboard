@@ -4,3 +4,5 @@ export * as ProductRepository from "./product.repository";
 export * as OrderRepository from "./order.repository";
 export * as InvitationRepository from "./invitation-repository";
 export * as StockRepository from "./stock.repository";
+export { default as CompanyRepository } from "./company.repository";
+export { default as ClientRepository } from "./client.repository";

@@ -32,7 +32,8 @@ export default function ChooseCompanySection() {
           id: company.id,
           name: company.name,
           image: company.image,
-          role: roleInCompany
+          role: roleInCompany,
+          useStockSystem: company.useStockSystem
         }
       }
     }

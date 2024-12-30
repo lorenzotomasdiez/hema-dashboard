@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
   const { session } = await getUserAuth();
   if (!session) return new Response("Error", { status: 400 });
   if (!session.user.selectedCompany) return new Response("Error", { status: 400 });
+  
   const searchParams = request.nextUrl.searchParams
 
   const page = Number(searchParams.get('page') || 0);
@@ -41,7 +42,12 @@ export async function POST(request: Request) {
   }
 
   try {
-    const newOrder = await APIOrderService.createOrder(newOrderDTO.data, session.user.selectedCompany.id, session.user.id);
+    const newOrder = await APIOrderService.createOrder({
+      createOrderDto: newOrderDTO.data,
+      companyId: session.user.selectedCompany.id,
+      userId: session.user.id,
+      isStockSystemEnabled: session.user.selectedCompany.useStockSystem
+    });
     return NextResponse.json(newOrder, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Internal server error" }, { status: 500 });

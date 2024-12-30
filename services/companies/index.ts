@@ -1,5 +1,5 @@
 import { API_ROUTES } from "@/lib/api/routes";
-import { CreateCompanyDTO } from "@/types/company";
+import { CompanyConfig, CreateCompanyDTO } from "@/types/company";
 import { responseHandler } from "../request";
 
 export const getMyCompanies = async () => {
@@ -17,5 +17,13 @@ export const createCompany = async (company: CreateCompanyDTO) => {
 
 export const getCompanyInfo = async () => {
   const res = await fetch(API_ROUTES.companies.info);
+  return await responseHandler(res);
+}
+
+export const updateCompanyConfig = async (config: CompanyConfig) => {
+  const res = await fetch(API_ROUTES.companies.config, {
+    method: "PATCH",
+    body: JSON.stringify(config)
+  });
   return await responseHandler(res);
 }
