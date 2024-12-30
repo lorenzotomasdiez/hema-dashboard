@@ -8,7 +8,7 @@ export const stockMovementSchema = z.object({
   companyId: z.string(),
   userId: z.string(),
   quantity: z.number().int(),
-  finalStock: z.number().int().nullish(),
+  finalStock: z.number().int(),
   movementType: z.nativeEnum(StockMovementType),
   description: z.string().nullish(),
   createdAt: z.date(),

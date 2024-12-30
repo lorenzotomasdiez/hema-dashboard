@@ -17,7 +17,7 @@ export async function PATCH(
   const status = body.status as OrderStatus;
 
   try {
-    await APIOrderService.changeStatus(id, status);
+    await APIOrderService.changeStatus(id, status, session.user.selectedCompany.id);
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
     return NextResponse.json(error instanceof Error ? error.message : "Internal server error", { status: 500 });

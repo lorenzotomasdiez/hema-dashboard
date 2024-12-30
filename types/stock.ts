@@ -25,5 +25,5 @@ export interface CreateStockMovementProps {
   movementType: StockMovementType;
   description: string;
   userId: string;
-  finalStock?: number;
+  finalStock: number;
 }

@@ -45,6 +45,19 @@ export async function findAllByCompanyIdPaginated(companyId: string, params: Get
   });
 }
 
+export async function findByIds(orderIds: number[], companyId: string) {
+  return db.order.findMany({
+    where: { id: { in: orderIds }, companyId },
+    include: {
+      products: {
+        include: {
+          product: true
+        }
+      },      
+    },
+  });
+}
+
 export async function getOrdersFromDate(startDate: Date, endDate: Date, companyId: string) {
   return db.order.findMany({
     where: {

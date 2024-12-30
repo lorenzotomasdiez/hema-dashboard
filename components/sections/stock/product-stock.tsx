@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import { StockMovementTypeSpanish } from "@/types/stock";
+import ProductionStock from "./production-stock";
 
 interface Props {
   productId: number;
@@ -76,8 +77,7 @@ export default function ProductStockSection({ productId }: Props) {
           }
           <div className="my-6 grid grid-cols-1 gap-2 md:grid-cols-3">
             <AdjustStock product={product} />
-          </div>
-          <div className="my-6 flex justify-center items-center">
+            <ProductionStock product={product} />
             <Link href={APP_PATH.protected.products.update(product.slug)} className="w-full max-w-xs">
               <Button variant="default" className="w-full max-w-xs">
                 Volver a los detalles del producto

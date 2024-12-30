@@ -41,7 +41,8 @@ export const API_ROUTES = {
   stock: {
     root: "/api/stock",
     product: (productId: number) => `/api/stock/${productId}`,
-    adjust: (productId: number) => `/api/stock/${productId}/adjust`
+    adjust: (productId: number) => `/api/stock/${productId}/adjust`,
+    add: (productId: number) => `/api/stock/${productId}/add`
   }
 }
 

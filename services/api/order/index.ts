@@ -9,13 +9,13 @@ export default class APIOrderService {
     return { orders, ordersCount };
   }
 
-  static async changeStatus(id: number, status: OrderStatus) {
+  static async changeStatus(id: number, status: OrderStatus, companyId: string) {
+    const currentOrder = await OrderRepository.findById(id, companyId);
     const order = await OrderRepository.changeStatus(id, status);
-    if (order.status === OrderStatus.SHIPPED || order.status === OrderStatus.DELIVERED) {
-      // TO DO: Update stock remove quantity from stock
-    } else {
-      // TO DO: Update stock add quantity to stock
-    }
+    // TO DO: Handle status and stock update.
+    // Depending the previous status, update the stock
+    // If the order is updated from PENDING to SHIPPED or DELIVERED, update the stock remove quantity from stock
+    // If the order is updated from SHIPPED or DELIVERED to PENDING, update the stock add quantity to stock
     return order;
   }
 
@@ -30,14 +30,26 @@ export default class APIOrderService {
     return order;
   }
 
+  static async getOrdersByIds(orderIds: number[], companyId: string) {
+    const orders = await OrderRepository.findByIds(orderIds, companyId);
+    return orders;
+  }
+
   static async updateOrder(id: number, updateOrderDto: UpdateOrderDTO, companyId: string) {
     const order = await OrderRepository.update(id, updateOrderDto, companyId);
-    // TO DO: Handle status and stock update
+    // TO DO: Handle status and stock update.
+    // Depending the previous status, update the stock
+    // If the order is updated from PENDING to SHIPPED or DELIVERED, update the stock remove quantity from stock
+    // If the order is updated from SHIPPED or DELIVERED to PENDING, update the stock add quantity to stock
     return order;
   }
 
-  static async markAsDelivered(orderIds: number[]) {
+  static async markAsDelivered(orderIds: number[], companyId: string) {
     const orders = await OrderRepository.markAsDelivered(orderIds);
+    // TO DO: Handle status and stock update.
+    // Depending the previous status, update the stock
+    // If the order is updated from PENDING to SHIPPED or DELIVERED, update the stock remove quantity from stock
+    // If the order is updated from SHIPPED or DELIVERED to PENDING, update the stock add quantity to stock
     return orders;
   }
 
