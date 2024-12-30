@@ -11,7 +11,7 @@ export default function DeliveryDashboard() {
         Estamos trabajando para traerte la mejor experiencia de gestión de entregas.
       </p>
       <Link 
-        href={APP_PATH.protected.delivery}
+        href={APP_PATH.protected.orders.confirmed}
         className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
       >
         Ir a Entregas

@@ -97,8 +97,8 @@ export const defaultLinks: SidebarLink[] = [
     ]
   },
   {
-    href: APP_PATH.protected.delivery,
-    title: "Repartidor",
+    href: APP_PATH.protected.orders.confirmed,
+    title: "Confirmados",
     icon: Truck,
     roles: [
       UserRole.ADMIN,
