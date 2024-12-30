@@ -1,4 +1,6 @@
 import { db } from "@/lib/db";
+import { CompanyRepository } from "@/repositories";
+import { CompanyConfig } from "@/types/company";
 import { UserRole } from "@prisma/client";
 
 export default class APICompanyService {
@@ -82,5 +84,12 @@ export default class APICompanyService {
     })
 
     return company
+  }
+
+  static async updateCompanyConfig(companyId: string, config: CompanyConfig) {
+    await CompanyRepository.updateCompanyConfig(companyId, config);
+    return {
+      message: "Company config updated successfully",
+    };
   }
 }

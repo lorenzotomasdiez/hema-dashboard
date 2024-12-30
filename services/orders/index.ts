@@ -1,6 +1,5 @@
 import { CreateOrderDTO, GetOrdersParams, UpdateOrderDTO } from "@/types";
 import { API_ROUTES } from "@/lib/api/routes";
-import { OrderStatus } from "@prisma/client";
 import { responseHandler } from "../request";
 
 export const getOrders = async (params?: GetOrdersParams) => {

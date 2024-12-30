@@ -30,3 +30,7 @@ export interface UserCompanyWithUser {
   updatedAt: string;
   user: User;
 }
+
+export interface CompanyConfig {
+  useStockSystem: boolean;
+}

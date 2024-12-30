@@ -8,7 +8,11 @@ export async function POST(request: Request) {
   if (!session.user.selectedCompany) return NextResponse.json({ error: "No company selected" }, { status: 400 });
   try {
     const { orderIds } = await request.json();
-    const orders = await APIOrderService.markAsDelivered(orderIds, session.user.selectedCompany.id);
+    const orders = await APIOrderService.markAsDelivered({
+      orderIds,
+      companyId: session.user.selectedCompany.id,
+      isStockSystemEnabled: session.user.selectedCompany.useStockSystem
+    });
     return NextResponse.json(orders);
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Internal server error" }, { status: 500 });
