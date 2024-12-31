@@ -128,19 +128,35 @@ model Client {
   productPrices ClientProduct[]
 }
 
+enum PaymentMethod {
+  CASH
+  TRANSFER
+  MERCADO_PAGO
+  CARD
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+}
+
 model Order {
-  id          Int         @id @default(autoincrement())
-  status      OrderStatus @default(PENDING)
-  isConfirmed Boolean     @default(false)
-  toDeliverAt DateTime?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  deliveredAt DateTime?
-  deletedAt   DateTime?
-  clientId    String
-  userId      String
-  companyId   String
-  total       Int         @default(0)
+  id            Int           @id @default(autoincrement())
+  status        OrderStatus   @default(PENDING)
+  isConfirmed   Boolean      @default(false)
+  toDeliverAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  deliveredAt   DateTime?
+  deletedAt     DateTime?
+  clientId      String
+  userId        String
+  companyId     String
+  total         Int          @default(0)
+  paymentMethod PaymentMethod
+  paymentStatus PaymentStatus
+  paidAt        DateTime?
 
   client   Client         @relation(fields: [clientId], references: [id])
   user     User           @relation(fields: [userId], references: [id])
@@ -154,7 +170,7 @@ model Product {
   description String?
   stock       Int       @default(0)
   slug        String
-  price       Int       // Este será el precio base
+  price       Int
   companyId   String
   deletedAt   DateTime?
 
@@ -163,7 +179,7 @@ model Product {
   orders         OrderProduct[]
   company        Company                @relation(fields: [companyId], references: [id])
   costComponents ProductCostComponent[]
-  clientPrices   ClientProduct[]        // Nueva relación
+  clientPrices   ClientProduct[]
 
   @@unique([companyId, slug])
 }

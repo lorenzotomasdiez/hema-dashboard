@@ -1,4 +1,4 @@
-import { OrderStatus, Product } from "@prisma/client"
+import { OrderStatus, PaymentStatus, PaymentMethod, Product } from "@prisma/client"
 import { z } from "zod";
 import { CompleteOrderProduct, orderSchema } from "@/prisma/zod";
 import { createOrderSchema, updateOrderSchema } from "@/dto/order/create-order.dto";
@@ -53,6 +53,9 @@ export type OrderComplete = {
     product: Product;
   }[];
   isConfirmed: boolean;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  paidAt: Date | string | null;
 }
 
 export interface UpdateOrderStatusProps {
