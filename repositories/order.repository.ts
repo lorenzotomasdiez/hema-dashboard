@@ -1,6 +1,6 @@
 import { db } from "@/lib/db/index";
-import { CreateOrderDTO, GetOrdersParams, OrderComplete, UpdateOrderDTO } from "@/types";
-import { OrderStatus } from "@prisma/client";
+import { CreateOrderDTO, GetOrdersParams, OrderMarkAsDeliveredProps, OrderWithProducts, UpdateOrderDTO } from "@/types";
+import { OrderStatus, PaymentStatus } from "@prisma/client";
 import { ProductRepository } from ".";
 
 
@@ -82,7 +82,7 @@ export async function getOrdersFromDate(startDate: Date, endDate: Date, companyI
   });
 }
 
-export async function findById(id: number, companyId: string): Promise<OrderComplete | null> {
+export async function findById(id: number, companyId: string): Promise<OrderWithProducts | null> {
   return db.order.findUnique({
     where: { id, companyId },
     include: {
@@ -92,7 +92,7 @@ export async function findById(id: number, companyId: string): Promise<OrderComp
         }
       },
     }
-  }) as unknown as OrderComplete | null;
+  }) as unknown as OrderWithProducts | null;
 }
 
 export async function ordersCountByCompanyId(companyId: string, params: GetOrdersParams) {
@@ -158,6 +158,9 @@ export async function create(createOrderDto: CreateOrderDTO, companyId: string, 
         },
         ...(createOrderDto.isConfirmed && { isConfirmed: createOrderDto.isConfirmed }),
         ...(createOrderDto.status === OrderStatus.DELIVERED && { deliveredAt: new Date().toISOString() }),
+        paymentMethod: createOrderDto.paymentMethod,
+        paymentStatus: createOrderDto.paymentStatus,
+        paidAt: createOrderDto.paymentStatus === PaymentStatus.PAID ? new Date().toISOString() : null,
       },
       include: {
         products: {
@@ -229,6 +232,9 @@ export async function update(id: number, updateOrderDto: UpdateOrderDTO, company
         }),
         ...(updateOrderDto.isConfirmed && { isConfirmed: updateOrderDto.isConfirmed }),
         ...(updateOrderDto.status === OrderStatus.DELIVERED ? { deliveredAt: new Date().toISOString() } : { deliveredAt: null }),
+        paymentMethod: updateOrderDto.paymentMethod,
+        paymentStatus: updateOrderDto.paymentStatus,
+        paidAt: updateOrderDto.paymentStatus === PaymentStatus.PAID ? new Date().toISOString() : null,
       },
       include: {
         products: {
@@ -242,10 +248,22 @@ export async function update(id: number, updateOrderDto: UpdateOrderDTO, company
   });
 }
 
-export async function markAsDelivered(orderIds: number[]) {
-  return db.order.updateMany({
-    where: { id: { in: orderIds } },
-    data: { status: OrderStatus.DELIVERED, deliveredAt: new Date().toISOString() }
+export async function markAsDelivered(orders: OrderMarkAsDeliveredProps[]) {
+  return db.$transaction(async (tx) => {
+    const updatedOrders = await Promise.all(orders.map(order => {
+      return tx.order.update({
+        where: { id: order.id },
+        data: { 
+          status: OrderStatus.DELIVERED, 
+          deliveredAt: new Date().toISOString(),
+          paymentStatus: order.paymentStatus,
+          paymentMethod: order.paymentMethod,
+          paidAt: order.paymentStatus === PaymentStatus.PAID ? new Date().toISOString() : null,
+        }
+      });
+    }));
+    
+    return updatedOrders;
   });
 }
 

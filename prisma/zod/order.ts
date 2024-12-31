@@ -1,5 +1,5 @@
 import * as z from "zod"
-import { OrderStatus } from "@prisma/client"
+import { OrderStatus, PaymentMethod, PaymentStatus } from "@prisma/client"
 import { CompleteClient, relatedClientSchema, CompleteUser, relatedUserSchema, CompleteCompany, relatedCompanySchema, CompleteOrderProduct, relatedOrderProductSchema } from "./index"
 
 export const orderSchema = z.object({
@@ -15,6 +15,9 @@ export const orderSchema = z.object({
   userId: z.string(),
   companyId: z.string(),
   total: z.number().int(),
+  paymentMethod: z.nativeEnum(PaymentMethod),
+  paymentStatus: z.nativeEnum(PaymentStatus),
+  paidAt: z.date().nullish(),
 })
 
 export interface CompleteOrder extends z.infer<typeof orderSchema> {

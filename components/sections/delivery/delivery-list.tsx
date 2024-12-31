@@ -74,7 +74,6 @@ export default function DeliveryList() {
           {
             selectedOrders.length > 0 && (
               <>
-
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -89,12 +88,6 @@ export default function DeliveryList() {
                     Generar mensaje de WhatsApp
                   </Button>
                 </GenerateMessageList>
-                <DeliveryMarkAsDelivered orderIds={selectedOrders}>
-                  <Button variant="outline" size="sm">
-                    <Check className="mr-2 h-4 w-4" />
-                    {selectedOrders.length} Pedido/s marcados como entregados
-                  </Button>
-                </DeliveryMarkAsDelivered>
               </>
             )
           }

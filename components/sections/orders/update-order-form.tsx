@@ -9,16 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from '@/components/ui/card'
 import { RHFDatePicker } from "@/components/rhf";
-import { UpdateOrderDTO } from "@/types";
+import { PaymentMethodLabel, PaymentStatusLabel, UpdateOrderDTO } from "@/types";
 import { useRouter } from "next/navigation";
 import { APP_PATH } from "@/config/path";
 import { Separator } from "@/components/ui/separator";
-import { OrderComplete } from "@/types";
 import { useCallback } from "react";
 import { RHFSwitch } from "@/components/rhf/rhf-switch";
 import { Label } from "@/components/ui/label";
+import { OrderWithProducts } from "@/types";
 
-export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
+export default function UpdateOrderForm({ order }: { order: OrderWithProducts }) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const updateOrderMutation = UpdateOrderMutation(queryClient);
@@ -38,7 +38,9 @@ export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
         productId: p.productId,
         quantity: p.quantity
       })),
-      isConfirmed: order.isConfirmed
+      isConfirmed: order.isConfirmed,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus
     }
   })
 
@@ -152,6 +154,50 @@ export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
             )}
           />
 
+          <FormField
+            control={form.control}
+            name="paymentMethod"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Método de pago</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar método de pago" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.entries(PaymentMethodLabel).map(([key, value]) => (
+                      <SelectItem key={key} value={key}>{value}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="paymentStatus"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Estado de pago</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar estado de pago" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.entries(PaymentStatusLabel).map(([key, value]) => (
+                      <SelectItem key={key} value={key}>{value}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+
           <div>
             <FormLabel>Productos</FormLabel>
             <Select onValueChange={(value) => handleAddProduct(Number(value))}>
@@ -218,7 +264,7 @@ export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
             <RHFSwitch name="isConfirmed" />
           </div>
         </div>
-        
+
         <Separator className="my-4" />
 
         {detectIfProductHasSpecialPrice && (
@@ -231,8 +277,8 @@ export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
                 {order.products
                   .filter(p => p.product.price !== p.price)
                   .map(p => (
-                    <div 
-                      key={p.productId} 
+                    <div
+                      key={p.productId}
                       className="flex flex-col space-y-1 p-3 rounded-md bg-background border border-border/50"
                     >
                       <p className="font-medium text-foreground">{p.product.name}</p>
@@ -242,7 +288,7 @@ export default function UpdateOrderForm({ order }: { order: OrderComplete }) {
                         <p className="font-medium text-primary">Precio especial: ${p.price}</p>
                       </div>
                     </div>
-                ))}
+                  ))}
               </div>
             </div>
             <Separator className="my-4" />

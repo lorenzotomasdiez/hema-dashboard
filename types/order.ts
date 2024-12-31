@@ -1,4 +1,4 @@
-import { OrderStatus, Product } from "@prisma/client"
+import { OrderStatus, PaymentMethod, PaymentStatus } from "@prisma/client"
 import { z } from "zod";
 import { CompleteOrderProduct, orderSchema } from "@/prisma/zod";
 import { createOrderSchema, updateOrderSchema } from "@/dto/order/create-order.dto";
@@ -33,29 +33,29 @@ export type GetOrdersResponse = {
   ordersCount: number;
 }
 
-export type OrderComplete = {
-  id: number;
-  status: OrderStatus;
-  toDeliverAt: Date | string | null;
-  createdAt: Date | string;
-  updatedAt: Date | string;
-  deliveredAt: Date | string | null;
-  deletedAt: Date | string | null;
-  clientId: string;
-  userId: string;
-  companyId: string;
-  total: number;
-  products: {
-    orderId: number;
-    productId: number;
-    quantity: number;
-    price: number;
-    product: Product;
-  }[];
-  isConfirmed: boolean;
-}
-
 export interface UpdateOrderStatusProps {
   id: number;
   status: OrderStatus;
+}
+
+type PaymentStatusLabelType = { [K in PaymentStatus]: string }
+
+type PaymentMethodLabelType = { [K in PaymentMethod]: string }
+
+export const PaymentStatusLabel: PaymentStatusLabelType = {
+  [PaymentStatus.PAID]: "Pagado",
+  [PaymentStatus.PENDING]: "Pendiente"
+}
+
+export const PaymentMethodLabel: PaymentMethodLabelType = {
+  [PaymentMethod.CASH]: "Efectivo",
+  [PaymentMethod.TRANSFER]: "Transferencia / Mercado Pago",
+  [PaymentMethod.CARD]: "Tarjeta",
+  [PaymentMethod.OTHER]: "Otro"
+}
+
+export interface OrderMarkAsDeliveredProps {
+  id: number;
+  paymentStatus: PaymentStatus;
+  paymentMethod: PaymentMethod;
 }
