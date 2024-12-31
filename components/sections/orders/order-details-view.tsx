@@ -7,11 +7,11 @@ import { es } from "date-fns/locale";
 import { BoxIcon, CalendarIcon, CheckCircle, ClockIcon, MapPinIcon, PhoneIcon, Ship, UserIcon } from 'lucide-react';
 import { useClientsQuery } from "@/lib/tanstack";
 import { moneyMask } from "@/lib/utils";
-import { OrderComplete } from "@/types";
 import { Separator } from "@/components/ui/separator";
+import { OrderWithProducts } from "@/types";
 
 interface OrderDetailsViewProps {
-  order: OrderComplete;
+  order: OrderWithProducts;
 }
 
 const statusColors: Record<OrderStatus, string> = {

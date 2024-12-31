@@ -19,7 +19,6 @@ interface DeliveryItemProps {
 export default function DeliveryItem({ order, isSelected, handleSelect }: DeliveryItemProps) {
 
   const handleSelectOrder = (e: React.MouseEvent) => {
-    if (order.status === OrderStatus['DELIVERED']) return;
     e.stopPropagation();
     if (handleSelect) {
       handleSelect(order.id);
@@ -34,15 +33,11 @@ export default function DeliveryItem({ order, isSelected, handleSelect }: Delive
       <CardContent className="p-4">
         <div className="space-y-3 md:space-y-0 md:flex md:items-center md:justify-between">
           <div className="flex items-start gap-3 md:items-center">
-            {
-              order.status !== OrderStatus['DELIVERED'] && (
-                <Checkbox
-                  checked={isSelected}
-                  onClick={handleSelectOrder}
-                  className="h-4 w-4 mt-1 md:mt-0"
-                />
-              )
-            }
+            <Checkbox
+              checked={isSelected}
+              onClick={handleSelectOrder}
+              className="h-4 w-4 mt-1 md:mt-0"
+            />
             <div>
               <p className="font-medium text-base md:text-lg">
                 {order.client.name.length > 30 ? `${order.client.name.slice(0, 30)}...` : order.client.name}
@@ -71,7 +66,7 @@ export default function DeliveryItem({ order, isSelected, handleSelect }: Delive
                   Detalles
                 </Button>
               </Link>
-              <DeliveryMarkAsDelivered orderIds={[order.id]} disabled={order.status === OrderStatus['DELIVERED']}>
+              <DeliveryMarkAsDelivered order={order} disabled={order.status === OrderStatus['DELIVERED']}>
                 <Button
                   variant="outline"
                   size="sm"
