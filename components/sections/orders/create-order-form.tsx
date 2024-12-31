@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from '@/components/ui/card'
 import { RHFDatePicker, RHFCombobox } from "@/components/rhf";
-import { CreateOrderDTO } from "@/types";
+import { CreateOrderDTO, PaymentMethodLabel, PaymentStatusLabel } from "@/types";
 import { useRouter } from "next/navigation";
 import { APP_PATH } from "@/config/path";
 import { Separator } from "@radix-ui/react-select";
@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createOrderSchema } from "@/dto/order/create-order.dto";
 import { Input } from "@/components/ui/input";
+import { PaymentMethod, PaymentStatus } from "@prisma/client";
 
 export default function CreateOrderForm() {
   const queryClient = useQueryClient();
@@ -38,7 +39,9 @@ export default function CreateOrderForm() {
       toDeliverAt: new Date(),
       status: "PENDING",
       products: [],
-      isConfirmed: false,
+      isConfirmed: true,
+      paymentMethod: PaymentMethod.CASH,
+      paymentStatus: PaymentStatus.PENDING,
     }
   })
 
@@ -137,6 +140,50 @@ export default function CreateOrderForm() {
                 <FormControl>
                   <RHFDatePicker {...field} />
                 </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="paymentMethod"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Método de pago</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar método de pago" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.entries(PaymentMethodLabel).map(([key, value]) => (
+                      <SelectItem key={key} value={key}>{value}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="paymentStatus"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Estado de pago</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar estado de pago" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.entries(PaymentStatusLabel).map(([key, value]) => (
+                      <SelectItem key={key} value={key}>{value}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </FormItem>
             )}
           />

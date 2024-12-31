@@ -131,7 +131,6 @@ model Client {
 enum PaymentMethod {
   CASH
   TRANSFER
-  MERCADO_PAGO
   CARD
   OTHER
 }

@@ -1,4 +1,4 @@
-import { CreateOrderDTO, GetOrdersParams, UpdateOrderDTO } from "@/types";
+import { CreateOrderDTO, GetOrdersParams, OrderMarkAsDeliveredProps, UpdateOrderDTO } from "@/types";
 import { API_ROUTES } from "@/lib/api/routes";
 import { responseHandler } from "../request";
 
@@ -45,10 +45,10 @@ export const deleteOrder = async (id: number) => {
   return await responseHandler(res);
 }
 
-export const orderMarkAsDelivered = async (orderIds: number[]) => {
+export const orderMarkAsDelivered = async (orders: OrderMarkAsDeliveredProps[]) => {
   const res = await fetch(API_ROUTES.orders.markAsDelivered, {
     method: "POST",
-    body: JSON.stringify({ orderIds })
+    body: JSON.stringify({ orders })
   });
   return await responseHandler(res);
 }

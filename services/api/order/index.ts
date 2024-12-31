@@ -1,5 +1,5 @@
 import { OrderRepository } from "@/repositories";
-import { CreateOrderDTO, GetOrdersParams, OrderComplete, UpdateOrderDTO } from "@/types";
+import { CreateOrderDTO, GetOrdersParams, OrderMarkAsDeliveredProps, OrderWithProducts, UpdateOrderDTO } from "@/types";
 import { StockRepository } from "@/repositories";
 
 export default class APIOrderService {
@@ -52,7 +52,7 @@ export default class APIOrderService {
     return newOrder;
   }
 
-  static async getOrderById(id: number, companyId: string): Promise<OrderComplete | null> {
+  static async getOrderById(id: number, companyId: string): Promise<OrderWithProducts | null> {
     const order = await OrderRepository.findById(id, companyId);
     return order;
   }
@@ -134,17 +134,17 @@ export default class APIOrderService {
   }
 
   static async markAsDelivered({
-    orderIds,
+    orders,
     companyId,
     isStockSystemEnabled
   }: {
-    orderIds: number[],
+    orders: OrderMarkAsDeliveredProps[],
     companyId: string,
     isStockSystemEnabled: boolean
   }) {
     if (isStockSystemEnabled) {
-      const currentOrders = await OrderRepository.findByIds(orderIds, companyId);
-      const orders = await OrderRepository.markAsDelivered(orderIds);
+      const currentOrders = await OrderRepository.findByIds(orders.map(order => order.id), companyId);
+      const ordersResult = await OrderRepository.markAsDelivered(orders);
       const pendingOrders = currentOrders.filter(order => order.status === 'PENDING');
       const productIds = pendingOrders.flatMap(order =>
         order.products.map(product => product.productId)
@@ -174,9 +174,9 @@ export default class APIOrderService {
         }
       }
 
-      return orders;
+      return ordersResult;
     }
-    return await OrderRepository.markAsDelivered(orderIds);;
+    return await OrderRepository.markAsDelivered(orders);
   }
 
   static async getMonthlyTotalIncome(startDate: Date, endDate: Date, companyId: string) {
