@@ -35,12 +35,11 @@ const PAYMENT_METHOD_MULTIPLIER: Record<PaymentMethod, number> = {
   [PaymentMethod.CASH]: 1,
   [PaymentMethod.CARD]: 1.041,
   [PaymentMethod.TRANSFER]: 1,
-  [PaymentMethod.QRPOINT]: 1.017,
-  [PaymentMethod.OTHER]: 1
+  [PaymentMethod.QRPOINT]: 1.017
 };
 
 export default function SellForm() {
-  
+
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const queryClient = useQueryClient();
   const addOrderMutation = AddOrderMutation(queryClient);
@@ -93,9 +92,9 @@ export default function SellForm() {
 
   const onSubmit = async (data: CreateSellType) => {
     const res = await addOrderMutation.mutateAsync(data);
-    if(res.id){
+    if (res.id) {
       reset();
-    }else{
+    } else {
       toast.error("Error al crear la venta");
     }
     setConfirmDialogOpen(false);
@@ -119,12 +118,12 @@ export default function SellForm() {
   const total = subTotal * PAYMENT_METHOD_MULTIPLIER[selectedPaymentMethod as PaymentMethod];
 
   return (
-    <Form {...form}>
-      <form
-        className="p-4"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <ScrollArea className="h-[calc(100vh-25rem)] w-full">
+    <ScrollArea className="h-[calc(100vh-25rem)] w-full">
+      <Form {...form}>
+        <form
+          className="p-4"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <div className="space-y-4 px-1">
             <RHFCombobox
               label="Cliente"
@@ -205,49 +204,49 @@ export default function SellForm() {
               })}
             </div>
           </div>
-        </ScrollArea>
-        <div className="mt-4 pt-4 border-t px-1">
-          <div className="flex justify-between items-center font-bold text-md">
-            <span>Subtotal:</span>
-            <span>{moneyMask(subTotal)}</span>
+          <div className="mt-4 pt-4 border-t px-1">
+            <div className="flex justify-between items-center font-bold text-md">
+              <span>Subtotal:</span>
+              <span>{moneyMask(subTotal)}</span>
+            </div>
+            {
+              PAYMENT_METHOD_MULTIPLIER[selectedPaymentMethod as PaymentMethod] > 1 && (
+                <div className="flex justify-between items-center font-bold text-md">
+                  <span>Recargo por {PaymentMethodLabel[selectedPaymentMethod as PaymentMethod]}: {((PAYMENT_METHOD_MULTIPLIER[selectedPaymentMethod as PaymentMethod] - 1) * 100).toFixed(1)}%</span>
+                  <span className="text-red-500">{moneyMask(subTotal * (PAYMENT_METHOD_MULTIPLIER[selectedPaymentMethod as PaymentMethod] - 1))}</span>
+                </div>
+              )
+            }
+            <div className="flex justify-between items-center font-bold text-xl">
+              <span>Total:</span>
+              <span className="text-green-500">{moneyMask(total)}</span>
+            </div>
           </div>
-          {
-            PAYMENT_METHOD_MULTIPLIER[selectedPaymentMethod as PaymentMethod] > 1 && (
-              <div className="flex justify-between items-center font-bold text-md">
-                <span>Recargo por {PaymentMethodLabel[selectedPaymentMethod as PaymentMethod]}: {((PAYMENT_METHOD_MULTIPLIER[selectedPaymentMethod as PaymentMethod] - 1) * 100).toFixed(1)}%</span>
-                <span className="text-red-500">{moneyMask(subTotal * (PAYMENT_METHOD_MULTIPLIER[selectedPaymentMethod as PaymentMethod] - 1))}</span>
-              </div>
-            )
-          }
-          <div className="flex justify-between items-center font-bold text-xl">
-            <span>Total:</span>
-            <span className="text-green-500">{moneyMask(total)}</span>
-          </div>
-        </div>
-        <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
-          <AlertDialogTrigger asChild>
-            <Button className="w-full mt-4" size="lg">Finalizar Venta</Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Confirmar Venta</AlertDialogTitle>
-              <AlertDialogDescription>
-                ¿Estás seguro que deseas finalizar esta venta por un total de {moneyMask(total)}?
-                Esta acción no se puede deshacer.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleSubmit(onSubmit)}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Enviando..." : "Confirmar Venta"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </form>
-    </Form>
+          <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+            <AlertDialogTrigger asChild>
+              <Button className="w-full mt-4" size="lg">Finalizar Venta</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmar Venta</AlertDialogTitle>
+                <AlertDialogDescription>
+                  ¿Estás seguro que deseas finalizar esta venta por un total de {moneyMask(total)}?
+                  Esta acción no se puede deshacer.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleSubmit(onSubmit)}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Enviando..." : "Confirmar Venta"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </form>
+      </Form>
+    </ScrollArea>
   );
 }

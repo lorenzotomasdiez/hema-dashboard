@@ -133,7 +133,6 @@ enum PaymentMethod {
   TRANSFER
   QRPOINT
   CARD
-  OTHER
 }
 
 enum PaymentStatus {

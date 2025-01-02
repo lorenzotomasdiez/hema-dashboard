@@ -52,7 +52,6 @@ export const PaymentMethodLabel: PaymentMethodLabelType = {
   [PaymentMethod.TRANSFER]: "Transferencia / Alias Mercado Pago",
   [PaymentMethod.QRPOINT]: "QR Point",
   [PaymentMethod.CARD]: "Tarjeta Debito",
-  [PaymentMethod.OTHER]: "Otro",
 }
 
 export interface OrderMarkAsDeliveredProps {
