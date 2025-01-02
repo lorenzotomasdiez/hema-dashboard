@@ -118,7 +118,7 @@ export default function SellForm() {
   const total = subTotal * PAYMENT_METHOD_MULTIPLIER[selectedPaymentMethod as PaymentMethod];
 
   return (
-    <ScrollArea className="h-[calc(100vh-25rem)] w-full">
+    <ScrollArea className="h-full w-full">
       <Form {...form}>
         <form
           className="p-4"
@@ -224,7 +224,13 @@ export default function SellForm() {
           </div>
           <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
             <AlertDialogTrigger asChild>
-              <Button className="w-full mt-4" size="lg">Finalizar Venta</Button>
+              <Button
+                className="w-full mt-4"
+                size="lg"
+                disabled={isSubmitting || !selectedClient || !selectedProducts.length}
+              >
+                Finalizar Venta
+              </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -238,7 +244,7 @@ export default function SellForm() {
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleSubmit(onSubmit)}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !selectedClient || !selectedProducts.length}
                 >
                   {isSubmitting ? "Enviando..." : "Confirmar Venta"}
                 </AlertDialogAction>
