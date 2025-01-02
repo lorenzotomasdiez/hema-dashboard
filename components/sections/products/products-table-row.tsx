@@ -18,6 +18,7 @@ interface Props {
 export default function ProductsTableRow({ product, handleOpenDeleteConfirmation }: Props) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  
   const handleClickOpenDelete = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
     handleOpenDeleteConfirmation(product.id);
@@ -46,6 +47,11 @@ export default function ProductsTableRow({ product, handleOpenDeleteConfirmation
               onClick={() => router.push(APP_PATH.protected.products.update(product.slug))}
             >
               Ver Detalles
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => router.push(APP_PATH.protected.stock.details(product.id))}
+            >
+              Ver Stock
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

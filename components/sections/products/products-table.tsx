@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react"
-import { Loader2 } from "lucide-react"
+import { Loader2, Search } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -17,14 +17,18 @@ import Link from "next/link";
 import { APP_PATH } from "@/config/path";
 import { Button } from "@/components/ui/button";
 import { useProductsQuery } from "@/lib/tanstack/useProducts";
+import { Input } from "@/components/ui/input";
 
 export default function ProductsTable() {
   const [openDeleteConfirmation, setOpenDeleteConfirmation] = React.useState<number | null>(null);
+  const [keywordInput, setKeywordInput] = React.useState<string>("");
   const products = useProductsQuery();
 
   const handleOpenDeleteConfirmation = (id: number) => {
     setOpenDeleteConfirmation(id);
   }
+
+  const filteredProducts = products.data?.filter(product => product.name.toLowerCase().includes(keywordInput.toLowerCase()));
 
   return (
     <Card className="w-full max-w-4xl mx-auto dark:bg-neutral-900">
@@ -44,12 +48,14 @@ export default function ProductsTable() {
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between mb-6">
-          <div className="relative w-72">
-            {/* <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <div className="relative w-full md:w-72">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar producto..."
+              placeholder="Ingrese un nombre de cliente..."
               className="pl-8"
-            /> */}
+              onChange={(e) => setKeywordInput(e.target.value)}
+              value={keywordInput}
+            />
           </div>
         </div>
         <div className="rounded-md border border-gray-200 dark:border-gray-700">
@@ -69,7 +75,7 @@ export default function ProductsTable() {
                     <ProductsTableRowSkeleton key={e} />
                   ))
               ) :
-                products.data?.map((product) => (
+                filteredProducts?.map((product) => (
                   <React.Fragment key={product.id}>
                     <ProductsTableRow
                       key={product.id}
