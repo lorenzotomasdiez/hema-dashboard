@@ -131,6 +131,7 @@ model Client {
 enum PaymentMethod {
   CASH
   TRANSFER
+  QRPOINT
   CARD
   OTHER
 }
