@@ -33,8 +33,9 @@ import { toast } from "sonner";
 
 const PAYMENT_METHOD_MULTIPLIER: Record<PaymentMethod, number> = {
   [PaymentMethod.CASH]: 1,
-  [PaymentMethod.CARD]: 1.1,
+  [PaymentMethod.CARD]: 1.041,
   [PaymentMethod.TRANSFER]: 1,
+  [PaymentMethod.QRPOINT]: 1.017,
   [PaymentMethod.OTHER]: 1
 };
 
