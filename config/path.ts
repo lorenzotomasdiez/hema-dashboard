@@ -31,6 +31,9 @@ export const APP_PATH = {
     stock: {
       root: "/stock",
       details: (id: number) => `/stock/${id}`
+    },
+    sell: {
+      root: "/sell"
     }
   }
 }

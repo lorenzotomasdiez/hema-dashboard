@@ -96,10 +96,13 @@ export const AddClientMutation = (queryKey: QueryKey, queryClient: QueryClient) 
       await queryClient.cancelQueries({ queryKey: queryKey });
       const previousClients = queryClient.getQueryData(queryKey);
       queryClient.setQueryData(queryKey,
-        (old: CreateClientType[]) => [
-          { ...clientData, ordersTotal: 0, id: new Date().getTime().toString() },
-          ...old
-        ]
+        (old: CreateClientType[]) =>
+          old ? [
+            { ...clientData, ordersTotal: 0, id: new Date().getTime().toString() },
+            ...old
+          ] : [
+            { ...clientData, ordersTotal: 0, id: new Date().getTime().toString() }
+          ]
       );
       return { previousClients }
     },
@@ -111,6 +114,7 @@ export const AddClientMutation = (queryKey: QueryKey, queryClient: QueryClient) 
       toast.error("Error al agregar el cliente", {
         description: err.message
       });
+      console.log(err);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.clients.full });
