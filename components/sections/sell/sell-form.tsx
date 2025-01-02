@@ -158,17 +158,21 @@ export default function SellForm() {
                 </FormItem>
               )}
             />
-            <div className="mt-4 pt-4 border-t px-1">
-              <div className="flex justify-between items-center font-bold text-md">
-                <span>Paga con:</span>
-              </div>
-              <Input
-                type="number"
-                value={payWith || ''}
-                onChange={(e) => setPayWith(e.target.value ? Number(e.target.value) : undefined)}
-                className="w-full no-spinner text-xl h-10"
-              />
-            </div>
+            {
+              selectedPaymentMethod === PaymentMethod.CASH && (
+                <div className="mt-4 pt-4 border-t px-1">
+                  <div className="flex justify-between items-center font-bold text-md">
+                    <span>Paga con:</span>
+                  </div>
+                  <Input
+                    type="number"
+                    value={payWith || ''}
+                    onChange={(e) => setPayWith(e.target.value ? Number(e.target.value) : undefined)}
+                    className="w-full no-spinner text-xl h-10"
+                  />
+                </div>
+              )
+            }
             <div className="space-y-2 px-1">
               <h2 className="font-semibold">Productos Seleccionados:</h2>
               {selectedProducts.map(product => {
