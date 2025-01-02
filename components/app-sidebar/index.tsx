@@ -18,7 +18,7 @@ import AppSidebarItem from "./sidebar-item";
 
 import { UserRole } from "@prisma/client";
 import { APP_PATH } from "@/config/path";
-import { Building, Cog, DollarSign, Inbox, LayoutList, LucideIcon, Package, PackageIcon, Truck, UserSearch } from "lucide-react";
+import { Building, Cog, DollarSign, Inbox, LayoutList, LucideIcon, Package, Truck, UserSearch } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 
@@ -54,6 +54,17 @@ export const defaultLinks: SidebarLink[] = [
       UserRole.ADMIN,
       UserRole.COMPANY_OWNER,
       UserRole.COMPANY_ADMIN,
+    ]
+  },
+  {
+    href: APP_PATH.protected.sell.root,
+    title: "Vender",
+    icon: DollarSign,
+    roles: [
+      UserRole.ADMIN,
+      UserRole.COMPANY_OWNER,
+      UserRole.COMPANY_ADMIN,
+      UserRole.COMPANY_WORKER,
     ]
   },
   {
