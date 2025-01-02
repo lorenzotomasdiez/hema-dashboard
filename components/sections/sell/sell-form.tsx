@@ -41,6 +41,7 @@ const PAYMENT_METHOD_MULTIPLIER: Record<PaymentMethod, number> = {
 export default function SellForm() {
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [payWith, setPayWith] = useState<number | undefined>(undefined);
   const queryClient = useQueryClient();
   const addOrderMutation = AddOrderMutation(queryClient);
   const { data: clients } = useClientsQuery();
@@ -157,6 +158,17 @@ export default function SellForm() {
                 </FormItem>
               )}
             />
+            <div className="mt-4 pt-4 border-t px-1">
+              <div className="flex justify-between items-center font-bold text-md">
+                <span>Paga con:</span>
+              </div>
+              <Input
+                type="number"
+                value={payWith || ''}
+                onChange={(e) => setPayWith(e.target.value ? Number(e.target.value) : undefined)}
+                className="w-full no-spinner text-xl h-10"
+              />
+            </div>
             <div className="space-y-2 px-1">
               <h2 className="font-semibold">Productos Seleccionados:</h2>
               {selectedProducts.map(product => {
@@ -220,6 +232,12 @@ export default function SellForm() {
             <div className="flex justify-between items-center font-bold text-xl">
               <span>Total:</span>
               <span className="text-green-500">{moneyMask(total)}</span>
+            </div>
+          </div>
+          <div className="mt-4 pt-4 border-t px-1">
+            <div className="flex justify-between items-center font-bold text-md text-blue-500">
+              <span>Cambio:</span>
+              <span>{moneyMask(payWith ? payWith - total : 0)}</span>
             </div>
           </div>
           <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
