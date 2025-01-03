@@ -8,7 +8,8 @@ export const API_ROUTES = {
     config: "/api/companies/config"
   },
   expenses:{
-    root: "/api/expenses"
+    root: "/api/expenses",
+    id: (id: number) => `/api/expenses/${id}`
   },
   orders: {
     root: "/api/orders",

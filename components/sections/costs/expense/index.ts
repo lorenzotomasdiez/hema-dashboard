@@ -1,0 +1,1 @@
+export { default as CompanyExpenseSection } from "./company-expense";
