@@ -1,12 +1,12 @@
 import { toast } from "sonner"
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys"
-import { addCompanyExpense, deleteCompanyExpense, disableCompanyExpense, getCompanyExpenses } from "@/services/expenses"
+import { addCompanyExpense, deleteCompanyExpense, disableCompanyExpense, getCompanyExpenses, updateCompanyExpense } from "@/services/expenses"
 import { CompanyExpense } from "@prisma/client"
-import { CreateCompanyExpenseDTO } from "@/types/expense"
+import { CompanyExpenseComplete, CreateCompanyExpenseDTO, UpdateCompanyExpenseDTO } from "@/types/expense"
 
 export const useCompanyExpensesQuery = () => {
-  return useQuery<CompanyExpense[]>({
+  return useQuery<CompanyExpenseComplete[]>({
     queryKey: QUERY_KEYS.expenses.root,
     queryFn: getCompanyExpenses,
     staleTime: 1000 * 60
@@ -33,6 +33,31 @@ export const AddCompanyExpenseMutation = (queryClient: QueryClient) => {
     onError: (err, _client, context) => {
       queryClient.setQueryData(QUERY_KEYS.expenses.root, context?.previousExpenses)
       toast.error("Error al crear el costo", {
+        description: err.message
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.expenses.root });
+    }
+  })
+}
+
+export const UpdateCompanyExpenseMutation = (queryClient: QueryClient) => {
+  return useMutation({
+    mutationKey: ["updateCompanyExpense"],
+    mutationFn: (expense: UpdateCompanyExpenseDTO) => updateCompanyExpense(expense),
+    onMutate: async (expense: UpdateCompanyExpenseDTO) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.expenses.root });
+      const previousExpenses = queryClient.getQueryData<CompanyExpense[]>(QUERY_KEYS.expenses.root);
+      queryClient.setQueryData(QUERY_KEYS.expenses.root, previousExpenses?.map(e => e.id === expense.id ? expense : e));
+      return { previousExpenses };
+    },
+    onSuccess: () => {
+      toast.success("Costo actualizado correctamente!")
+    },
+    onError: (err, _client, context) => {
+      queryClient.setQueryData(QUERY_KEYS.expenses.root, context?.previousExpenses)
+      toast.error("Error al actualizar el costo", {
         description: err.message
       });
     },

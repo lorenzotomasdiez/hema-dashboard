@@ -1,6 +1,6 @@
 import { API_ROUTES } from "@/lib/api/routes";
 import { responseHandler } from "../request";
-import { CreateCompanyExpenseDTO } from "@/types/expense";
+import { CreateCompanyExpenseDTO, UpdateCompanyExpenseDTO } from "@/types/expense";
 
 export const getCompanyExpenses = async () => {
   const res = await fetch(API_ROUTES.expenses.root);
@@ -10,6 +10,14 @@ export const getCompanyExpenses = async () => {
 export const addCompanyExpense = async (expense: CreateCompanyExpenseDTO) => {
   const res = await fetch(API_ROUTES.expenses.root, {
     method: "POST",
+    body: JSON.stringify(expense)
+  });
+  return await responseHandler(res);
+}
+
+export const updateCompanyExpense = async (expense: UpdateCompanyExpenseDTO) => {
+  const res = await fetch(API_ROUTES.expenses.id(expense.id), {
+    method: "PATCH",
     body: JSON.stringify(expense)
   });
   return await responseHandler(res);

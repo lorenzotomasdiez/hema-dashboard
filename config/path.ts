@@ -25,7 +25,9 @@ export const APP_PATH = {
       update: (slug: string) => `/products/${slug}`
     },
     costs: {
-      root: "/costs"
+      root: "/costs",
+      products: "/costs/products",
+      general: "/costs/company-expense"
     },
     settings: "/settings",
     stock: {

@@ -1,37 +1,20 @@
 import * as z from "zod"
-import { Decimal } from "decimal.js"
 import { ExpenseCategory } from "@prisma/client"
-import { CompleteCompany, relatedCompanySchema } from "./index"
-
-// Helper schema for Decimal fields
-z
-  .instanceof(Decimal)
-  .or(z.string())
-  .or(z.number())
-  .refine((value) => {
-    try {
-      return new Decimal(value)
-    } catch (error) {
-      return false
-    }
-  })
-  .transform((value) => new Decimal(value))
+import { CompleteCompany, relatedCompanySchema, CompleteCompanyExpenseHistory, relatedCompanyExpenseHistorySchema } from "./index"
 
 export const companyExpenseSchema = z.object({
   id: z.number().int(),
   name: z.string(),
   companyId: z.string(),
-  date: z.date(),
-  amount: z.number(),
   description: z.string().nullish(),
   isMonthly: z.boolean(),
   category: z.nativeEnum(ExpenseCategory).nullish(),
   deletedAt: z.date().nullish(),
-  disabledFrom: z.date().nullish(),
 })
 
 export interface CompleteCompanyExpense extends z.infer<typeof companyExpenseSchema> {
   company: CompleteCompany
+  histories: CompleteCompanyExpenseHistory[]
 }
 
 /**
@@ -41,4 +24,5 @@ export interface CompleteCompanyExpense extends z.infer<typeof companyExpenseSch
  */
 export const relatedCompanyExpenseSchema: z.ZodSchema<CompleteCompanyExpense> = z.lazy(() => companyExpenseSchema.extend({
   company: relatedCompanySchema,
+  histories: relatedCompanyExpenseHistorySchema.array(),
 }))

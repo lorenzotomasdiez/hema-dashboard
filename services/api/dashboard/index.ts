@@ -71,7 +71,7 @@ export default class APIDashboardService {
 
   static async getMonthlyExpenses(startDate: Date, endDate: Date, companyId: string) {
     const expenses = await APIExpenseService.findAllByCompanyIdAndDate(companyId, startDate, endDate);
-    return expenses.reduce((acc, expense) => acc + Number(expense.amount), 0);
+    return expenses.reduce((acc, expense) => acc + Number(expense.histories?.find(history => history.validTo === null)?.amount), 0);
   }
 
   static async getOrderStatuses(companyId: string) {

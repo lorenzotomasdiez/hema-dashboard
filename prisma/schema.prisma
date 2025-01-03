@@ -235,17 +235,29 @@ model CompanyExpense {
   id            Int              @id @default(autoincrement())
   name          String
   companyId     String
-  date          DateTime         @default(now())
-  amount        Decimal          @db.Decimal(10, 2)
   description   String?
   isMonthly     Boolean          @default(false)
   category      ExpenseCategory?
-  deletedAt     DateTime?        
-  disabledFrom  DateTime?        
+  deletedAt     DateTime?
 
-  company Company @relation(fields: [companyId], references: [id])
+  company   Company                  @relation(fields: [companyId], references: [id])
+  histories CompanyExpenseHistory[]
 
   @@index([companyId])
+}
+
+model CompanyExpenseHistory {
+  id               Int      @id @default(autoincrement())
+  companyExpenseId Int
+  amount           Decimal  @db.Decimal(10, 2)
+  validFrom        DateTime @default(now())
+  validTo          DateTime?
+  createdAt        DateTime @default(now())
+
+  companyExpense CompanyExpense @relation(fields: [companyExpenseId], references: [id])
+
+  @@index([companyExpenseId])
+  @@index([validFrom, validTo])
 }
 
 enum ExpenseCategory {
